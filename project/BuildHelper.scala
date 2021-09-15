@@ -6,7 +6,7 @@ import BuildInfoKeys._
 object BuildHelper {
   private val Scala212             = "2.12.14"
   private val Scala213             = "2.13.6"
-  private val SilencerVersion      = "1.7.5"
+  private val SilencerVersion      = "1.7.6"
   private val KindProjectorVersion = "0.10.3"
 
   private val stdOptions = Seq(
