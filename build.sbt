@@ -31,35 +31,64 @@ inThisBuild(
 addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt")
 addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck")
 
-val zioVersion = "1.0.11"
+val zioVersion       = "1.0.9"
+val zioJsonVersion   = "0.2.0-M1"
+val zioSchemaVersion = "0.0.6"
 
 lazy val root =
   project
     .in(file("."))
     .settings(publish / skip := true)
-    .aggregate(zioLambda)
+    .aggregate(zioLambda, zioLambdaExample)
 
-lazy val zioLambda = module("zio-lambda", "core")
+lazy val zioLambda = module("zio-lambda", "lambda")
   .enablePlugins(BuildInfoPlugin)
   .settings(buildInfoSettings("zio.lambda"))
   .settings(
     libraryDependencies ++= Seq(
-      "dev.zio" %% "zio"          % zioVersion,
-      "dev.zio" %% "zio-test"     % zioVersion % "test",
-      "dev.zio" %% "zio-test-sbt" % zioVersion % "test"
+      "com.softwaremill.sttp.client3" %% "httpclient-backend" % "3.3.15"
     ),
-    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
+    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
+    stdSettings("zio-lambda"),
+    assembly / assemblyJarName := "zio-lambda.jar",
+    assembly / assemblyMergeStrategy := {
+      case "META-INF/io.netty.versions.properties" =>
+        MergeStrategy.concat
+      case x =>
+        val oldStrategy = (assembly / assemblyMergeStrategy).value
+        oldStrategy(x)
+    }
   )
+
+lazy val zioLambdaExample = module("zio-lambda-example", "example")
+  .enablePlugins(NativeImagePlugin)
+  .enablePlugins(BuildInfoPlugin)
+  .settings(buildInfoSettings("zio.lambda.example"))
   .settings(
-    stdSettings("zio-lambda")
+    stdSettings("zio-lambda-example"),
+    assembly / assemblyJarName := "zio-lambda-example.jar",
+    Compile / mainClass := Some("zio.lambda.example.SimpleHandler"),
+    nativeImageOptions ++= List("--no-fallback", "--enable-http"),
+    nativeImageOptions += s"-H:ReflectionConfigurationFiles=${target.value / "native-image-configs" / "reflect-config.json"}",
+    nativeImageOptions += s"-H:ConfigurationFileDirectories=${target.value / "native-image-configs"}",
+    nativeImageOptions += "-H:+JNI",
+    nativeImageOptions += "-H:+AllowIncompleteClasspath"
   )
+  .dependsOn(zioLambda)
 
 def module(moduleName: String, fileName: String): Project =
   Project(moduleName, file(fileName))
     .settings(stdSettings(moduleName))
     .settings(
+      assembly / assemblyExcludedJars := {
+        val cp = (assembly / fullClasspath).value
+        cp filter (_.data.getName.contains("scalaz-core"))
+      },
       libraryDependencies ++= Seq(
-        "dev.zio" %% "zio" % zioVersion
+        "dev.zio" %% "zio"          % zioVersion,
+        "dev.zio" %% "zio-test"     % zioVersion % "test",
+        "dev.zio" %% "zio-test-sbt" % zioVersion % "test",
+        "dev.zio" %% "zio-json"     % zioJsonVersion
       )
     )
 
