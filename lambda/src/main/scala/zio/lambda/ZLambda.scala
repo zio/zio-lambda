@@ -3,16 +3,16 @@ package zio.lambda
 import sttp.client3.HttpURLConnectionBackend
 import zio._
 import zio.blocking.Blocking
-import zio.console._
 import zio.json._
-import zio.lambda.RuntimeApi._
-import zio.lambda._
+import zio.runtime.LambdaEnvironment
+import zio.runtime.RuntimeApi
+import zio.runtime.ZRuntime
 
 /**
  * Implementation example:
  *
  * {{{
- * object KinesisLambda extends ZLambda[MyPayload, MyResponse] {
+ * object MyLambda extends ZLambda[MyPayload, MyResponse] {
  *  def handle(request: MyPayload): ZIO[ZEnv, Throwable, MyResponse] = ???
  * }
  *
@@ -35,39 +35,29 @@ import zio.lambda._
  * }
  * }}}
  */
-abstract class ZLambda[R, A](
-  implicit val lambdaEventDecoder: JsonDecoder[R],
+abstract class ZLambda[E, A](
+  implicit val lambdaEventDecoder: JsonDecoder[E],
   implicit val lambdaResponseEncoder: JsonEncoder[A]
 ) extends App {
 
-  def handle(event: R): ZIO[ZEnv, Throwable, A]
+  def handle(event: E): RIO[ZEnv, A]
 
   final override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
 
-    val runtimeApiLayer = (
-      LambdaEnvironment.live ++
-        Blocking.live ++
-        ZLayer.succeed(HttpURLConnectionBackend())
-    ) >>> RuntimeApiLive.layer
+    val runtimeApiLayer = (LambdaEnvironment.live ++
+      Blocking.live ++
+      ZLayer.succeed(HttpURLConnectionBackend())) >>> RuntimeApi.layer
 
-    val runtimeLayer = runtimeApiLayer ++ Console.live
+    ZRuntime.processInvocation { json =>
+      lambdaEventDecoder.decodeJson(json) match {
+        case Left(errorMessage) =>
+          ZIO.fail(new Throwable(s"Error decoding json. Json=$json, Error$errorMessage"))
 
-    nextInvocation()
-      .flatMap(request =>
-        (lambdaEventDecoder.decodeJson(request.payload) match {
-          case Left(errorMessage) =>
-            ZIO.fail(new Throwable(s"Error decoding payload. Payload=${request.payload}, Error$errorMessage"))
-
-          case Right(event) =>
-            handle(event)
-              .map(_.toJson)
-              .flatMap(invocationResponse(request.id, _))
-
-        }).tapError(throwable => invocationError(request.id, InvocationError.fromThrowable(throwable)))
-      )
-      .forever
-      .tapError(throwable => initializationError(InvocationError.fromThrowable(throwable)))
-      .provideCustomLayer(runtimeLayer)
-      .exitCode
+        case Right(event) => handle(event).map(_.toJson)
+      }
+    }.provideCustomLayer(
+      runtimeApiLayer >>> ZRuntime.layer
+    ).exitCode
   }
+
 }

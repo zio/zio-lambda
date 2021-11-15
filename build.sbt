@@ -31,9 +31,10 @@ inThisBuild(
 addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt")
 addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck")
 
-val zioVersion       = "1.0.9"
+val zioVersion       = "1.0.11"
 val zioJsonVersion   = "0.2.0-M1"
 val zioSchemaVersion = "0.0.6"
+val sttpVersion      = "3.3.15"
 
 lazy val root =
   project
@@ -45,29 +46,23 @@ lazy val zioLambda = module("zio-lambda", "lambda")
   .enablePlugins(BuildInfoPlugin)
   .settings(buildInfoSettings("zio.lambda"))
   .settings(
+    stdSettings("zio-lambda"),
     libraryDependencies ++= Seq(
-      "com.softwaremill.sttp.client3" %% "httpclient-backend" % "3.3.15"
+      "com.softwaremill.sttp.client3" %% "httpclient-backend" % sttpVersion
     ),
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
-    stdSettings("zio-lambda"),
-    assembly / assemblyJarName := "zio-lambda.jar",
-    assembly / assemblyMergeStrategy := {
-      case "META-INF/io.netty.versions.properties" =>
-        MergeStrategy.concat
-      case x =>
-        val oldStrategy = (assembly / assemblyMergeStrategy).value
-        oldStrategy(x)
-    }
+    assembly / assemblyJarName := "zio-lambda.jar"
   )
+  .dependsOn(zioRuntime)
+  .dependsOn(zioLambdaShared)
 
-lazy val zioLambdaExample = module("zio-lambda-example", "example")
+lazy val zioLambdaExample = module("zio-lambda-example", "lambda-example")
   .enablePlugins(NativeImagePlugin)
   .enablePlugins(BuildInfoPlugin)
   .settings(buildInfoSettings("zio.lambda.example"))
   .settings(
     stdSettings("zio-lambda-example"),
     assembly / assemblyJarName := "zio-lambda-example.jar",
-    Compile / mainClass := Some("zio.lambda.example.SimpleHandler"),
     nativeImageOptions ++= List("--no-fallback", "--enable-http"),
     nativeImageOptions += s"-H:ReflectionConfigurationFiles=${target.value / "native-image-configs" / "reflect-config.json"}",
     nativeImageOptions += s"-H:ConfigurationFileDirectories=${target.value / "native-image-configs"}",
@@ -75,6 +70,48 @@ lazy val zioLambdaExample = module("zio-lambda-example", "example")
     nativeImageOptions += "-H:+AllowIncompleteClasspath"
   )
   .dependsOn(zioLambda)
+
+lazy val zioRuntime = module("zio-runtime", "runtime")
+  .enablePlugins(BuildInfoPlugin)
+  .settings(buildInfoSettings("zio.runtime"))
+  .settings(stdSettings("zio-runtime"))
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.softwaremill.sttp.client3" %% "httpclient-backend" % "3.3.15"
+    ),
+    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
+    assembly / assemblyJarName := "zio-runtime.jar",
+    assembly / assemblyMergeStrategy := {
+      case "META-INF/io.netty.versions.properties" =>
+        MergeStrategy.concat
+      case x => (assembly / assemblyMergeStrategy).value(x)
+    }
+  )
+  .dependsOn(zioLambdaShared)
+  .dependsOn(zioRuntimeLambda)
+
+lazy val zioRuntimeLambda = module("zio-runtime-lambda", "runtime-lambda")
+  .enablePlugins(BuildInfoPlugin)
+  .settings(buildInfoSettings("zio.runtime.lambda"))
+  .settings(stdSettings("zio-runtime"))
+  .settings(testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")))
+  .dependsOn(zioLambdaShared)
+
+lazy val zioRuntimeLambdaExample = module("zio-runtime-lambda-example", "runtime-lambda-example")
+  .enablePlugins(NativeImagePlugin)
+  .enablePlugins(BuildInfoPlugin)
+  .settings(buildInfoSettings("zio.runtime.lambda.example"))
+  .settings(
+    stdSettings("zio-runtime-lambda-example"),
+    assembly / assemblyJarName := "zio-runtime-lambda-example.jar"
+  )
+  .dependsOn(zioRuntimeLambda)
+
+lazy val zioLambdaShared = module("zio-lambda-shared", "shared")
+  .enablePlugins(BuildInfoPlugin)
+  .settings(buildInfoSettings("zio.lambda.shared"))
+  .settings(stdSettings("zio-lambda-shared"))
+  .settings(testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")))
 
 def module(moduleName: String, fileName: String): Project =
   Project(moduleName, file(fileName))
