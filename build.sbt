@@ -39,7 +39,14 @@ lazy val root =
   project
     .in(file("."))
     .settings(publish / skip := true)
-    .aggregate(zioLambda, zioLambdaExample)
+    .aggregate(
+      zioLambda,
+      zioLambdaExample,
+      zioRuntime,
+      zioRuntimeLambda,
+      zioRuntimeLambdaExample,
+      zioLambdaShared
+    )
 
 lazy val zioLambda = module("zio-lambda", "lambda")
   .enablePlugins(BuildInfoPlugin)
