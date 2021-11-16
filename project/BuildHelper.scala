@@ -5,8 +5,8 @@ import BuildInfoKeys._
 
 object BuildHelper {
   private val Scala212             = "2.12.14"
-  private val Scala213             = "2.13.7"
-  private val SilencerVersion      = "1.7.5"
+  private val Scala213             = "2.13.6"
+  private val SilencerVersion      = "1.7.7"
   private val KindProjectorVersion = "0.10.3"
 
   private val stdOptions = Seq(
@@ -31,7 +31,6 @@ object BuildHelper {
     "-Wvalue-discard",
     "-Wunused:patvars",
     "-Wunused:privates",
-    "-Wunused:params",
     "-Wvalue-discard"
   )
 
