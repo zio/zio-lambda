@@ -16,7 +16,7 @@ final case class LambdaLoaderLive(environment: LambdaEnvironment, blocking: Bloc
   override def loadLambda(): Task[ZLambda[_, _]] =
     ZManaged
       .make(blocking.effectBlocking(Files.list(Paths.get(environment.taskRoot))))(stream => ZIO.succeed(stream.close()))
-      .use { stream =>
+      .use[Any, Throwable, ZLambda[_, _]] { stream =>
         val classLoader = new URLClassLoader(
           stream
             .iterator()

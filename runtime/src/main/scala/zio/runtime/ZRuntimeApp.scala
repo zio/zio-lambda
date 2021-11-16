@@ -4,8 +4,6 @@ import sttp.client3._
 import zio._
 import zio.blocking.Blocking
 import zio.console._
-import zio.runtime.LambdaLoader
-import zio.runtime.RuntimeApi
 
 object ZRuntimeApp extends App {
 

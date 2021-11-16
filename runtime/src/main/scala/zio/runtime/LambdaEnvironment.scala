@@ -2,6 +2,7 @@ package zio.runtime
 
 import zio._
 import zio.system._
+import scala.util.Try
 
 final case class LambdaEnvironment(
   lambdaClass: String,
@@ -23,7 +24,7 @@ object LambdaEnvironment {
       memoryLimit <-
         envOrElse("AWS_LAMBDA_FUNCTION_MEMORY_SIZE", "0").map {
           case ""         => 0
-          case memorySize => memorySize.toIntOption.getOrElse(0)
+          case memorySize => Try(memorySize.toInt).toOption.getOrElse(0)
         }
       logGroupName    <- envOrElse("AWS_LAMBDA_LOG_GROUP_NAME", "")
       logStreamName   <- envOrElse("AWS_LAMBDA_LOG_STREAM_NAME", "")
