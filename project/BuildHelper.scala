@@ -31,7 +31,6 @@ object BuildHelper {
     "-Wvalue-discard",
     "-Wunused:patvars",
     "-Wunused:privates",
-    "-Wunused:params",
     "-Wvalue-discard"
   )
 
