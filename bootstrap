@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# Bootstrap file to run ZIO-Lambda's runtime as a layer and will be include as part of the universal:packageBin
+# https://www.scala-sbt.org/sbt-native-packager/formats/universal.html#mapping-examples
+
+set -euo pipefail
+
+/opt/bin/./zio-lambda

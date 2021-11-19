@@ -1,14 +1,12 @@
 package zio.lambda
 
-import sttp.client3.HttpURLConnectionBackend
 import zio._
 import zio.blocking.Blocking
 import zio.json._
-import zio.runtime.LambdaEnvironment
-import zio.runtime.RuntimeApi
-import zio.runtime.ZRuntime
 
 /**
+ * Class to be extended by the Lambda's function.
+ *
  * Implementation example:
  *
  * {{{
@@ -38,26 +36,30 @@ import zio.runtime.ZRuntime
 abstract class ZLambda[E, A](
   implicit val lambdaEventDecoder: JsonDecoder[E],
   implicit val lambdaResponseEncoder: JsonEncoder[A]
-) extends App {
+) extends App { self =>
 
   def handle(event: E): RIO[ZEnv, A]
 
   final override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
+    val runtimeApiLayer = (
+      LambdaEnvironment.live ++
+        Blocking.live ++
+        SttpClient.layer
+    ) >>> RuntimeApi.layer
 
-    val runtimeApiLayer = (LambdaEnvironment.live ++
-      Blocking.live ++
-      ZLayer.succeed(HttpURLConnectionBackend())) >>> RuntimeApi.layer
-
-    ZRuntime.processInvocation { json =>
-      lambdaEventDecoder.decodeJson(json) match {
-        case Left(errorMessage) =>
-          ZIO.fail(new Throwable(s"Error decoding json. Json=$json, Error$errorMessage"))
-
-        case Right(event) => handle(event).map(_.toJson)
-      }
-    }.provideCustomLayer(
-      runtimeApiLayer >>> ZRuntime.layer
-    ).exitCode
+    ZRuntime
+      .processInvocation(Right(self))
+      .provideCustomLayer(runtimeApiLayer >>> ZRuntime.layer)
+      .forever
+      .exitCode
   }
+
+  final def runHandler(json: String): RIO[ZEnv, String] =
+    lambdaEventDecoder.decodeJson(json) match {
+      case Left(errorMessage) =>
+        ZIO.fail(new Throwable(s"Error decoding json. Json=$json, Error$errorMessage"))
+
+      case Right(event) => handle(event).map(_.toJson)
+    }
 
 }
