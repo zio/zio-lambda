@@ -1,7 +1,8 @@
-package zio.lambda
+package zio.lambda.internal
 
 import zio._
 import zio.json._
+import zio.lambda.ZLambda
 
 final case class CustomPayload(value: String)
 object CustomPayload {
@@ -14,16 +15,12 @@ object CustomResponse {
   implicit val encoder: JsonEncoder[CustomResponse] = DeriveJsonEncoder.gen[CustomResponse]
 }
 
-object TestZLambda {
+object SuccessZLambda extends ZLambda[CustomPayload, CustomResponse] {
+  override def handle(event: CustomPayload): RIO[ZEnv, CustomResponse] =
+    ZIO.succeed(CustomResponse(event.value))
+}
 
-  object Success extends ZLambda[CustomPayload, CustomResponse] {
-    override def handle(event: CustomPayload): RIO[ZEnv, CustomResponse] =
-      ZIO.succeed(CustomResponse(event.value))
-  }
-
-  object Error extends ZLambda[CustomPayload, CustomResponse] {
-    override def handle(event: CustomPayload): RIO[ZEnv, CustomResponse] =
-      ZIO.fail(new Throwable("ZLambda error"))
-  }
-
+object ErrorZLambda extends ZLambda[CustomPayload, CustomResponse] {
+  override def handle(event: CustomPayload): RIO[ZEnv, CustomResponse] =
+    ZIO.fail(new Throwable("ZLambda error"))
 }

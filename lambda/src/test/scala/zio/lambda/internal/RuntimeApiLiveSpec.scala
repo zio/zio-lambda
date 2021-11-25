@@ -1,4 +1,4 @@
-package zio.lambda
+package zio.lambda.internal
 
 import sttp.client3._
 import sttp.client3.testing._

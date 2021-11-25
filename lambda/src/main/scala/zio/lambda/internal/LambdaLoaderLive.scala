@@ -1,17 +1,16 @@
-package zio.lambda
+package zio.lambda.internal
 
 import zio._
 import zio.blocking._
-import zio.console._
-import zio.lambda.LambdaLoader.Error
+import zio.lambda.ZLambda
+import zio.lambda.internal.LambdaLoader.Error
 
 import java.net.URLClassLoader
 import java.nio.file.Files
 import java.nio.file.Paths
 import scala.jdk.CollectionConverters._
 
-final case class LambdaLoaderLive(environment: LambdaEnvironment, blocking: Blocking.Service, console: Console.Service)
-    extends LambdaLoader {
+final case class LambdaLoaderLive(environment: LambdaEnvironment, blocking: Blocking.Service) extends LambdaLoader {
 
   override def loadLambda(): UIO[Either[Error, ZLambda[_, _]]] =
     (for {

@@ -1,6 +1,7 @@
-package zio.lambda
+package zio.lambda.internal
 
 import zio._
+import zio.lambda.ZLambda
 
 final case class ZRuntimeLive(runtimeApi: RuntimeApi) extends ZRuntime {
 

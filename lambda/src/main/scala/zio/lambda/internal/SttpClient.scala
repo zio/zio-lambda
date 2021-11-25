@@ -1,4 +1,4 @@
-package zio.lambda
+package zio.lambda.internal
 
 import okhttp3.OkHttpClient
 import sttp.client3._

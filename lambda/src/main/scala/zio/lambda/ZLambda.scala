@@ -1,6 +1,10 @@
 package zio.lambda
 
 import zio._
+import zio.lambda.internal.LambdaEnvironment
+import zio.lambda.internal.SttpClient
+import zio.lambda.internal.RuntimeApi
+import zio.lambda.internal.ZRuntime
 import zio.blocking.Blocking
 import zio.json._
 

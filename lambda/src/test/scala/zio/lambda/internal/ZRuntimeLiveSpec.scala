@@ -1,4 +1,4 @@
-package zio.lambda
+package zio.lambda.internal
 
 import zio.test._
 import zio.test.Assertion._
@@ -17,7 +17,7 @@ object ZRuntimeLiveSpec extends DefaultRunnableSpec {
                    payload = CustomPayload(invocationRequest.payload).toJson
                  )
                )
-          _                      <- ZRuntime.processInvocation(Right(TestZLambda.Success))
+          _                      <- ZRuntime.processInvocation(Right(SuccessZLambda))
           invocationResponseSent <- TestRuntimeApi.getInvocationResponse()
         } yield assert(invocationResponseSent)(
           equalTo(
@@ -63,7 +63,7 @@ object ZRuntimeLiveSpec extends DefaultRunnableSpec {
                    payload = CustomPayload(invocationRequest.payload).toJson
                  )
                )
-          _ <- ZRuntime.processInvocation(Right(TestZLambda.Error))
+          _ <- ZRuntime.processInvocation(Right(ErrorZLambda))
           _ <- TestRuntimeApi.getInvocationError()
 
         } yield assertCompletes).provideCustomLayer(zRuntimeLayer)

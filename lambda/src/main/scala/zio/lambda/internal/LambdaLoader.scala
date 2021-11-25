@@ -1,8 +1,8 @@
-package zio.lambda
+package zio.lambda.internal
 
 import zio._
 import zio.blocking._
-import zio.console._
+import zio.lambda.ZLambda
 
 trait LambdaLoader {
   def loadLambda(): UIO[Either[LambdaLoader.Error, ZLambda[_, _]]]
@@ -24,8 +24,8 @@ object LambdaLoader {
     }
   }
 
-  val layer: URLayer[Has[LambdaEnvironment] with Blocking with Console, Has[LambdaLoader]] =
-    (LambdaLoaderLive(_, _, _)).toLayer
+  val layer: URLayer[Has[LambdaEnvironment] with Blocking, Has[LambdaLoader]] =
+    (LambdaLoaderLive(_, _)).toLayer
 
   def loadLambda(): URIO[Has[LambdaLoader], Either[LambdaLoader.Error, ZLambda[_, _]]] =
     ZIO.serviceWith(_.loadLambda())

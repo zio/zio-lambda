@@ -1,4 +1,4 @@
-package zio.lambda
+package zio.lambda.internal
 
 import zio.random.Random
 import zio.test._

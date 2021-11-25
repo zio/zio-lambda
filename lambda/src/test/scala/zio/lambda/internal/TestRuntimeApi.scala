@@ -1,4 +1,4 @@
-package zio.lambda
+package zio.lambda.internal
 
 import zio._
 
@@ -15,7 +15,7 @@ object TestRuntimeApi {
     request: Option[InvocationRequest],
     response: Option[InvocationResponse],
     error: Option[InvocationError],
-    initError: Option[InvocationError]
+    initError: Option[InvocationErrorResponse]
   )
 
   final case class Test(invocationDataRef: Ref[InvocationData]) extends TestRuntimeApi with RuntimeApi {
@@ -43,7 +43,13 @@ object TestRuntimeApi {
             .mapError(Function.const(new Throwable("InvocationError not sent")))
         )
 
-    override def getInitializationError(): Task[InvocationErrorResponse] = ???
+    override def getInitializationError(): Task[InvocationErrorResponse] =
+      invocationDataRef.get
+        .flatMap(invocationData =>
+          ZIO
+            .fromOption(invocationData.initError)
+            .mapError(Function.const(new Throwable("InitializationError not sent")))
+        )
 
     override def getNextInvocation(): Task[InvocationRequest] =
       invocationDataRef.get

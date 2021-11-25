@@ -1,7 +1,7 @@
-package zio.lambda
+package zio.lambda.internal
 
 import zio.json._
-import zio.lambda.LambdaLoader.Error.Type._
+import zio.lambda.internal.LambdaLoader.Error.Type._
 
 final case class InvocationErrorResponse(
   errorMessage: String,

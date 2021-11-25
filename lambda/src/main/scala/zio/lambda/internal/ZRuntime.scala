@@ -1,6 +1,7 @@
-package zio.lambda
+package zio.lambda.internal
 
 import zio._
+import zio.lambda.ZLambda
 
 trait ZRuntime {
   def processInvocation(eitherZLambda: Either[LambdaLoader.Error, ZLambda[_, _]]): RIO[ZEnv, Unit]
