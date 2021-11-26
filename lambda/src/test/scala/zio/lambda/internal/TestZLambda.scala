@@ -3,6 +3,7 @@ package zio.lambda.internal
 import zio._
 import zio.json._
 import zio.lambda.ZLambda
+import zio.lambda.Context
 
 final case class CustomPayload(value: String)
 object CustomPayload {
@@ -16,11 +17,11 @@ object CustomResponse {
 }
 
 object SuccessZLambda extends ZLambda[CustomPayload, CustomResponse] {
-  override def handle(event: CustomPayload): RIO[ZEnv, CustomResponse] =
+  override def handle(event: CustomPayload, context: Context): RIO[ZEnv, CustomResponse] =
     ZIO.succeed(CustomResponse(event.value))
 }
 
 object ErrorZLambda extends ZLambda[CustomPayload, CustomResponse] {
-  override def handle(event: CustomPayload): RIO[ZEnv, CustomResponse] =
+  override def handle(event: CustomPayload, context: Context): RIO[ZEnv, CustomResponse] =
     ZIO.fail(new Throwable("ZLambda error"))
 }

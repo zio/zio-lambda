@@ -1,18 +1,20 @@
 package zio.lambda.internal
 
 import zio.json._
+import zio.lambda.ClientContext
+import zio.lambda.CognitoIdentity
 
 object InvocationRequestImplicits {
   implicit val idEncoder: JsonEncoder[InvocationRequest.Id] = DeriveJsonEncoder.gen[InvocationRequest.Id]
 
-  implicit val clientEncoder: JsonEncoder[InvocationRequest.ClientContext.Client] =
-    DeriveJsonEncoder.gen[InvocationRequest.ClientContext.Client]
+  implicit val clientEncoder: JsonEncoder[ClientContext.Client] =
+    DeriveJsonEncoder.gen[ClientContext.Client]
 
-  implicit val clientContextEncoder: JsonEncoder[InvocationRequest.ClientContext] =
-    DeriveJsonEncoder.gen[InvocationRequest.ClientContext]
+  implicit val clientContextEncoder: JsonEncoder[ClientContext] =
+    DeriveJsonEncoder.gen[ClientContext]
 
-  implicit val cognitoIdentityEncoder: JsonEncoder[InvocationRequest.CognitoIdentity] =
-    DeriveJsonEncoder.gen[InvocationRequest.CognitoIdentity]
+  implicit val cognitoIdentityEncoder: JsonEncoder[CognitoIdentity] =
+    DeriveJsonEncoder.gen[CognitoIdentity]
 
   implicit val invocationRequestEncoder: JsonEncoder[InvocationRequest] = DeriveJsonEncoder.gen[InvocationRequest]
 }

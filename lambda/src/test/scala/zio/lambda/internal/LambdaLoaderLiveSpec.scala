@@ -12,7 +12,7 @@ object LambdaLoaderLiveSpec extends DefaultRunnableSpec {
     suite("LambdaLoaderLive unit tests")(
       testM("should return Error.UserError if taskRoot is None") {
         val lambdaEnvironmentLayer = ZLayer.succeed(
-          LambdaEnvironment("", None, None, None, None, None, None, None)
+          LambdaEnvironment("", None, None, 128, None, None, None, None)
         )
 
         val lambdaLoaderLayer = (lambdaEnvironmentLayer ++ Blocking.live) >>> LambdaLoader.layer
@@ -24,7 +24,7 @@ object LambdaLoaderLiveSpec extends DefaultRunnableSpec {
       },
       testM("should return Error.UserError if Function Handler is None") {
         val lambdaEnvironmentLayer = ZLayer.succeed(
-          LambdaEnvironment("", None, Some("/opt"), None, None, None, None, None)
+          LambdaEnvironment("", None, Some("/opt"), 128, None, None, None, None)
         )
 
         val lambdaLoaderLayer = (lambdaEnvironmentLayer ++ Blocking.live) >>> LambdaLoader.layer

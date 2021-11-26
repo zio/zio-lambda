@@ -42,7 +42,7 @@ abstract class ZLambda[E, A](
   implicit val lambdaResponseEncoder: JsonEncoder[A]
 ) extends App { self =>
 
-  def handle(event: E): RIO[ZEnv, A]
+  def handle(event: E, context: Context): RIO[ZEnv, A]
 
   final override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
     val runtimeApiLayer = (
@@ -53,17 +53,17 @@ abstract class ZLambda[E, A](
 
     ZRuntime
       .processInvocation(Right(self))
-      .provideCustomLayer(runtimeApiLayer >>> ZRuntime.layer)
       .forever
+      .provideCustomLayer((runtimeApiLayer ++ LambdaEnvironment.live) >>> ZRuntime.layer)
       .exitCode
   }
 
-  final def runHandler(json: String): RIO[ZEnv, String] =
+  final def runHandler(json: String, context: Context): RIO[ZEnv, String] =
     lambdaEventDecoder.decodeJson(json) match {
       case Left(errorMessage) =>
         ZIO.fail(new Throwable(s"Error decoding json. Json=$json, Error$errorMessage"))
 
-      case Right(event) => handle(event).map(_.toJson)
+      case Right(event) => handle(event, context).map(_.toJson)
     }
 
 }

@@ -2,6 +2,8 @@ package zio.lambda.internal
 
 import zio.random.Random
 import zio.test._
+import zio.lambda.ClientContext
+import zio.lambda.CognitoIdentity
 
 object InvocationRequestGen {
 
@@ -12,7 +14,7 @@ object InvocationRequestGen {
       appVersionName <- Gen.anyString
       appVersionCode <- Gen.anyString
       appPackageName <- Gen.anyString
-    } yield InvocationRequest.ClientContext.Client(
+    } yield ClientContext.Client(
       installationId = installationId,
       appTitle = appTitle,
       appVersionName = appVersionName,
@@ -25,7 +27,7 @@ object InvocationRequestGen {
       client <- genClient
       custom <- Gen.mapOf(Gen.anyString, Gen.anyString)
       env    <- Gen.mapOf(Gen.anyString, Gen.anyString)
-    } yield InvocationRequest.ClientContext(
+    } yield ClientContext(
       client = client,
       custom = custom,
       env = env
@@ -35,23 +37,23 @@ object InvocationRequestGen {
     for {
       cognitoIdentityId     <- Gen.anyString
       cognitoIdentityPoolId <- Gen.anyString
-    } yield InvocationRequest.CognitoIdentity(
+    } yield CognitoIdentity(
       cognitoIdentityId = cognitoIdentityId,
       cognitoIdentityPoolId = cognitoIdentityPoolId
     )
 
   val gen: Gen[Random with Sized, InvocationRequest] =
     for {
-      id                 <- Gen.anyString
-      deadlineMs         <- Gen.anyLong
-      invokedFunctionArn <- Gen.anyString
-      xrayTraceId        <- Gen.anyString
-      clientContext      <- Gen.option(genClientContext)
-      cognitoIdentity    <- Gen.option(genCognitoIdentity)
-      payload            <- Gen.anyString
+      id                    <- Gen.anyString
+      remainingTimeInMillis <- Gen.option(Gen.anyInt)
+      invokedFunctionArn    <- Gen.option(Gen.anyString)
+      xrayTraceId           <- Gen.option(Gen.anyString)
+      clientContext         <- Gen.option(genClientContext)
+      cognitoIdentity       <- Gen.option(genCognitoIdentity)
+      payload               <- Gen.anyString
     } yield InvocationRequest(
       id = InvocationRequest.Id(id),
-      deadlineMs = deadlineMs,
+      remainingTimeInMillis = remainingTimeInMillis,
       invokedFunctionArn = invokedFunctionArn,
       xrayTraceId = xrayTraceId,
       clientContext = clientContext,

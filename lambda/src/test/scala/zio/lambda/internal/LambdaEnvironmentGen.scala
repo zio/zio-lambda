@@ -10,7 +10,7 @@ object LambdaEnvironmentGen {
       runtimeApi      <- Gen.string(Gen.anyChar)
       handler         <- Gen.option(Gen.anyString)
       taskRoot        <- Gen.option(Gen.anyString)
-      memoryLimit     <- Gen.option(Gen.anyInt)
+      memoryLimitInMB <- Gen.anyInt
       logGroupName    <- Gen.option(Gen.anyString)
       logStreamName   <- Gen.option(Gen.anyString)
       functionName    <- Gen.option(Gen.anyString)
@@ -19,7 +19,7 @@ object LambdaEnvironmentGen {
       runtimeApi,
       handler,
       taskRoot,
-      memoryLimit,
+      memoryLimitInMB,
       logGroupName,
       logStreamName,
       functionName,

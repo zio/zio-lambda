@@ -2,8 +2,9 @@ package zio.lambda.internal
 
 import zio._
 import zio.lambda.ZLambda
+import zio.lambda.Context
 
-final case class ZRuntimeLive(runtimeApi: RuntimeApi) extends ZRuntime {
+final case class ZRuntimeLive(runtimeApi: RuntimeApi, environment: LambdaEnvironment) extends ZRuntime {
 
   override def processInvocation(eitherZLambda: Either[LambdaLoader.Error, ZLambda[_, _]]): RIO[ZEnv, Unit] =
     runtimeApi
@@ -20,7 +21,7 @@ final case class ZRuntimeLive(runtimeApi: RuntimeApi) extends ZRuntime {
               )
           case Right(zLambda) =>
             zLambda
-              .runHandler(request.payload)
+              .runHandler(request.payload, Context.from(request, environment))
               .flatMap(payload =>
                 runtimeApi.sendInvocationResponse(
                   InvocationResponse(request.id, payload)

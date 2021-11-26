@@ -9,7 +9,7 @@ final case class LambdaEnvironment(
   runtimeApi: String,
   handler: Option[String],
   taskRoot: Option[String],
-  memoryLimit: Option[Int],
+  memoryLimitInMB: Int,
   logGroupName: Option[String],
   logStreamName: Option[String],
   functionName: Option[String],
@@ -25,7 +25,7 @@ object LambdaEnvironment {
         )
       handler         <- env("_HANDLER")
       taskRoot        <- env("LAMBDA_TASK_ROOT")
-      memoryLimit     <- env("AWS_LAMBDA_FUNCTION_MEMORY_SIZE")
+      memoryLimitInMB <- env("AWS_LAMBDA_FUNCTION_MEMORY_SIZE")
       logGroupName    <- env("AWS_LAMBDA_LOG_GROUP_NAME")
       logStreamName   <- env("AWS_LAMBDA_LOG_STREAM_NAME")
       functionName    <- env("AWS_LAMBDA_FUNCTION_NAME")
@@ -34,7 +34,7 @@ object LambdaEnvironment {
       runtimeApi,
       handler,
       taskRoot,
-      memoryLimit.flatMap(mem => Try(mem.toInt).toOption),
+      memoryLimitInMB.fold(128)(value => Try(value.toInt).getOrElse(128)),
       logGroupName,
       logStreamName,
       functionName,

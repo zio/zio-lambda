@@ -30,16 +30,19 @@ object RuntimeApiLiveSpec extends DefaultRunnableSpec {
                 code = StatusCode.Ok,
                 statusText = "",
                 headers = Seq(
-                  Header("Lambda-Runtime-Aws-Request-Id", invocationRequest.id.value),
-                  Header("Lambda-Runtime-Deadline-Ms", invocationRequest.deadlineMs.toString()),
-                  Header("Lambda-Runtime-Invoked-Function-Arn", invocationRequest.invokedFunctionArn),
-                  Header("Lambda-Runtime-Trace-Id", invocationRequest.xrayTraceId)
-                ) ++
+                  Option(Header("Lambda-Runtime-Aws-Request-Id", invocationRequest.id.value)),
+                  invocationRequest.remainingTimeInMillis
+                    .map(remainingTimeInMillis =>
+                      Header("Lambda-Runtime-Deadline-Ms", remainingTimeInMillis.toString())
+                    ),
+                  invocationRequest.invokedFunctionArn
+                    .map(invokedFunctionArn => Header("Lambda-Runtime-Invoked-Function-Arn", invokedFunctionArn)),
+                  invocationRequest.xrayTraceId.map(xrayTraceId => Header("Lambda-Runtime-Trace-Id", xrayTraceId)),
                   invocationRequest.clientContext
-                    .map(clientContext => Header("Lambda-Runtime-Client-Context", clientContext.toJson))
-                  ++
+                    .map(clientContext => Header("Lambda-Runtime-Client-Context", clientContext.toJson)),
                   invocationRequest.cognitoIdentity
                     .map(cognitoIdentity => Header("Lambda-Runtime-Cognito-Identity", cognitoIdentity.toJson))
+                ).flatten
               )
             )
 

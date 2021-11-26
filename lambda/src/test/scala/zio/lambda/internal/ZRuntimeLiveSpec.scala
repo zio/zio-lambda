@@ -3,13 +3,15 @@ package zio.lambda.internal
 import zio.test._
 import zio.test.Assertion._
 import zio.json._
+import zio.ZLayer
 
 object ZRuntimeLiveSpec extends DefaultRunnableSpec {
 
   override def spec: ZSpec[Environment, Failure] = suite("ZRuntimeLive unit tests")(
     testM("should process invocation and send invocation response") {
-      checkM(InvocationRequestGen.gen) { invocationRequest =>
-        val zRuntimeLayer = (TestRuntimeApi.testLayer >>> ZRuntime.layer) ++ TestRuntimeApi.testLayer
+      checkM(InvocationRequestGen.gen, LambdaEnvironmentGen.gen) { (invocationRequest, lambdaEnvironment) =>
+        val zRuntimeLayer =
+          (TestRuntimeApi.testLayer ++ ZLayer.succeed(lambdaEnvironment)) >>> ZRuntime.layer ++ TestRuntimeApi.testLayer
 
         (for {
           _ <- TestRuntimeApi.addInvocationRequest(
@@ -30,8 +32,9 @@ object ZRuntimeLiveSpec extends DefaultRunnableSpec {
       }
     },
     testM("should send invocation error if ZLambda wasn't loaded successfully ") {
-      checkM(InvocationRequestGen.gen) { invocationRequest =>
-        val zRuntimeLayer = (TestRuntimeApi.testLayer >>> ZRuntime.layer) ++ TestRuntimeApi.testLayer
+      checkM(InvocationRequestGen.gen, LambdaEnvironmentGen.gen) { (invocationRequest, lambdaEnvironment) =>
+        val zRuntimeLayer =
+          (TestRuntimeApi.testLayer ++ ZLayer.succeed(lambdaEnvironment)) >>> ZRuntime.layer ++ TestRuntimeApi.testLayer
 
         (for {
           _ <- TestRuntimeApi.addInvocationRequest(
@@ -54,8 +57,9 @@ object ZRuntimeLiveSpec extends DefaultRunnableSpec {
       }
     },
     testM("should send invocation error if ZLambda fails") {
-      checkM(InvocationRequestGen.gen) { invocationRequest =>
-        val zRuntimeLayer = (TestRuntimeApi.testLayer >>> ZRuntime.layer) ++ TestRuntimeApi.testLayer
+      checkM(InvocationRequestGen.gen, LambdaEnvironmentGen.gen) { (invocationRequest, lambdaEnvironment) =>
+        val zRuntimeLayer =
+          (TestRuntimeApi.testLayer ++ ZLayer.succeed(lambdaEnvironment)) >>> ZRuntime.layer ++ TestRuntimeApi.testLayer
 
         (for {
           _ <- TestRuntimeApi.addInvocationRequest(
