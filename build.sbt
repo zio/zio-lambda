@@ -30,7 +30,7 @@ inThisBuild(
 
 val zioVersion     = "1.0.12"
 val zioJsonVersion = "0.2.0-M3"
-val sttpVersion    = "3.3.16"
+val sttpVersion    = "3.3.18"
 
 lazy val root =
   project
