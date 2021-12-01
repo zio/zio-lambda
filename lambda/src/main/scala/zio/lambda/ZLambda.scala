@@ -1,14 +1,16 @@
 package zio.lambda
 
-import sttp.client3.HttpURLConnectionBackend
 import zio._
+import zio.lambda.internal.LambdaEnvironment
+import zio.lambda.internal.SttpClient
+import zio.lambda.internal.RuntimeApi
+import zio.lambda.internal.ZRuntime
 import zio.blocking.Blocking
 import zio.json._
-import zio.runtime.LambdaEnvironment
-import zio.runtime.RuntimeApi
-import zio.runtime.ZRuntime
 
 /**
+ * Class to be extended by the Lambda's function.
+ *
  * Implementation example:
  *
  * {{{
@@ -38,26 +40,30 @@ import zio.runtime.ZRuntime
 abstract class ZLambda[E, A](
   implicit val lambdaEventDecoder: JsonDecoder[E],
   implicit val lambdaResponseEncoder: JsonEncoder[A]
-) extends App {
+) extends App { self =>
 
-  def handle(event: E): RIO[ZEnv, A]
+  def handle(event: E, context: Context): RIO[ZEnv, A]
 
   final override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
+    val runtimeApiLayer = (
+      LambdaEnvironment.live ++
+        Blocking.live ++
+        SttpClient.layer
+    ) >>> RuntimeApi.layer
 
-    val runtimeApiLayer = (LambdaEnvironment.live ++
-      Blocking.live ++
-      ZLayer.succeed(HttpURLConnectionBackend())) >>> RuntimeApi.layer
-
-    ZRuntime.processInvocation { json =>
-      lambdaEventDecoder.decodeJson(json) match {
-        case Left(errorMessage) =>
-          ZIO.fail(new Throwable(s"Error decoding json. Json=$json, Error$errorMessage"))
-
-        case Right(event) => handle(event).map(_.toJson)
-      }
-    }.provideCustomLayer(
-      runtimeApiLayer >>> ZRuntime.layer
-    ).exitCode
+    ZRuntime
+      .processInvocation(Right(self))
+      .forever
+      .provideCustomLayer((runtimeApiLayer ++ LambdaEnvironment.live) >>> ZRuntime.layer)
+      .exitCode
   }
+
+  final def runHandler(json: String, context: Context): RIO[ZEnv, String] =
+    lambdaEventDecoder.decodeJson(json) match {
+      case Left(errorMessage) =>
+        ZIO.fail(new Throwable(s"Error decoding json. Json=$json, Error$errorMessage"))
+
+      case Right(event) => handle(event, context).map(_.toJson)
+    }
 
 }
