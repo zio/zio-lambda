@@ -13,7 +13,7 @@ object ZRuntimeApp extends App {
 
   override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
     val classLoaderBuilderLayer = (LambdaEnvironmentLive.layer ++
-      Blocking.live) >>> CustomClassLoader.live
+      Blocking.live) >>> CustomClassLoader.layer
 
     val lambdaLoaderLayer = (
       LambdaEnvironmentLive.layer ++

@@ -10,7 +10,7 @@ import zio.lambda.internal.ZRuntime
 import zio.lambda.internal.ZRuntimeLive
 
 /**
- * Class to be extended by the Lambda's function.
+ * Class to be extended by the Lambda function.
  *
  * Implementation example:
  *

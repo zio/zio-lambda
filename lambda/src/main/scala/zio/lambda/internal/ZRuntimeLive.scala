@@ -10,29 +10,27 @@ final case class ZRuntimeLive(runtimeApi: RuntimeApi, environment: LambdaEnviron
     runtimeApi
       .getNextInvocation()
       .flatMap(request =>
-        eitherZLambda match {
-          case Left(throwable) =>
+        eitherZLambda.fold(
+          throwable =>
             runtimeApi
               .sendInvocationError(
                 InvocationError(
                   request.id,
                   InvocationErrorResponse.fromThrowable(throwable)
                 )
+              ),
+          _.runHandler(request.payload, Context.from(request, environment))
+            .flatMap(payload =>
+              runtimeApi.sendInvocationResponse(
+                InvocationResponse(request.id, payload)
               )
-          case Right(zLambda) =>
-            zLambda
-              .runHandler(request.payload, Context.from(request, environment))
-              .flatMap(payload =>
-                runtimeApi.sendInvocationResponse(
-                  InvocationResponse(request.id, payload)
-                )
+            )
+            .catchAll(throwable =>
+              runtimeApi.sendInvocationError(
+                InvocationError(request.id, InvocationErrorResponse.fromThrowable(throwable))
               )
-              .catchAll(throwable =>
-                runtimeApi.sendInvocationError(
-                  InvocationError(request.id, InvocationErrorResponse.fromThrowable(throwable))
-                )
-              )
-        }
+            )
+        )
       )
 }
 
