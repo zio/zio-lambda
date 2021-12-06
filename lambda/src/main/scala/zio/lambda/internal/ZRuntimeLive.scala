@@ -34,5 +34,9 @@ final case class ZRuntimeLive(runtimeApi: RuntimeApi, environment: LambdaEnviron
               )
         }
       )
+}
 
+object ZRuntimeLive {
+  val layer: URLayer[Has[RuntimeApi] with Has[LambdaEnvironment], Has[ZRuntime]] =
+    (ZRuntimeLive(_, _)).toLayer
 }

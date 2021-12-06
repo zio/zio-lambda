@@ -8,9 +8,6 @@ trait ZRuntime {
 }
 
 object ZRuntime {
-  val layer: URLayer[Has[RuntimeApi] with Has[LambdaEnvironment], Has[ZRuntime]] =
-    (ZRuntimeLive(_, _)).toLayer
-
   def processInvocation(eitherZLambda: Either[Throwable, ZLambda[_, _]]): RIO[Has[ZRuntime] with ZEnv, Unit] =
     ZIO.accessM(_.get.processInvocation(eitherZLambda))
 }

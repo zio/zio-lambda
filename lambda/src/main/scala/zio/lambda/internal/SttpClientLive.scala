@@ -9,7 +9,7 @@ import java.net.InetAddress
 import java.net.Socket
 import javax.net.SocketFactory
 
-object SttpClient {
+object SttpClientLive {
   val layer: ULayer[Has[SttpBackend[Identity, Any]]] =
     ZManaged
       .make(

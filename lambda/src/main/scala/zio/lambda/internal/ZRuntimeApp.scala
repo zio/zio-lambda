@@ -12,22 +12,22 @@ import zio.blocking.Blocking
 object ZRuntimeApp extends App {
 
   override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
-    val classLoaderBuilderLayer = (LambdaEnvironment.live ++
+    val classLoaderBuilderLayer = (LambdaEnvironmentLive.layer ++
       Blocking.live) >>> CustomClassLoader.live
 
     val lambdaLoaderLayer = (
-      LambdaEnvironment.live ++
+      LambdaEnvironmentLive.layer ++
         Blocking.live ++
         classLoaderBuilderLayer
     ) >>> LambdaLoaderLive.layer
 
     val runtimeApiLayer = (
-      LambdaEnvironment.live ++
+      LambdaEnvironmentLive.layer ++
         Blocking.live ++
-        SttpClient.layer
+        SttpClientLive.layer
     ) >>> RuntimeApiLive.layer
 
-    val zRuntimeLayer = (runtimeApiLayer ++ LambdaEnvironment.live) >>> ZRuntime.layer
+    val zRuntimeLayer = (runtimeApiLayer ++ LambdaEnvironmentLive.layer) >>> ZRuntimeLive.layer
 
     LambdaLoader
       .loadLambda()

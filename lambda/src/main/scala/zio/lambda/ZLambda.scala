@@ -3,10 +3,11 @@ package zio.lambda
 import zio._
 import zio.blocking.Blocking
 import zio.json._
-import zio.lambda.internal.LambdaEnvironment
+import zio.lambda.internal.LambdaEnvironmentLive
 import zio.lambda.internal.RuntimeApiLive
-import zio.lambda.internal.SttpClient
+import zio.lambda.internal.SttpClientLive
 import zio.lambda.internal.ZRuntime
+import zio.lambda.internal.ZRuntimeLive
 
 /**
  * Class to be extended by the Lambda's function.
@@ -46,15 +47,15 @@ abstract class ZLambda[E, A](
 
   final override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
     val runtimeApiLayer = (
-      LambdaEnvironment.live ++
+      LambdaEnvironmentLive.layer ++
         Blocking.live ++
-        SttpClient.layer
+        SttpClientLive.layer
     ) >>> RuntimeApiLive.layer
 
     ZRuntime
       .processInvocation(Right(self))
       .forever
-      .provideCustomLayer((runtimeApiLayer ++ LambdaEnvironment.live) >>> ZRuntime.layer)
+      .provideCustomLayer((runtimeApiLayer ++ LambdaEnvironmentLive.layer) >>> ZRuntimeLive.layer)
       .exitCode
   }
 

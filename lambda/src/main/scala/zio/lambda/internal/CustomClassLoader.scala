@@ -1,10 +1,11 @@
 package zio.lambda.internal
 
 import zio._
+import zio.blocking.Blocking
+
+import java.net.URLClassLoader
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.net.URLClassLoader
-import zio.blocking.Blocking
 import scala.jdk.CollectionConverters._
 
 object CustomClassLoader {
