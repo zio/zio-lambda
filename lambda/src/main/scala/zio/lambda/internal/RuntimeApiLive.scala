@@ -84,3 +84,8 @@ final case class RuntimeApiLive(
       )
       .unit
 }
+
+object RuntimeApiLive {
+  val layer: URLayer[Blocking with Has[SttpBackend[Identity, Any]] with Has[LambdaEnvironment], Has[RuntimeApi]] =
+    (RuntimeApiLive(_, _, _)).toLayer
+}

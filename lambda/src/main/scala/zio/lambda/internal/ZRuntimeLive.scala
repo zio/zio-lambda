@@ -1,22 +1,22 @@
 package zio.lambda.internal
 
 import zio._
-import zio.lambda.ZLambda
 import zio.lambda.Context
+import zio.lambda.ZLambda
 
 final case class ZRuntimeLive(runtimeApi: RuntimeApi, environment: LambdaEnvironment) extends ZRuntime {
 
-  override def processInvocation(eitherZLambda: Either[LambdaLoader.Error, ZLambda[_, _]]): RIO[ZEnv, Unit] =
+  override def processInvocation(eitherZLambda: Either[Throwable, ZLambda[_, _]]): RIO[ZEnv, Unit] =
     runtimeApi
       .getNextInvocation()
       .flatMap(request =>
         eitherZLambda match {
-          case Left(error) =>
+          case Left(throwable) =>
             runtimeApi
               .sendInvocationError(
                 InvocationError(
                   request.id,
-                  InvocationErrorResponse.fromLambdaLoaderError(error)
+                  InvocationErrorResponse.fromThrowable(throwable)
                 )
               )
           case Right(zLambda) =>

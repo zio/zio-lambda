@@ -1,12 +1,12 @@
 package zio.lambda
 
 import zio._
-import zio.lambda.internal.LambdaEnvironment
-import zio.lambda.internal.SttpClient
-import zio.lambda.internal.RuntimeApi
-import zio.lambda.internal.ZRuntime
 import zio.blocking.Blocking
 import zio.json._
+import zio.lambda.internal.LambdaEnvironment
+import zio.lambda.internal.RuntimeApiLive
+import zio.lambda.internal.SttpClient
+import zio.lambda.internal.ZRuntime
 
 /**
  * Class to be extended by the Lambda's function.
@@ -49,7 +49,7 @@ abstract class ZLambda[E, A](
       LambdaEnvironment.live ++
         Blocking.live ++
         SttpClient.layer
-    ) >>> RuntimeApi.layer
+    ) >>> RuntimeApiLive.layer
 
     ZRuntime
       .processInvocation(Right(self))

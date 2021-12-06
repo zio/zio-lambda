@@ -1,13 +1,13 @@
 package zio.lambda.internal
 
-import zio.test._
-import zio.test.Assertion._
+import zio._
 import zio.json._
-import zio.ZLayer
+import zio.test.Assertion._
+import zio.test._
 
 object ZRuntimeLiveSpec extends DefaultRunnableSpec {
 
-  override def spec: ZSpec[Environment, Failure] = suite("ZRuntimeLive unit tests")(
+  override def spec: ZSpec[Environment, Failure] = suite("ZRuntimeLive spec")(
     testM("should process invocation and send invocation response") {
       checkM(InvocationRequestGen.gen, LambdaEnvironmentGen.gen) { (invocationRequest, lambdaEnvironment) =>
         val zRuntimeLayer =
@@ -42,7 +42,7 @@ object ZRuntimeLiveSpec extends DefaultRunnableSpec {
                    payload = CustomPayload(invocationRequest.payload).toJson
                  )
                )
-          loaderLambdaError = LambdaLoader.Error.zLambdaNotFound("Error loading ZLambda")
+          loaderLambdaError = new Throwable("Error loading ZLambda")
           _                <- ZRuntime.processInvocation(Left(loaderLambdaError))
           invocationError  <- TestRuntimeApi.getInvocationError()
 
@@ -50,7 +50,7 @@ object ZRuntimeLiveSpec extends DefaultRunnableSpec {
           equalTo(
             InvocationError(
               invocationRequest.id,
-              InvocationErrorResponse.fromLambdaLoaderError(loaderLambdaError)
+              InvocationErrorResponse.fromThrowable(loaderLambdaError)
             )
           )
         )).provideCustomLayer(zRuntimeLayer)

@@ -2,6 +2,9 @@ package zio.lambda
 
 import zio.json._
 
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
+
 sealed trait LambdaEvent
 
 object LambdaEvent {
@@ -73,18 +76,18 @@ object LambdaEvent {
       resourceId: String,
       stage: String,
       requestId: String,
-      identity: Identity,
+      identity: RequestContext.Identity,
       resourcePath: String,
       httpMethod: String,
       apiId: String
     )
     object RequestContext {
       implicit val decoder: JsonDecoder[RequestContext] = DeriveJsonDecoder.gen[RequestContext]
-    }
 
-    final case class Identity(apiKey: String, sourceIp: String)
-    object Identity {
-      implicit val decoder: JsonDecoder[Identity] = DeriveJsonDecoder.gen[Identity]
+      final case class Identity(apiKey: String, sourceIp: String)
+      object Identity {
+        implicit val decoder: JsonDecoder[Identity] = DeriveJsonDecoder.gen[Identity]
+      }
     }
   }
 
@@ -116,7 +119,7 @@ object LambdaEvent {
       resourceId: String,
       requestId: String,
       operationName: String,
-      identity: Identity,
+      identity: RequestContext.Identity,
       resourcePath: String,
       httpMethod: String,
       apiId: String,
@@ -126,26 +129,27 @@ object LambdaEvent {
     )
     object RequestContext {
       implicit val decoder: JsonDecoder[RequestContext] = DeriveJsonDecoder.gen[RequestContext]
+
+      final case class Identity(
+        cognitoIdentityPoolId: String,
+        accountId: String,
+        cognitoIdentityId: String,
+        caller: String,
+        apiKey: String,
+        principalOrgId: String,
+        sourceIp: String,
+        cognitoAuthenticationType: String,
+        cognitoAuthenticationProvider: String,
+        userArn: String,
+        userAgent: String,
+        user: String,
+        accessKey: String
+      )
+      object Identity {
+        implicit val decoder: JsonDecoder[Identity] = DeriveJsonDecoder.gen[Identity]
+      }
     }
 
-    final case class Identity(
-      cognitoIdentityPoolId: String,
-      accountId: String,
-      cognitoIdentityId: String,
-      caller: String,
-      apiKey: String,
-      principalOrgId: String,
-      sourceIp: String,
-      cognitoAuthenticationType: String,
-      cognitoAuthenticationProvider: String,
-      userArn: String,
-      userAgent: String,
-      user: String,
-      accessKey: String
-    )
-    object Identity {
-      implicit val decoder: JsonDecoder[Identity] = DeriveJsonDecoder.gen[Identity]
-    }
   }
 
   /**
@@ -178,10 +182,15 @@ object LambdaEvent {
       requestId: String,
       routeKey: String,
       stage: String,
-      time: java.time.Instant,
+      time: java.time.OffsetDateTime,
       timeEpoch: Long
     )
     object RequestContext {
+      lazy val timeDateTimeFormatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z")
+
+      implicit val timeDecoder: JsonDecoder[OffsetDateTime] =
+        JsonDecoder[String].map(OffsetDateTime.parse(_, timeDateTimeFormatter))
+
       implicit val decoder: JsonDecoder[RequestContext] = DeriveJsonDecoder.gen[RequestContext]
     }
 
@@ -826,8 +835,57 @@ object LambdaEvent {
       DeriveJsonDecoder.gen[KinesisAnalyticsStreamsInputPreprocessing]
   }
 
-  final case class Kinesis() extends LambdaEvent
+  final case class Kinesis(
+    @jsonField("Records") records: List[Kinesis.Record]
+  ) extends LambdaEvent
+
   object Kinesis {
+
+    final case class Record(
+      kinesis: KinesisRecordUnit,
+      eventSource: String,
+      eventID: String,
+      invokeIdentityArn: String,
+      eventName: String,
+      eventVersion: String,
+      eventSourceARN: String,
+      awsRegion: String
+    )
+
+    object Record {
+      implicit val decoder: JsonDecoder[Record] = DeriveJsonDecoder.gen[Record]
+    }
+
+    final case class KinesisRecordUnit(
+      kinesisSchemaVersion: String,
+      partitionKey: String,
+      sequenceNumber: String,
+      data: String,
+      approximateArrivalTimestamp: java.time.Instant,
+      encryptionType: KinesisRecordUnit.EncryptionType
+    )
+
+    object KinesisRecordUnit {
+      implicit val offsetDateTimeDecoder: JsonDecoder[java.time.Instant] = JsonDecoder[Double]
+        .map(value => java.time.Instant.ofEpochMilli((BigDecimal(value) * 1000).toLong))
+
+      implicit val decoder: JsonDecoder[KinesisRecordUnit] = DeriveJsonDecoder.gen[KinesisRecordUnit]
+
+      sealed trait EncryptionType
+      object EncryptionType {
+        case object None extends EncryptionType
+        case object Kms  extends EncryptionType
+
+        implicit val decoder: JsonDecoder[EncryptionType] = JsonDecoder[String].mapOrFail {
+          _.toUpperCase() match {
+            case "NONE"  => Right(None)
+            case "KMS"   => Right(Kms)
+            case unknown => Left(s"Unknown Kinesis event encryptionType: $unknown")
+          }
+        }
+      }
+    }
+
     implicit val decoder: JsonDecoder[Kinesis] = DeriveJsonDecoder.gen[Kinesis]
   }
 
@@ -854,7 +912,16 @@ object LambdaEvent {
     implicit val decoder: JsonDecoder[S3] = DeriveJsonDecoder.gen[S3]
   }
 
-  final case class Scheduled() extends LambdaEvent
+  final case class Scheduled(
+    account: String,
+    region: String,
+    detail: Map[String, String],
+    source: String,
+    id: String,
+    time: java.time.ZonedDateTime,
+    resources: List[String],
+    @jsonField("detail-type") detailType: String
+  ) extends LambdaEvent
   object Scheduled {
     implicit val decoder: JsonDecoder[Scheduled] = DeriveJsonDecoder.gen[Scheduled]
   }
