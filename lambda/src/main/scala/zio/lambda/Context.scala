@@ -17,7 +17,7 @@ final case class Context(
 )
 
 object Context {
-  def from(invocationRequest: InvocationRequest, environment: LambdaEnvironment): Context =
+  private[lambda] def from(invocationRequest: InvocationRequest, environment: LambdaEnvironment): Context =
     Context(
       awsRequestId = invocationRequest.id.value,
       remainingTimeInMillis = invocationRequest.remainingTimeInMillis,

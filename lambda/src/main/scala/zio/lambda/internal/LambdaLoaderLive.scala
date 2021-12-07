@@ -2,12 +2,12 @@ package zio.lambda.internal
 
 import zio._
 import zio.blocking._
-import zio.lambda.ZLambda
+import zio.lambda.ZLambdaApp
 
 final case class LambdaLoaderLive(classLoader: ClassLoader, environment: LambdaEnvironment, blocking: Blocking.Service)
     extends LambdaLoader {
 
-  override def loadLambda(): UIO[Either[Throwable, ZLambda[_, _]]] =
+  override def loadLambda(): UIO[Either[Throwable, ZLambdaApp[_, _]]] =
     (for {
       handler <-
         ZIO.require(new Throwable("Function Handler not defined"))(ZIO.succeed(environment.handler))
@@ -21,7 +21,7 @@ final case class LambdaLoaderLive(classLoader: ClassLoader, environment: LambdaE
                        )
                        .getDeclaredField("MODULE$")
                        .get(null)
-                       .asInstanceOf[ZLambda[_, _]]
+                       .asInstanceOf[ZLambdaApp[_, _]]
                    )
                    .refineOrDie { case ex: ClassNotFoundException => ex }
     } yield zLambda).either

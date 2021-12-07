@@ -12,39 +12,38 @@ object LambdaEvent {
   final case class ActiveMQ(
     eventSource: String,
     eventSourceArn: String,
-    messages: List[ActiveMQ.Message]
+    messages: List[ActiveMQMessage]
   ) extends LambdaEvent
 
   object ActiveMQ {
-
     implicit val decoder: JsonDecoder[ActiveMQ] = DeriveJsonDecoder.gen[ActiveMQ]
+  }
 
-    final case class Message(
-      messageID: String,
-      messageType: String,
-      timestamp: Long,
-      deliveryMode: Int,
-      correlationID: String,
-      replyTo: String,
-      destination: Destination,
-      redelivered: Boolean,
-      `type`: String,
-      expiration: Long,
-      priority: Int,
-      data: String,
-      brokerInTime: Long,
-      brokerOutTime: Long
-    )
+  final case class ActiveMQMessage(
+    messageID: String,
+    messageType: String,
+    timestamp: Long,
+    deliveryMode: Int,
+    correlationID: String,
+    replyTo: String,
+    destination: ActiveMQMessageDestination,
+    redelivered: Boolean,
+    `type`: String,
+    expiration: Long,
+    priority: Int,
+    data: String,
+    brokerInTime: Long,
+    brokerOutTime: Long
+  )
 
-    object Message {
-      implicit val decoder: JsonDecoder[Message] = DeriveJsonDecoder.gen[Message]
-    }
+  object ActiveMQMessage {
+    implicit val decoder: JsonDecoder[ActiveMQMessage] = DeriveJsonDecoder.gen[ActiveMQMessage]
+  }
 
-    final case class Destination(physicalName: String)
+  final case class ActiveMQMessageDestination(physicalName: String)
 
-    object Destination {
-      implicit val decoder: JsonDecoder[Destination] = DeriveJsonDecoder.gen[Destination]
-    }
+  object ActiveMQMessageDestination {
+    implicit val decoder: JsonDecoder[ActiveMQMessageDestination] = DeriveJsonDecoder.gen[ActiveMQMessageDestination]
   }
 
   /**
@@ -64,31 +63,33 @@ object LambdaEvent {
     queryStringParameters: Map[String, String],
     pathParameters: Map[String, String],
     stageVariables: Map[String, String],
-    requestContext: APIGatewayCustomAuthorizer.RequestContext
+    requestContext: APIGatewayCustomAuthorizerRequestContext
   ) extends LambdaEvent
 
   object APIGatewayCustomAuthorizer {
-
     implicit val decoder: JsonDecoder[APIGatewayCustomAuthorizer] = DeriveJsonDecoder.gen[APIGatewayCustomAuthorizer]
-    final case class RequestContext(
-      path: String,
-      accountId: String,
-      resourceId: String,
-      stage: String,
-      requestId: String,
-      identity: RequestContext.Identity,
-      resourcePath: String,
-      httpMethod: String,
-      apiId: String
-    )
-    object RequestContext {
-      implicit val decoder: JsonDecoder[RequestContext] = DeriveJsonDecoder.gen[RequestContext]
+  }
 
-      final case class Identity(apiKey: String, sourceIp: String)
-      object Identity {
-        implicit val decoder: JsonDecoder[Identity] = DeriveJsonDecoder.gen[Identity]
-      }
-    }
+  final case class APIGatewayCustomAuthorizerRequestContext(
+    path: String,
+    accountId: String,
+    resourceId: String,
+    stage: String,
+    requestId: String,
+    identity: APIGatewayCustomAuthorizerRequestContextIdentity,
+    resourcePath: String,
+    httpMethod: String,
+    apiId: String
+  )
+  object APIGatewayCustomAuthorizerRequestContext {
+    implicit val decoder: JsonDecoder[APIGatewayCustomAuthorizerRequestContext] =
+      DeriveJsonDecoder.gen[APIGatewayCustomAuthorizerRequestContext]
+  }
+
+  final case class APIGatewayCustomAuthorizerRequestContextIdentity(apiKey: String, sourceIp: String)
+  object APIGatewayCustomAuthorizerRequestContextIdentity {
+    implicit val decoder: JsonDecoder[APIGatewayCustomAuthorizerRequestContextIdentity] =
+      DeriveJsonDecoder.gen[APIGatewayCustomAuthorizerRequestContextIdentity]
   }
 
   /**
@@ -105,51 +106,52 @@ object LambdaEvent {
     multiValueQueryStringParameters: Map[String, List[String]],
     pathParameters: Map[String, String],
     stageVariables: Map[String, String],
-    requestContext: APIGatewayProxyRequest.RequestContext,
+    requestContext: APIGatewayProxyRequestRequestContext,
     body: String,
     isBase64Encoded: Boolean
   ) extends LambdaEvent
 
   object APIGatewayProxyRequest {
     implicit val decoder: JsonDecoder[APIGatewayProxyRequest] = DeriveJsonDecoder.gen[APIGatewayProxyRequest]
+  }
 
-    final case class RequestContext(
-      accountId: String,
-      stage: String,
-      resourceId: String,
-      requestId: String,
-      operationName: String,
-      identity: RequestContext.Identity,
-      resourcePath: String,
-      httpMethod: String,
-      apiId: String,
-      path: String,
-      // FIXME the value is a json object. Check all possible values
-      authorizer: Map[String, String]
-    )
-    object RequestContext {
-      implicit val decoder: JsonDecoder[RequestContext] = DeriveJsonDecoder.gen[RequestContext]
+  final case class APIGatewayProxyRequestRequestContext(
+    accountId: String,
+    stage: String,
+    resourceId: String,
+    requestId: String,
+    operationName: String,
+    identity: APIGatewayProxyRequestRequestContextIdentity,
+    resourcePath: String,
+    httpMethod: String,
+    apiId: String,
+    path: String,
+    // FIXME the value is a json object. Check all possible values
+    authorizer: Map[String, String]
+  )
+  object APIGatewayProxyRequestRequestContext {
+    implicit val decoder: JsonDecoder[APIGatewayProxyRequestRequestContext] =
+      DeriveJsonDecoder.gen[APIGatewayProxyRequestRequestContext]
+  }
 
-      final case class Identity(
-        cognitoIdentityPoolId: String,
-        accountId: String,
-        cognitoIdentityId: String,
-        caller: String,
-        apiKey: String,
-        principalOrgId: String,
-        sourceIp: String,
-        cognitoAuthenticationType: String,
-        cognitoAuthenticationProvider: String,
-        userArn: String,
-        userAgent: String,
-        user: String,
-        accessKey: String
-      )
-      object Identity {
-        implicit val decoder: JsonDecoder[Identity] = DeriveJsonDecoder.gen[Identity]
-      }
-    }
-
+  final case class APIGatewayProxyRequestRequestContextIdentity(
+    cognitoIdentityPoolId: String,
+    accountId: String,
+    cognitoIdentityId: String,
+    caller: String,
+    apiKey: String,
+    principalOrgId: String,
+    sourceIp: String,
+    cognitoAuthenticationType: String,
+    cognitoAuthenticationProvider: String,
+    userArn: String,
+    userAgent: String,
+    user: String,
+    accessKey: String
+  )
+  object APIGatewayProxyRequestRequestContextIdentity {
+    implicit val decoder: JsonDecoder[APIGatewayProxyRequestRequestContextIdentity] =
+      DeriveJsonDecoder.gen[APIGatewayProxyRequestRequestContextIdentity]
   }
 
   /**
@@ -167,43 +169,47 @@ object LambdaEvent {
     cookies: List[String],
     headers: Map[String, String],
     queryStringParameters: Map[String, String],
-    requestContext: APIGatewayV2CustomAuthorizer.RequestContext,
+    requestContext: APIGatewayV2CustomAuthorizerRequestContext,
     pathParameters: Map[String, String],
     stageVariables: Map[String, String]
   ) extends LambdaEvent
 
   object APIGatewayV2CustomAuthorizer {
-    final case class RequestContext(
-      accountId: String,
-      apiId: String,
-      domainName: String,
-      domainPrefix: String,
-      http: Http,
-      requestId: String,
-      routeKey: String,
-      stage: String,
-      time: java.time.OffsetDateTime,
-      timeEpoch: Long
-    )
-    object RequestContext {
-      lazy val timeDateTimeFormatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z")
+    implicit val decoder: JsonDecoder[APIGatewayV2CustomAuthorizer] =
+      DeriveJsonDecoder.gen[APIGatewayV2CustomAuthorizer]
+  }
 
-      implicit val timeDecoder: JsonDecoder[OffsetDateTime] =
-        JsonDecoder[String].map(OffsetDateTime.parse(_, timeDateTimeFormatter))
+  final case class APIGatewayV2CustomAuthorizerRequestContext(
+    accountId: String,
+    apiId: String,
+    domainName: String,
+    domainPrefix: String,
+    http: Http,
+    requestId: String,
+    routeKey: String,
+    stage: String,
+    time: java.time.OffsetDateTime,
+    timeEpoch: Long
+  )
+  object APIGatewayV2CustomAuthorizerRequestContext {
+    lazy val timeDateTimeFormatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z")
 
-      implicit val decoder: JsonDecoder[RequestContext] = DeriveJsonDecoder.gen[RequestContext]
-    }
+    implicit val timeDecoder: JsonDecoder[OffsetDateTime] =
+      JsonDecoder[String].map(OffsetDateTime.parse(_, timeDateTimeFormatter))
 
-    final case class Http(
-      method: String,
-      path: String,
-      protocol: String,
-      sourceIp: String,
-      userAgent: String
-    )
-    object Http {
-      implicit val decoder: JsonDecoder[Http] = DeriveJsonDecoder.gen[Http]
-    }
+    implicit val decoder: JsonDecoder[APIGatewayV2CustomAuthorizerRequestContext] =
+      DeriveJsonDecoder.gen[APIGatewayV2CustomAuthorizerRequestContext]
+  }
+
+  final case class Http(
+    method: String,
+    path: String,
+    protocol: String,
+    sourceIp: String,
+    userAgent: String
+  )
+  object Http {
+    implicit val decoder: JsonDecoder[Http] = DeriveJsonDecoder.gen[Http]
   }
 
   /**
@@ -221,70 +227,80 @@ object LambdaEvent {
     stageVariables: Map[String, String],
     body: String,
     isBase64Encoded: Boolean,
-    requestContext: APIGatewayV2HTTP.RequestContext
+    requestContext: APIGatewayV2HTTPRequestContext
   ) extends LambdaEvent
 
   object APIGatewayV2HTTP {
     implicit val decoder: JsonDecoder[APIGatewayV2HTTP] = DeriveJsonDecoder.gen[APIGatewayV2HTTP]
-    final case class RequestContext(
-      routeKey: String,
-      accountId: String,
-      stage: String,
-      apiId: String,
-      domainName: String,
-      domainPrefix: String,
-      time: String,
-      timeEpoch: Long,
-      http: Http,
-      authorizer: Authorizer,
-      requestId: String
-    )
-    object RequestContext {
-      implicit val decoder: JsonDecoder[RequestContext] = DeriveJsonDecoder.gen[RequestContext]
-    }
+  }
 
-    final case class Http(
-      method: String,
-      path: String,
-      protocol: String,
-      sourceIp: String,
-      userAgent: String
-    )
-    object Http {
-      implicit val decoder: JsonDecoder[Http] = DeriveJsonDecoder.gen[Http]
-    }
+  final case class APIGatewayV2HTTPRequestContext(
+    routeKey: String,
+    accountId: String,
+    stage: String,
+    apiId: String,
+    domainName: String,
+    domainPrefix: String,
+    time: String,
+    timeEpoch: Long,
+    http: APIGatewayV2HTTPRequestContextHttp,
+    authorizer: APIGatewayV2HTTPRequestContextAuthorizer,
+    requestId: String
+  )
+  object APIGatewayV2HTTPRequestContext {
+    implicit val decoder: JsonDecoder[APIGatewayV2HTTPRequestContext] =
+      DeriveJsonDecoder.gen[APIGatewayV2HTTPRequestContext]
+  }
 
-    final case class Authorizer(
-      jwt: JWT,
-      // FIXME the value is a json object. Check all possible values
-      lambda: Map[String, String],
-      iam: IAM
-    )
-    object Authorizer {
-      implicit val decoder: JsonDecoder[Authorizer] = DeriveJsonDecoder.gen[Authorizer]
-    }
+  final case class APIGatewayV2HTTPRequestContextHttp(
+    method: String,
+    path: String,
+    protocol: String,
+    sourceIp: String,
+    userAgent: String
+  )
+  object APIGatewayV2HTTPRequestContextHttp {
+    implicit val decoder: JsonDecoder[APIGatewayV2HTTPRequestContextHttp] =
+      DeriveJsonDecoder.gen[APIGatewayV2HTTPRequestContextHttp]
+  }
 
-    final case class JWT(claims: Map[String, String], scopes: List[String])
-    object JWT {
-      implicit val decoder: JsonDecoder[JWT] = DeriveJsonDecoder.gen[JWT]
-    }
-    final case class IAM(
-      accessKey: String,
-      accountId: String,
-      callerId: String,
-      cognitoIdentity: CognitoIdentity,
-      principalOrgId: String,
-      userArn: String,
-      userId: String
-    )
-    object IAM {
-      implicit val decoder: JsonDecoder[IAM] = DeriveJsonDecoder.gen[IAM]
-    }
+  final case class APIGatewayV2HTTPRequestContextAuthorizer(
+    jwt: APIGatewayV2HTTPRequestContextAuthorizerJWT,
+    lambda: Map[String, String],
+    iam: APIGatewayV2HTTPRequestContextAuthorizerIAM
+  )
+  object APIGatewayV2HTTPRequestContextAuthorizer {
+    implicit val decoder: JsonDecoder[APIGatewayV2HTTPRequestContextAuthorizer] =
+      DeriveJsonDecoder.gen[APIGatewayV2HTTPRequestContextAuthorizer]
+  }
 
-    final case class CognitoIdentity(amr: List[String], identityId: String, identityPoolId: String)
-    object CognitoIdentity {
-      implicit val decoder: JsonDecoder[CognitoIdentity] = DeriveJsonDecoder.gen[CognitoIdentity]
-    }
+  final case class APIGatewayV2HTTPRequestContextAuthorizerJWT(claims: Map[String, String], scopes: List[String])
+  object APIGatewayV2HTTPRequestContextAuthorizerJWT {
+    implicit val decoder: JsonDecoder[APIGatewayV2HTTPRequestContextAuthorizerJWT] =
+      DeriveJsonDecoder.gen[APIGatewayV2HTTPRequestContextAuthorizerJWT]
+  }
+  final case class APIGatewayV2HTTPRequestContextAuthorizerIAM(
+    accessKey: String,
+    accountId: String,
+    callerId: String,
+    cognitoIdentity: APIGatewayV2HTTPRequestContextAuthorizerIAMCognitoIdentity,
+    principalOrgId: String,
+    userArn: String,
+    userId: String
+  )
+  object APIGatewayV2HTTPRequestContextAuthorizerIAM {
+    implicit val decoder: JsonDecoder[APIGatewayV2HTTPRequestContextAuthorizerIAM] =
+      DeriveJsonDecoder.gen[APIGatewayV2HTTPRequestContextAuthorizerIAM]
+  }
+
+  final case class APIGatewayV2HTTPRequestContextAuthorizerIAMCognitoIdentity(
+    amr: List[String],
+    identityId: String,
+    identityPoolId: String
+  )
+  object APIGatewayV2HTTPRequestContextAuthorizerIAMCognitoIdentity {
+    implicit val decoder: JsonDecoder[APIGatewayV2HTTPRequestContextAuthorizerIAMCognitoIdentity] =
+      DeriveJsonDecoder.gen[APIGatewayV2HTTPRequestContextAuthorizerIAMCognitoIdentity]
   }
 
   final case class APIGatewayV2WebSocket(
@@ -297,63 +313,66 @@ object LambdaEvent {
     multiValueQueryStringParameters: Map[String, List[String]],
     pathParameters: Map[String, String],
     stageVariables: Map[String, String],
-    requestContext: APIGatewayV2WebSocket.RequestContext,
+    requestContext: APIGatewayV2WebSocketRequestContext,
     body: String,
     isBase64Encoded: Boolean
   ) extends LambdaEvent
 
   object APIGatewayV2WebSocket {
     implicit val decoder: JsonDecoder[APIGatewayV2WebSocket] = DeriveJsonDecoder.gen[APIGatewayV2WebSocket]
-    final case class RequestContext(
-      accountId: String,
-      resourceId: String,
-      stage: String,
-      requestId: String,
-      identity: RequestIdentity,
-      resourcePath: String,
-      // FIXME the value is a json object. Check all possible values
-      authorizer: Map[String, String],
-      httpMethod: String,
-      apiId: String,
-      connectedAt: Long,
-      connectionId: String,
-      domainName: String,
-      error: String,
-      eventType: String,
-      extendedRequestId: String,
-      integrationLatency: String,
-      messageDirection: String,
-      messageId: String,
-      requestTime: String,
-      requestTimeEpoch: Long,
-      routeKey: String,
-      status: String
-    )
-    object RequestContext {
-      implicit val decoder: JsonDecoder[RequestContext] = DeriveJsonDecoder.gen[RequestContext]
-    }
+  }
 
-    final case class RequestIdentity(
-      cognitoIdentityPoolId: String,
-      accountId: String,
-      cognitoIdentityId: String,
-      caller: String,
-      apiKey: String,
-      sourceIp: String,
-      cognitoAuthenticationType: String,
-      cognitoAuthenticationProvider: String,
-      userArn: String,
-      userAgent: String,
-      user: String,
-      accessKey: String
-    )
-    object RequestIdentity {
-      implicit val decoder: JsonDecoder[RequestIdentity] = DeriveJsonDecoder.gen[RequestIdentity]
-    }
+  final case class APIGatewayV2WebSocketRequestContext(
+    accountId: String,
+    resourceId: String,
+    stage: String,
+    requestId: String,
+    identity: APIGatewayV2WebSocketRequestContextIdentity,
+    resourcePath: String,
+    // FIXME the value is a json object. Check all possible values
+    authorizer: Map[String, String],
+    httpMethod: String,
+    apiId: String,
+    connectedAt: Long,
+    connectionId: String,
+    domainName: String,
+    error: String,
+    eventType: String,
+    extendedRequestId: String,
+    integrationLatency: String,
+    messageDirection: String,
+    messageId: String,
+    requestTime: String,
+    requestTimeEpoch: Long,
+    routeKey: String,
+    status: String
+  )
+  object APIGatewayV2WebSocketRequestContext {
+    implicit val decoder: JsonDecoder[APIGatewayV2WebSocketRequestContext] =
+      DeriveJsonDecoder.gen[APIGatewayV2WebSocketRequestContext]
+  }
+
+  final case class APIGatewayV2WebSocketRequestContextIdentity(
+    cognitoIdentityPoolId: String,
+    accountId: String,
+    cognitoIdentityId: String,
+    caller: String,
+    apiKey: String,
+    sourceIp: String,
+    cognitoAuthenticationType: String,
+    cognitoAuthenticationProvider: String,
+    userArn: String,
+    userAgent: String,
+    user: String,
+    accessKey: String
+  )
+  object APIGatewayV2WebSocketRequestContextIdentity {
+    implicit val decoder: JsonDecoder[APIGatewayV2WebSocketRequestContextIdentity] =
+      DeriveJsonDecoder.gen[APIGatewayV2WebSocketRequestContextIdentity]
   }
 
   final case class ApplicationLoadBalancerRequest(
-    requestContext: ApplicationLoadBalancerRequest.RequestContext,
+    requestContext: ApplicationLoadBalancerRequestContext,
     httpMethod: String,
     path: String,
     queryStringParameters: Map[String, String],
@@ -367,15 +386,18 @@ object LambdaEvent {
   object ApplicationLoadBalancerRequest {
     implicit val decoder: JsonDecoder[ApplicationLoadBalancerRequest] =
       DeriveJsonDecoder.gen[ApplicationLoadBalancerRequest]
-    final case class RequestContext(elb: Elb)
-    object RequestContext {
-      implicit val decoder: JsonDecoder[RequestContext] = DeriveJsonDecoder.gen[RequestContext]
-    }
+  }
 
-    final case class Elb(targetGroupArn: String)
-    object Elb {
-      implicit val decoder: JsonDecoder[Elb] = DeriveJsonDecoder.gen[Elb]
-    }
+  final case class ApplicationLoadBalancerRequestContext(elb: ApplicationLoadBalancerRequestContextElb)
+  object ApplicationLoadBalancerRequestContext {
+    implicit val decoder: JsonDecoder[ApplicationLoadBalancerRequestContext] =
+      DeriveJsonDecoder.gen[ApplicationLoadBalancerRequestContext]
+  }
+
+  final case class ApplicationLoadBalancerRequestContextElb(targetGroupArn: String)
+  object ApplicationLoadBalancerRequestContextElb {
+    implicit val decoder: JsonDecoder[ApplicationLoadBalancerRequestContextElb] =
+      DeriveJsonDecoder.gen[ApplicationLoadBalancerRequestContextElb]
   }
 
   final case class CloudFormationCustomResource(
@@ -398,114 +420,119 @@ object LambdaEvent {
   }
 
   final case class CloudFront(
-    records: List[CloudFront.Record]
+    records: List[CloudFrontRecord]
   ) extends LambdaEvent
 
   object CloudFront {
     implicit val decoder: JsonDecoder[CloudFront] = DeriveJsonDecoder.gen[CloudFront]
-    final case class Record(cf: CF)
-    object Record {
-      implicit val decoder: JsonDecoder[Record] = DeriveJsonDecoder.gen[Record]
-    }
 
-    final case class CF(
-      config: Config,
-      request: Request,
-      response: Response
-    )
-    object CF {
-      implicit val decoder: JsonDecoder[CF] = DeriveJsonDecoder.gen[CF]
-    }
+  }
 
-    final case class Config(distributionId: String)
-    object Config {
-      implicit val decoder: JsonDecoder[Config] = DeriveJsonDecoder.gen[Config]
-    }
-    final case class Request(
-      uri: String,
-      method: String,
-      httpVersion: String,
-      clientIp: String,
-      headers: Map[String, List[Header]]
-    )
-    object Request {
-      implicit val decoder: JsonDecoder[Request] = DeriveJsonDecoder.gen[Request]
-    }
+  final case class CloudFrontRecord(cf: CloudFrontRecordCF)
+  object CloudFrontRecord {
+    implicit val decoder: JsonDecoder[CloudFrontRecord] = DeriveJsonDecoder.gen[CloudFrontRecord]
+  }
 
-    final case class Response(
-      status: String,
-      statusDescription: String,
-      httpVersion: String,
-      headers: Map[String, List[Header]]
-    )
-    object Response {
-      implicit val decoder: JsonDecoder[Response] = DeriveJsonDecoder.gen[Response]
-    }
+  final case class CloudFrontRecordCF(
+    config: CloudFrontRecordCFConfig,
+    request: CloudFrontRecordCFRequest,
+    response: CloudFrontRecordCFResponse
+  )
+  object CloudFrontRecordCF {
+    implicit val decoder: JsonDecoder[CloudFrontRecordCF] = DeriveJsonDecoder.gen[CloudFrontRecordCF]
+  }
 
-    final case class Header(
-      key: String,
-      value: String
-    )
-    object Header {
-      implicit val decoder: JsonDecoder[Header] = DeriveJsonDecoder.gen[Header]
-    }
+  final case class CloudFrontRecordCFConfig(distributionId: String)
+  object CloudFrontRecordCFConfig {
+    implicit val decoder: JsonDecoder[CloudFrontRecordCFConfig] = DeriveJsonDecoder.gen[CloudFrontRecordCFConfig]
+  }
+  final case class CloudFrontRecordCFRequest(
+    uri: String,
+    method: String,
+    httpVersion: String,
+    clientIp: String,
+    headers: Map[String, List[CloudFrontRecordCFHttpHeader]]
+  )
+  object CloudFrontRecordCFRequest {
+    implicit val decoder: JsonDecoder[CloudFrontRecordCFRequest] = DeriveJsonDecoder.gen[CloudFrontRecordCFRequest]
+  }
+
+  final case class CloudFrontRecordCFResponse(
+    status: String,
+    statusDescription: String,
+    httpVersion: String,
+    headers: Map[String, List[CloudFrontRecordCFHttpHeader]]
+  )
+  object CloudFrontRecordCFResponse {
+    implicit val decoder: JsonDecoder[CloudFrontRecordCFResponse] = DeriveJsonDecoder.gen[CloudFrontRecordCFResponse]
+  }
+
+  final case class CloudFrontRecordCFHttpHeader(
+    key: String,
+    value: String
+  )
+  object CloudFrontRecordCFHttpHeader {
+    implicit val decoder: JsonDecoder[CloudFrontRecordCFHttpHeader] =
+      DeriveJsonDecoder.gen[CloudFrontRecordCFHttpHeader]
   }
 
   final case class CloudWatchLogs(
-    awsLogs: CloudWatchLogs.AWSLogs
+    awsLogs: CloudWatchLogsAWSLogs
   ) extends LambdaEvent
 
   object CloudWatchLogs {
     implicit val decoder: JsonDecoder[CloudWatchLogs] = DeriveJsonDecoder.gen[CloudWatchLogs]
-
-    final case class AWSLogs(data: String)
-    object AWSLogs {
-      implicit val decoder: JsonDecoder[AWSLogs] = DeriveJsonDecoder.gen[AWSLogs]
-    }
   }
 
-  final case class CodeCommit(records: Seq[CodeCommit.Record]) extends LambdaEvent
+  final case class CloudWatchLogsAWSLogs(data: String)
+  object CloudWatchLogsAWSLogs {
+    implicit val decoder: JsonDecoder[CloudWatchLogsAWSLogs] = DeriveJsonDecoder.gen[CloudWatchLogsAWSLogs]
+  }
+
+  final case class CodeCommit(records: Seq[CodeCommitRecord]) extends LambdaEvent
 
   object CodeCommit {
     implicit val decoder: JsonDecoder[CodeCommit] = DeriveJsonDecoder.gen[CodeCommit]
-    final case class Record(
-      eventId: String,
-      eventVersion: String,
-      eventTime: java.time.Instant,
-      eventTriggerName: String,
-      eventPartNumber: Int,
-      codeCommit: Commit,
-      eventName: String,
-      eventTriggerConfigId: String,
-      eventSourceArn: String,
-      userIdentityArn: String,
-      eventSource: String,
-      awsRegion: String,
-      customData: String,
-      eventTotalParts: Int
-    )
-    object Record {
-      implicit val decoder: JsonDecoder[Record] = DeriveJsonDecoder.gen[Record]
-    }
+  }
 
-    final case class Commit(references: List[Reference])
-    object Commit {
-      implicit val decoder: JsonDecoder[Commit] = DeriveJsonDecoder.gen[Commit]
-    }
+  final case class CodeCommitRecord(
+    eventId: String,
+    eventVersion: String,
+    eventTime: java.time.Instant,
+    eventTriggerName: String,
+    eventPartNumber: Int,
+    codeCommit: CodeCommitRecordCommit,
+    eventName: String,
+    eventTriggerConfigId: String,
+    eventSourceArn: String,
+    userIdentityArn: String,
+    eventSource: String,
+    awsRegion: String,
+    customData: String,
+    eventTotalParts: Int
+  )
+  object CodeCommitRecord {
+    implicit val decoder: JsonDecoder[CodeCommitRecord] = DeriveJsonDecoder.gen[CodeCommitRecord]
+  }
 
-    final case class Reference(
-      commit: String,
-      ref: String,
-      created: Boolean
-    )
-    object Reference {
-      implicit val decoder: JsonDecoder[Reference] = DeriveJsonDecoder.gen[Reference]
-    }
+  final case class CodeCommitRecordCommit(references: List[CodeCommitRecordCommitReference])
+  object CodeCommitRecordCommit {
+    implicit val decoder: JsonDecoder[CodeCommitRecordCommit] = DeriveJsonDecoder.gen[CodeCommitRecordCommit]
+  }
+
+  final case class CodeCommitRecordCommitReference(
+    commit: String,
+    ref: String,
+    created: Boolean
+  )
+  object CodeCommitRecordCommitReference {
+    implicit val decoder: JsonDecoder[CodeCommitRecordCommitReference] =
+      DeriveJsonDecoder.gen[CodeCommitRecordCommitReference]
   }
 
   final case class Cognito(
     region: String,
-    datasetRecords: Map[String, Cognito.DatasetRecord],
+    datasetRecords: Map[String, CognitoDatasetRecord],
     identityPoolId: String,
     identityId: String,
     datasetName: String,
@@ -515,14 +542,15 @@ object LambdaEvent {
 
   object Cognito {
     implicit val decoder: JsonDecoder[Cognito] = DeriveJsonDecoder.gen[Cognito]
-    final case class DatasetRecord(
-      oldValue: String,
-      newValue: String,
-      op: String
-    )
-    object DatasetRecord {
-      implicit val decoder: JsonDecoder[DatasetRecord] = DeriveJsonDecoder.gen[DatasetRecord]
-    }
+  }
+
+  final case class CognitoDatasetRecord(
+    oldValue: String,
+    newValue: String,
+    op: String
+  )
+  object CognitoDatasetRecord {
+    implicit val decoder: JsonDecoder[CognitoDatasetRecord] = DeriveJsonDecoder.gen[CognitoDatasetRecord]
   }
 
   final case class CognitoUserPoolCreateAuthChallenge(
@@ -531,38 +559,41 @@ object LambdaEvent {
     region: String,
     userPoolId: String,
     userName: String,
-    callerContext: CognitoUserPoolCreateAuthChallenge.CallerContext,
-    request: CognitoUserPoolCreateAuthChallenge.Request,
-    response: CognitoUserPoolCreateAuthChallenge.Response
+    callerContext: CognitoUserPoolCreateAuthChallengeCallerContext,
+    request: CognitoUserPoolCreateAuthChallengeRequest,
+    response: CognitoUserPoolCreateAuthChallengeResponse
   ) extends LambdaEvent
 
   object CognitoUserPoolCreateAuthChallenge {
     implicit val decoder: JsonDecoder[CognitoUserPoolCreateAuthChallenge] =
       DeriveJsonDecoder.gen[CognitoUserPoolCreateAuthChallenge]
+  }
 
-    final case class CallerContext(awsSdkVersion: String, clientId: String)
-    object CallerContext {
-      implicit val decoder: JsonDecoder[CallerContext] = DeriveJsonDecoder.gen[CallerContext]
-    }
+  final case class CognitoUserPoolCreateAuthChallengeCallerContext(awsSdkVersion: String, clientId: String)
+  object CognitoUserPoolCreateAuthChallengeCallerContext {
+    implicit val decoder: JsonDecoder[CognitoUserPoolCreateAuthChallengeCallerContext] =
+      DeriveJsonDecoder.gen[CognitoUserPoolCreateAuthChallengeCallerContext]
+  }
 
-    final case class Request(
-      clientMetadata: Map[String, String],
-      challengeName: String,
-      // session: List[ChallengeResult],
-      userNotFound: Boolean
-    )
-    object Request {
-      implicit val decoder: JsonDecoder[Request] = DeriveJsonDecoder.gen[Request]
-    }
+  final case class CognitoUserPoolCreateAuthChallengeRequest(
+    clientMetadata: Map[String, String],
+    challengeName: String,
+    // session: List[ChallengeResult],
+    userNotFound: Boolean
+  )
+  object CognitoUserPoolCreateAuthChallengeRequest {
+    implicit val decoder: JsonDecoder[CognitoUserPoolCreateAuthChallengeRequest] =
+      DeriveJsonDecoder.gen[CognitoUserPoolCreateAuthChallengeRequest]
+  }
 
-    final case class Response(
-      publicChallengeParameters: Map[String, String],
-      privateChallengeParameters: Map[String, String],
-      challengeMetadata: String
-    )
-    object Response {
-      implicit val decoder: JsonDecoder[Response] = DeriveJsonDecoder.gen[Response]
-    }
+  final case class CognitoUserPoolCreateAuthChallengeResponse(
+    publicChallengeParameters: Map[String, String],
+    privateChallengeParameters: Map[String, String],
+    challengeMetadata: String
+  )
+  object CognitoUserPoolCreateAuthChallengeResponse {
+    implicit val decoder: JsonDecoder[CognitoUserPoolCreateAuthChallengeResponse] =
+      DeriveJsonDecoder.gen[CognitoUserPoolCreateAuthChallengeResponse]
   }
 
   final case class CognitoUserPoolCustomMessage(
@@ -571,30 +602,32 @@ object LambdaEvent {
     region: String,
     userPoolId: String,
     userName: String,
-    callerContext: CognitoUserPoolCustomMessage.CallerContext,
-    request: CognitoUserPoolCustomMessage.Request,
-    response: CognitoUserPoolCustomMessage.Response
+    callerContext: CognitoUserPoolCustomMessageCallerContext,
+    request: CognitoUserPoolCustomMessageRequest,
+    response: CognitoUserPoolCustomMessageResponse
   ) extends LambdaEvent
 
   object CognitoUserPoolCustomMessage {
     implicit val decoder: JsonDecoder[CognitoUserPoolCustomMessage] =
       DeriveJsonDecoder.gen[CognitoUserPoolCustomMessage]
+  }
 
-    final case class CallerContext(awsSdkVersion: String, clientId: String)
-    object CallerContext {
-      implicit val decoder: JsonDecoder[CallerContext] = DeriveJsonDecoder.gen[CallerContext]
-    }
+  final case class CognitoUserPoolCustomMessageCallerContext(awsSdkVersion: String, clientId: String)
+  object CognitoUserPoolCustomMessageCallerContext {
+    implicit val decoder: JsonDecoder[CognitoUserPoolCustomMessageCallerContext] =
+      DeriveJsonDecoder.gen[CognitoUserPoolCustomMessageCallerContext]
+  }
 
-    final case class Request()
-    object Request {
-      implicit val decoder: JsonDecoder[Request] = DeriveJsonDecoder.gen[Request]
-    }
+  final case class CognitoUserPoolCustomMessageRequest()
+  object CognitoUserPoolCustomMessageRequest {
+    implicit val decoder: JsonDecoder[CognitoUserPoolCustomMessageRequest] =
+      DeriveJsonDecoder.gen[CognitoUserPoolCustomMessageRequest]
+  }
 
-    final case class Response()
-    object Response {
-      implicit val decoder: JsonDecoder[Response] = DeriveJsonDecoder.gen[Response]
-    }
-
+  final case class CognitoUserPoolCustomMessageResponse()
+  object CognitoUserPoolCustomMessageResponse {
+    implicit val decoder: JsonDecoder[CognitoUserPoolCustomMessageResponse] =
+      DeriveJsonDecoder.gen[CognitoUserPoolCustomMessageResponse]
   }
 
   final case class CognitoUserPoolDefineAuthChallenge() extends LambdaEvent
@@ -665,34 +698,35 @@ object LambdaEvent {
     implicit val decoder: JsonDecoder[Config] = DeriveJsonDecoder.gen[Config]
   }
 
-  final case class Connect(details: Connect.Details, name: String) extends LambdaEvent
+  final case class Connect(details: ConnectDetails, name: String) extends LambdaEvent
 
   object Connect {
     implicit val decoder: JsonDecoder[Connect] = DeriveJsonDecoder.gen[Connect]
+  }
 
-    final case class Details(contactData: ContactData, parameters: Map[String, String])
-    object Details {
-      implicit val decoder: JsonDecoder[Details] = DeriveJsonDecoder.gen[Details]
-    }
-    final case class ContactData(
-      attributes: Map[String, String],
-      channel: String,
-      contactId: String,
-      customerEndpoint: Endpoint,
-      initialContactId: String,
-      initiationMethod: String,
-      instanceArn: String,
-      previousContactId: String,
-      queue: String,
-      systemEndpoint: Endpoint
-    )
-    object ContactData {
-      implicit val decoder: JsonDecoder[ContactData] = DeriveJsonDecoder.gen[ContactData]
-    }
-    final case class Endpoint(address: String, `type`: String)
-    object Endpoint {
-      implicit val decoder: JsonDecoder[Endpoint] = DeriveJsonDecoder.gen[Endpoint]
-    }
+  final case class ConnectDetails(contactData: ConnectContactData, parameters: Map[String, String])
+  object ConnectDetails {
+    implicit val decoder: JsonDecoder[ConnectDetails] = DeriveJsonDecoder.gen[ConnectDetails]
+  }
+
+  final case class ConnectContactData(
+    attributes: Map[String, String],
+    channel: String,
+    contactId: String,
+    customerEndpoint: Endpoint,
+    initialContactId: String,
+    initiationMethod: String,
+    instanceArn: String,
+    previousContactId: String,
+    queue: String,
+    systemEndpoint: Endpoint
+  )
+  object ConnectContactData {
+    implicit val decoder: JsonDecoder[ConnectContactData] = DeriveJsonDecoder.gen[ConnectContactData]
+  }
+  final case class Endpoint(address: String, `type`: String)
+  object Endpoint {
+    implicit val decoder: JsonDecoder[Endpoint] = DeriveJsonDecoder.gen[Endpoint]
   }
 
   // final case class Dynamodb(records: List[Dynamodb.DynamodbStreamRecord]) extends LambdaEvent
@@ -759,7 +793,7 @@ object LambdaEvent {
   }
 
   final case class Kafka(
-    records: Map[String, List[Kafka.Record]],
+    records: Map[String, List[KafkaRecord]],
     eventSource: String,
     eventSourceArn: String,
     bootstrapServers: String
@@ -767,66 +801,71 @@ object LambdaEvent {
 
   object Kafka {
     implicit val decoder: JsonDecoder[Kafka] = DeriveJsonDecoder.gen[Kafka]
-    final case class Record(
-      topic: String,
-      partition: Int,
-      offset: Long,
-      timestamp: Long,
-      timestampType: String,
-      key: String,
-      value: String
-    )
-    object Record {
-      implicit val decoder: JsonDecoder[Record] = DeriveJsonDecoder.gen[Record]
-    }
+  }
+
+  final case class KafkaRecord(
+    topic: String,
+    partition: Int,
+    offset: Long,
+    timestamp: Long,
+    timestampType: String,
+    key: String,
+    value: String
+  )
+  object KafkaRecord {
+    implicit val decoder: JsonDecoder[KafkaRecord] = DeriveJsonDecoder.gen[KafkaRecord]
   }
 
   final case class KinesisAnalyticsFirehoseInputPreprocessing(
     invocationId: String,
     applicationArn: String,
     streamArn: String,
-    records: List[KinesisAnalyticsFirehoseInputPreprocessing.Record]
+    records: List[KinesisAnalyticsFirehoseInputPreprocessingRecord]
   ) extends LambdaEvent
   object KinesisAnalyticsFirehoseInputPreprocessing {
     implicit val decoder: JsonDecoder[KinesisAnalyticsFirehoseInputPreprocessing] =
       DeriveJsonDecoder.gen[KinesisAnalyticsFirehoseInputPreprocessing]
-    final case class Record(
-      recordId: String,
-      kinesisFirehoseRecordMetadata: KinesisFirehoseRecordMetadata,
-      data: String // Revisit this as it was defined as java.nio.ByteBuffer
-    )
-    object Record {
-      implicit val decoder: JsonDecoder[Record] = DeriveJsonDecoder.gen[Record]
-    }
-    final case class KinesisFirehoseRecordMetadata(approximateArrivalTimestamp: Long)
-    object KinesisFirehoseRecordMetadata {
-      implicit val decoder: JsonDecoder[KinesisFirehoseRecordMetadata] =
-        DeriveJsonDecoder.gen[KinesisFirehoseRecordMetadata]
-    }
+  }
+
+  final case class KinesisAnalyticsFirehoseInputPreprocessingRecord(
+    recordId: String,
+    kinesisFirehoseRecordMetadata: KinesisFirehoseRecordMetadata,
+    data: String // Revisit this as it was defined as java.nio.ByteBuffer
+  )
+  object KinesisAnalyticsFirehoseInputPreprocessingRecord {
+    implicit val decoder: JsonDecoder[KinesisAnalyticsFirehoseInputPreprocessingRecord] =
+      DeriveJsonDecoder.gen[KinesisAnalyticsFirehoseInputPreprocessingRecord]
+  }
+  final case class KinesisFirehoseRecordMetadata(approximateArrivalTimestamp: Long)
+  object KinesisFirehoseRecordMetadata {
+    implicit val decoder: JsonDecoder[KinesisFirehoseRecordMetadata] =
+      DeriveJsonDecoder.gen[KinesisFirehoseRecordMetadata]
   }
 
   final case class KinesisAnalyticsOutputDelivery(
     invocationId: String,
     applicationArn: String,
-    records: List[KinesisAnalyticsOutputDelivery.Record]
+    records: List[KinesisAnalyticsOutputDeliveryRecord]
   ) extends LambdaEvent
 
   object KinesisAnalyticsOutputDelivery {
     implicit val decoder: JsonDecoder[KinesisAnalyticsOutputDelivery] =
       DeriveJsonDecoder.gen[KinesisAnalyticsOutputDelivery]
-    final case class Record(
-      recordId: String,
-      lambdaDeliveryRecordMetadata: LambdaDeliveryRecordMetadata,
-      data: String // Revisit this as it was defined as java.nio.ByteBuffer
-    )
-    object Record {
-      implicit val decoder: JsonDecoder[Record] = DeriveJsonDecoder.gen[Record]
-    }
-    final case class LambdaDeliveryRecordMetadata(retryHint: Long)
-    object LambdaDeliveryRecordMetadata {
-      implicit val decoder: JsonDecoder[LambdaDeliveryRecordMetadata] =
-        DeriveJsonDecoder.gen[LambdaDeliveryRecordMetadata]
-    }
+  }
+
+  final case class KinesisAnalyticsOutputDeliveryRecord(
+    recordId: String,
+    lambdaDeliveryRecordMetadata: LambdaDeliveryRecordMetadata,
+    data: String // Revisit this as it was defined as java.nio.ByteBuffer
+  )
+  object KinesisAnalyticsOutputDeliveryRecord {
+    implicit val decoder: JsonDecoder[KinesisAnalyticsOutputDeliveryRecord] =
+      DeriveJsonDecoder.gen[KinesisAnalyticsOutputDeliveryRecord]
+  }
+  final case class LambdaDeliveryRecordMetadata(retryHint: Long)
+  object LambdaDeliveryRecordMetadata {
+    implicit val decoder: JsonDecoder[LambdaDeliveryRecordMetadata] =
+      DeriveJsonDecoder.gen[LambdaDeliveryRecordMetadata]
   }
 
   final case class KinesisAnalyticsStreamsInputPreprocessing() extends LambdaEvent
@@ -836,57 +875,56 @@ object LambdaEvent {
   }
 
   final case class Kinesis(
-    @jsonField("Records") records: List[Kinesis.Record]
+    @jsonField("Records") records: List[KinesisRecord]
   ) extends LambdaEvent
 
   object Kinesis {
+    implicit val decoder: JsonDecoder[Kinesis] = DeriveJsonDecoder.gen[Kinesis]
+  }
 
-    final case class Record(
-      kinesis: KinesisRecordUnit,
-      eventSource: String,
-      eventID: String,
-      invokeIdentityArn: String,
-      eventName: String,
-      eventVersion: String,
-      eventSourceARN: String,
-      awsRegion: String
-    )
+  final case class KinesisRecord(
+    kinesis: KinesisRecordUnit,
+    eventSource: String,
+    eventID: String,
+    invokeIdentityArn: String,
+    eventName: String,
+    eventVersion: String,
+    eventSourceARN: String,
+    awsRegion: String
+  )
 
-    object Record {
-      implicit val decoder: JsonDecoder[Record] = DeriveJsonDecoder.gen[Record]
-    }
+  object KinesisRecord {
+    implicit val decoder: JsonDecoder[KinesisRecord] = DeriveJsonDecoder.gen[KinesisRecord]
+  }
 
-    final case class KinesisRecordUnit(
-      kinesisSchemaVersion: String,
-      partitionKey: String,
-      sequenceNumber: String,
-      data: String,
-      approximateArrivalTimestamp: java.time.Instant,
-      encryptionType: KinesisRecordUnit.EncryptionType
-    )
+  final case class KinesisRecordUnit(
+    kinesisSchemaVersion: String,
+    partitionKey: String,
+    sequenceNumber: String,
+    data: String,
+    approximateArrivalTimestamp: java.time.Instant,
+    encryptionType: KinesisRecordUnitEncryptionType
+  )
 
-    object KinesisRecordUnit {
-      implicit val offsetDateTimeDecoder: JsonDecoder[java.time.Instant] = JsonDecoder[Double]
-        .map(value => java.time.Instant.ofEpochMilli((BigDecimal(value) * 1000).toLong))
+  object KinesisRecordUnit {
+    implicit val offsetDateTimeDecoder: JsonDecoder[java.time.Instant] = JsonDecoder[Double]
+      .map(value => java.time.Instant.ofEpochMilli((BigDecimal(value) * 1000).toLong))
 
-      implicit val decoder: JsonDecoder[KinesisRecordUnit] = DeriveJsonDecoder.gen[KinesisRecordUnit]
+    implicit val decoder: JsonDecoder[KinesisRecordUnit] = DeriveJsonDecoder.gen[KinesisRecordUnit]
+  }
 
-      sealed trait EncryptionType
-      object EncryptionType {
-        case object None extends EncryptionType
-        case object Kms  extends EncryptionType
+  sealed trait KinesisRecordUnitEncryptionType
+  object KinesisRecordUnitEncryptionType {
+    case object None extends KinesisRecordUnitEncryptionType
+    case object Kms  extends KinesisRecordUnitEncryptionType
 
-        implicit val decoder: JsonDecoder[EncryptionType] = JsonDecoder[String].mapOrFail {
-          _.toUpperCase() match {
-            case "NONE"  => Right(None)
-            case "KMS"   => Right(Kms)
-            case unknown => Left(s"Unknown Kinesis event encryptionType: $unknown")
-          }
-        }
+    implicit val decoder: JsonDecoder[KinesisRecordUnitEncryptionType] = JsonDecoder[String].mapOrFail {
+      _.toUpperCase() match {
+        case "NONE"  => Right(None)
+        case "KMS"   => Right(Kms)
+        case unknown => Left(s"Unknown Kinesis event encryptionType: $unknown")
       }
     }
-
-    implicit val decoder: JsonDecoder[Kinesis] = DeriveJsonDecoder.gen[Kinesis]
   }
 
   final case class KinesisFirehose() extends LambdaEvent
@@ -913,15 +951,16 @@ object LambdaEvent {
   }
 
   final case class Scheduled(
+    id: String,
     account: String,
     region: String,
     detail: Map[String, String],
     source: String,
-    id: String,
-    time: java.time.ZonedDateTime,
     resources: List[String],
+    time: java.time.ZonedDateTime,
     @jsonField("detail-type") detailType: String
   ) extends LambdaEvent
+
   object Scheduled {
     implicit val decoder: JsonDecoder[Scheduled] = DeriveJsonDecoder.gen[Scheduled]
   }

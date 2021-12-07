@@ -60,11 +60,11 @@ object LambdaLoaderLiveSpec extends DefaultRunnableSpec {
           .loadLambda()
           .flatMap {
             case Right(zLambda) =>
-              zLambda.runHandler(CustomPayload("payload").toJson, context)
+              zLambda.applyJson(CustomPayload("payload").toJson)
             case Left(error) => ZIO.fail(s"ZLambda not loaded. Error=$error")
           }
           .map(Function.const(assertCompletes))
-          .provideCustomLayer(lambdaLoaderLayer)
+          .provideCustomLayer(lambdaLoaderLayer ++ ZLayer.succeed(context))
       }
     )
 

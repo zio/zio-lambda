@@ -9,7 +9,7 @@ import zio.blocking.Blocking
  * https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html
  * https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html
  */
-object ZRuntimeApp extends App {
+object ZLambdaReflectiveApp extends App {
 
   override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
     val classLoaderBuilderLayer = (LambdaEnvironmentLive.layer ++
