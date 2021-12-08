@@ -27,13 +27,11 @@ object ZLambdaReflectiveApp extends App {
         SttpClientLive.layer
     ) >>> RuntimeApiLive.layer
 
-    val zRuntimeLayer = (runtimeApiLayer ++ LambdaEnvironmentLive.layer) >>> ZRuntimeLive.layer
-
     LambdaLoader
       .loadLambda()
       .flatMap(ZRuntime.processInvocation(_).forever)
       .tapError(throwable => RuntimeApi.sendInitializationError(InvocationErrorResponse.fromThrowable(throwable)))
-      .provideCustomLayer(zRuntimeLayer ++ lambdaLoaderLayer ++ runtimeApiLayer)
+      .provideCustomLayer(LambdaEnvironmentLive.layer ++ lambdaLoaderLayer ++ runtimeApiLayer)
       .exitCode
   }
 

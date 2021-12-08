@@ -5,15 +5,15 @@ import zio.json._
 import zio.test.Assertion._
 import zio.test._
 
-object ZRuntimeLiveSpec extends DefaultRunnableSpec {
+object ZRuntimeSpec extends DefaultRunnableSpec {
 
   override def spec: ZSpec[Environment, Failure] = suite("ZRuntimeLive spec")(
     testM("should process invocation and send invocation response") {
       checkM(InvocationRequestGen.gen, LambdaEnvironmentGen.gen) { (invocationRequest, lambdaEnvironment) =>
         val zRuntimeLayer =
-          (TestRuntimeApi.testLayer ++ ZLayer.succeed(
-            lambdaEnvironment
-          )) >>> ZRuntimeLive.layer ++ TestRuntimeApi.testLayer
+          TestRuntimeApi.testLayer ++
+            ZLayer.succeed(lambdaEnvironment) ++
+            TestRuntimeApi.testLayer
 
         (for {
           _ <- TestRuntimeApi.addInvocationRequest(
@@ -36,9 +36,9 @@ object ZRuntimeLiveSpec extends DefaultRunnableSpec {
     testM("should send invocation error if ZLambda wasn't loaded successfully ") {
       checkM(InvocationRequestGen.gen, LambdaEnvironmentGen.gen) { (invocationRequest, lambdaEnvironment) =>
         val zRuntimeLayer =
-          (TestRuntimeApi.testLayer ++ ZLayer.succeed(
-            lambdaEnvironment
-          )) >>> ZRuntimeLive.layer ++ TestRuntimeApi.testLayer
+          TestRuntimeApi.testLayer ++
+            ZLayer.succeed(lambdaEnvironment) ++
+            TestRuntimeApi.testLayer
 
         (for {
           _ <- TestRuntimeApi.addInvocationRequest(
@@ -63,9 +63,9 @@ object ZRuntimeLiveSpec extends DefaultRunnableSpec {
     testM("should send invocation error if ZLambda fails") {
       checkM(InvocationRequestGen.gen, LambdaEnvironmentGen.gen) { (invocationRequest, lambdaEnvironment) =>
         val zRuntimeLayer =
-          (TestRuntimeApi.testLayer ++ ZLayer.succeed(
-            lambdaEnvironment
-          )) >>> ZRuntimeLive.layer ++ TestRuntimeApi.testLayer
+          TestRuntimeApi.testLayer ++
+            ZLayer.succeed(lambdaEnvironment) ++
+            TestRuntimeApi.testLayer
 
         (for {
           _ <- TestRuntimeApi.addInvocationRequest(
