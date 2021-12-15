@@ -28,7 +28,7 @@ inThisBuild(
   )
 )
 
-val zioVersion     = "1.0.12"
+val zioVersion     = "1.0.13"
 val zioJsonVersion = "0.2.0-M3"
 val sttpVersion    = "3.3.18"
 
