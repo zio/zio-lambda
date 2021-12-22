@@ -51,7 +51,7 @@ object TestRuntimeApi {
             .mapError(Function.const(new Throwable("InitializationError not sent")))
         )
 
-    override def getNextInvocation(): Task[InvocationRequest] =
+    override def getNextInvocation: Task[InvocationRequest] =
       invocationDataRef.get
         .flatMap(invocationData =>
           ZIO

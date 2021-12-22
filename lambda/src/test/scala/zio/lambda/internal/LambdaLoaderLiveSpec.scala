@@ -16,12 +16,10 @@ object LambdaLoaderLiveSpec extends DefaultRunnableSpec {
           LambdaEnvironment("", None, Some("/opt"), 128, None, None, None, None)
         )
 
-        val lambdaLoaderLayer = (lambdaEnvironmentLayer ++ Blocking.live ++ ZLayer.succeed(
-          LambdaLoaderLiveSpec.getClass().getClassLoader()
-        )) >>> LambdaLoaderLive.layer
+        val lambdaLoaderLayer =
+          (lambdaEnvironmentLayer ++ Blocking.live ++ TestCustomClassLoader.test) >>> LambdaLoaderLive.layer
 
-        LambdaLoader
-          .loadLambda()
+        LambdaLoader.loadLambda
           .map(throwable => assert(throwable.left.map(_.getMessage()))(isLeft(equalTo("Function Handler not defined"))))
           .provideLayer(lambdaLoaderLayer)
       },
@@ -52,17 +50,14 @@ object LambdaLoaderLiveSpec extends DefaultRunnableSpec {
           None
         )
 
-        val lambdaLoaderLayer = (lambdaEnvironmentLayer ++ Blocking.live ++ ZLayer.succeed(
-          LambdaLoaderLiveSpec.getClass().getClassLoader()
-        )) >>> LambdaLoaderLive.layer
+        val lambdaLoaderLayer =
+          (lambdaEnvironmentLayer ++ Blocking.live ++ TestCustomClassLoader.test) >>> LambdaLoaderLive.layer
 
-        LambdaLoader
-          .loadLambda()
-          .flatMap {
-            case Right(zLambda) =>
-              zLambda.applyJson(CustomPayload("payload").toJson)
-            case Left(error) => ZIO.fail(s"ZLambda not loaded. Error=$error")
-          }
+        LambdaLoader.loadLambda.flatMap {
+          case Right(zLambda) =>
+            zLambda.applyJson(CustomPayload("payload").toJson, context)
+          case Left(error) => ZIO.fail(s"ZLambda not loaded. Error=$error")
+        }
           .map(Function.const(assertCompletes))
           .provideCustomLayer(lambdaLoaderLayer ++ ZLayer.succeed(context))
       }

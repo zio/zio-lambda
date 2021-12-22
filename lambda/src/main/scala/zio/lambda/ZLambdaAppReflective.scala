@@ -12,26 +12,26 @@ import zio.blocking.Blocking
 object ZLambdaReflectiveApp extends App {
 
   override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
-    val classLoaderBuilderLayer = (LambdaEnvironmentLive.layer ++
-      Blocking.live) >>> CustomClassLoader.layer
+    val classLoaderBuilderLayer = LambdaEnvironment.live >>> CustomClassLoader.live
 
     val lambdaLoaderLayer = (
-      LambdaEnvironmentLive.layer ++
+      LambdaEnvironment.live ++
         Blocking.live ++
         classLoaderBuilderLayer
     ) >>> LambdaLoaderLive.layer
 
     val runtimeApiLayer = (
-      LambdaEnvironmentLive.layer ++
+      LambdaEnvironment.live ++
         Blocking.live ++
-        SttpClientLive.layer
+        SttpClient.live
     ) >>> RuntimeApiLive.layer
 
-    LambdaLoader
-      .loadLambda()
-      .flatMap(ZRuntime.processInvocation(_).forever)
+    val zRuntimeLayer = (runtimeApiLayer ++ LambdaEnvironment.live) >>> LoopProcessor.live
+
+    LambdaLoader.loadLambda
+      .flatMap(LoopProcessor.loop(_).forever)
       .tapError(throwable => RuntimeApi.sendInitializationError(InvocationErrorResponse.fromThrowable(throwable)))
-      .provideCustomLayer(LambdaEnvironmentLive.layer ++ lambdaLoaderLayer ++ runtimeApiLayer)
+      .provideCustomLayer(zRuntimeLayer ++ runtimeApiLayer ++ lambdaLoaderLayer)
       .exitCode
   }
 

@@ -15,8 +15,18 @@ object LambdaEventSpec extends DefaultRunnableSpec {
         }
       },
       testM("should decode Scheduled JSON") {
-        check(JavaLambdaEventsGen.genScheduled) { scheduledEvent =>
+        check(JavaLambdaEventsGen.genScheduledEvent) { scheduledEvent =>
           assert(JavaLambdaEventJsonEncoder.toJson(scheduledEvent).fromJson[LambdaEvent.Scheduled])(isRight)
+        }
+      },
+      testM("should decode Kafka JSON") {
+        check(JavaLambdaEventsGen.genKafkaEvent) { kafkaEvent =>
+          assert(JavaLambdaEventJsonEncoder.toJson(kafkaEvent).fromJson[LambdaEvent.Kafka])(isRight)
+        }
+      },
+      testM("should decode SQS JSON") {
+        check(JavaLambdaEventsGen.genSQSEvent) { sqsEvent =>
+          assert(JavaLambdaEventJsonEncoder.toJson(sqsEvent).fromJson[LambdaEvent.SQS])(isRight)
         }
       }
     )

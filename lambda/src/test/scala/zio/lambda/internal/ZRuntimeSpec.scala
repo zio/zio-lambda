@@ -10,10 +10,9 @@ object ZRuntimeSpec extends DefaultRunnableSpec {
   override def spec: ZSpec[Environment, Failure] = suite("ZRuntimeLive spec")(
     testM("should process invocation and send invocation response") {
       checkM(InvocationRequestGen.gen, LambdaEnvironmentGen.gen) { (invocationRequest, lambdaEnvironment) =>
-        val zRuntimeLayer =
-          TestRuntimeApi.testLayer ++
-            ZLayer.succeed(lambdaEnvironment) ++
-            TestRuntimeApi.testLayer
+        val loopProcessorLayer =
+          (TestRuntimeApi.testLayer ++
+            ZLayer.succeed(lambdaEnvironment)) >>> LoopProcessor.live ++ TestRuntimeApi.testLayer
 
         (for {
           _ <- TestRuntimeApi.addInvocationRequest(
@@ -21,7 +20,7 @@ object ZRuntimeSpec extends DefaultRunnableSpec {
                    payload = CustomPayload(invocationRequest.payload).toJson
                  )
                )
-          _                      <- ZRuntime.processInvocation(Right(SuccessZLambda))
+          _                      <- LoopProcessor.loop(Right(SuccessZLambda))
           invocationResponseSent <- TestRuntimeApi.getInvocationResponse()
         } yield assert(invocationResponseSent)(
           equalTo(
@@ -30,15 +29,14 @@ object ZRuntimeSpec extends DefaultRunnableSpec {
               CustomResponse(invocationRequest.payload).toJson
             )
           )
-        )).provideCustomLayer(zRuntimeLayer)
+        )).provideCustomLayer(loopProcessorLayer)
       }
     },
     testM("should send invocation error if ZLambda wasn't loaded successfully ") {
       checkM(InvocationRequestGen.gen, LambdaEnvironmentGen.gen) { (invocationRequest, lambdaEnvironment) =>
-        val zRuntimeLayer =
-          TestRuntimeApi.testLayer ++
-            ZLayer.succeed(lambdaEnvironment) ++
-            TestRuntimeApi.testLayer
+        val loopProcessorLayer =
+          (TestRuntimeApi.testLayer ++
+            ZLayer.succeed(lambdaEnvironment)) >>> LoopProcessor.live ++ TestRuntimeApi.testLayer
 
         (for {
           _ <- TestRuntimeApi.addInvocationRequest(
@@ -47,7 +45,7 @@ object ZRuntimeSpec extends DefaultRunnableSpec {
                  )
                )
           loaderLambdaError = new Throwable("Error loading ZLambda")
-          _                <- ZRuntime.processInvocation(Left(loaderLambdaError))
+          _                <- LoopProcessor.loop(Left(loaderLambdaError))
           invocationError  <- TestRuntimeApi.getInvocationError()
 
         } yield assert(invocationError)(
@@ -57,15 +55,14 @@ object ZRuntimeSpec extends DefaultRunnableSpec {
               InvocationErrorResponse.fromThrowable(loaderLambdaError)
             )
           )
-        )).provideCustomLayer(zRuntimeLayer)
+        )).provideCustomLayer(loopProcessorLayer)
       }
     },
     testM("should send invocation error if ZLambda fails") {
       checkM(InvocationRequestGen.gen, LambdaEnvironmentGen.gen) { (invocationRequest, lambdaEnvironment) =>
-        val zRuntimeLayer =
-          TestRuntimeApi.testLayer ++
-            ZLayer.succeed(lambdaEnvironment) ++
-            TestRuntimeApi.testLayer
+        val loopProcessorLayer =
+          (TestRuntimeApi.testLayer ++
+            ZLayer.succeed(lambdaEnvironment)) >>> LoopProcessor.live ++ TestRuntimeApi.testLayer
 
         (for {
           _ <- TestRuntimeApi.addInvocationRequest(
@@ -73,10 +70,10 @@ object ZRuntimeSpec extends DefaultRunnableSpec {
                    payload = CustomPayload(invocationRequest.payload).toJson
                  )
                )
-          _ <- ZRuntime.processInvocation(Right(ErrorZLambda))
+          _ <- LoopProcessor.loop(Right(ErrorZLambda))
           _ <- TestRuntimeApi.getInvocationError()
 
-        } yield assertCompletes).provideCustomLayer(zRuntimeLayer)
+        } yield assertCompletes).provideCustomLayer(loopProcessorLayer)
       }
     }
   )

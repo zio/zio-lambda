@@ -126,7 +126,6 @@ object LambdaEvent {
     httpMethod: String,
     apiId: String,
     path: String,
-    // FIXME the value is a json object. Check all possible values
     authorizer: Map[String, String]
   )
   object APIGatewayProxyRequestRequestContext {
@@ -329,7 +328,6 @@ object LambdaEvent {
     requestId: String,
     identity: APIGatewayV2WebSocketRequestContextIdentity,
     resourcePath: String,
-    // FIXME the value is a json object. Check all possible values
     authorizer: Map[String, String],
     httpMethod: String,
     apiId: String,
@@ -409,7 +407,6 @@ object LambdaEvent {
     logicalResourceId: String,
     physicalResourceId: String,
     resourceType: String,
-    // FIXME value's type shouldn't be Any
     resourceProperties: Map[String, String],
     oldResourceProperties: Map[String, String]
   ) extends LambdaEvent
@@ -807,12 +804,15 @@ object LambdaEvent {
     topic: String,
     partition: Int,
     offset: Long,
-    timestamp: Long,
+    timestamp: java.time.Instant,
     timestampType: String,
     key: String,
     value: String
   )
   object KafkaRecord {
+    implicit val instantDecoder: JsonDecoder[java.time.Instant] = JsonDecoder[Long]
+      .map(java.time.Instant.ofEpochMilli)
+
     implicit val decoder: JsonDecoder[KafkaRecord] = DeriveJsonDecoder.gen[KafkaRecord]
   }
 
@@ -907,7 +907,7 @@ object LambdaEvent {
   )
 
   object KinesisRecordUnit {
-    implicit val offsetDateTimeDecoder: JsonDecoder[java.time.Instant] = JsonDecoder[Double]
+    implicit val instantDecoder: JsonDecoder[java.time.Instant] = JsonDecoder[Double]
       .map(value => java.time.Instant.ofEpochMilli((BigDecimal(value) * 1000).toLong))
 
     implicit val decoder: JsonDecoder[KinesisRecordUnit] = DeriveJsonDecoder.gen[KinesisRecordUnit]
@@ -975,9 +975,48 @@ object LambdaEvent {
     implicit val decoder: JsonDecoder[SNS] = DeriveJsonDecoder.gen[SNS]
   }
 
-  final case class SQS() extends LambdaEvent
+  final case class SQS(@jsonField("Records") records: List[SQSRecord])
+
   object SQS {
     implicit val decoder: JsonDecoder[SQS] = DeriveJsonDecoder.gen[SQS]
+  }
+
+  final case class SQSRecord(
+    messageId: String,
+    receiptHandle: String,
+    body: String,
+    md5OfBody: String,
+    md5OfMessageAttributes: String,
+    eventSourceARN: String,
+    eventSource: String,
+    awsRegion: String,
+    attributes: Map[String, String],
+    messageAttributes: Map[String, SQSMessageAttribute]
+  ) extends LambdaEvent
+  object SQSRecord {
+    implicit val decoder: JsonDecoder[SQSRecord] = DeriveJsonDecoder.gen[SQSRecord]
+  }
+
+  final case class SQSMessageAttribute(stringValue: String, dataType: SQSMessageAttributeDataType)
+  object SQSMessageAttribute {
+    implicit val decoder: JsonDecoder[SQSMessageAttribute] = DeriveJsonDecoder.gen[SQSMessageAttribute]
+
+  }
+
+  sealed trait SQSMessageAttributeDataType
+  object SQSMessageAttributeDataType {
+    implicit val decoder: JsonDecoder[SQSMessageAttributeDataType] = JsonDecoder[String].mapOrFail {
+      _.toUpperCase() match {
+        case "STRING" => Right(String)
+        case "NUMBER" => Right(Number)
+        case "BINARY" => Right(Binary)
+        case value    => Left(s"Unknown SQSMessageAttributeDataType: $value")
+      }
+    }
+
+    case object String extends SQSMessageAttributeDataType
+    case object Number extends SQSMessageAttributeDataType
+    case object Binary extends SQSMessageAttributeDataType
   }
 
 }

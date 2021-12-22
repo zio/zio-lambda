@@ -7,9 +7,9 @@ import zio.lambda.ZLambdaApp
 
 object SimpleHandler extends ZLambdaApp[CustomEvent, CustomResponse] {
 
-  override def apply(request: CustomEvent): RIO[ZEnv with Has[Context], CustomResponse] =
+  override def apply(event: CustomEvent, context: Context): RIO[ZEnv, CustomResponse] =
     for {
-      _ <- putStrLn(request.message)
+      _ <- putStrLn(event.message)
     } yield CustomResponse("Handler ran successfully")
 
 }

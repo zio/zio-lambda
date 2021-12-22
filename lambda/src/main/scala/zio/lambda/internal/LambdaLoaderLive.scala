@@ -4,11 +4,15 @@ import zio._
 import zio.blocking._
 import zio.lambda.ZLambdaApp
 
-final case class LambdaLoaderLive(classLoader: ClassLoader, environment: LambdaEnvironment, blocking: Blocking.Service)
-    extends LambdaLoader {
+final case class LambdaLoaderLive(
+  customClassLoader: CustomClassLoader,
+  environment: LambdaEnvironment,
+  blocking: Blocking.Service
+) extends LambdaLoader {
 
-  override def loadLambda(): UIO[Either[Throwable, ZLambdaApp[_, _]]] =
+  override lazy val loadLambda: UIO[Either[Throwable, ZLambdaApp[_, _]]] =
     (for {
+      classLoader <- customClassLoader.getClassLoader
       handler <-
         ZIO.require(new Throwable("Function Handler not defined"))(ZIO.succeed(environment.handler))
       zLambda <- blocking
@@ -29,6 +33,6 @@ final case class LambdaLoaderLive(classLoader: ClassLoader, environment: LambdaE
 }
 
 object LambdaLoaderLive {
-  val layer: URLayer[Has[ClassLoader] with Has[LambdaEnvironment] with Blocking, Has[LambdaLoader]] =
+  val layer: ZLayer[Has[CustomClassLoader] with Has[LambdaEnvironment] with Blocking, Throwable, Has[LambdaLoader]] =
     (LambdaLoaderLive(_, _, _)).toLayer
 }
