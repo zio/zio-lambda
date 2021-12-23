@@ -32,7 +32,7 @@ object LoopProcessor {
 
         case Left(throwable) =>
           runtimeApi.getNextInvocation
-            .flatMap(request =>
+            .flatMap[Any, Throwable, Unit](request =>
               runtimeApi
                 .sendInvocationError(
                   InvocationError(
@@ -41,7 +41,6 @@ object LoopProcessor {
                   )
                 )
             )
-
       }
   }
 
