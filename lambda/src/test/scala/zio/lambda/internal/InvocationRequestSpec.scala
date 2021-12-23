@@ -9,7 +9,7 @@ import InvocationRequestImplicits._
 object InvocationRequestSpec extends DefaultRunnableSpec {
 
   override def spec: ZSpec[Environment, Failure] =
-    suite("InvocationRequest unit tests")(
+    suite("InvocationRequest spec")(
       suite("fromHttpResponse")(
         testM("should return Left if Lambda-Runtime-Aws-Request-Id header is missing") {
           check(Gen.anyString) { payload =>

@@ -28,9 +28,10 @@ inThisBuild(
   )
 )
 
-val zioVersion     = "1.0.13"
-val zioJsonVersion = "0.2.0-M3"
-val sttpVersion    = "3.3.18"
+val zioVersion         = "1.0.13"
+val zioJsonVersion     = "0.2.0-M3"
+val sttpVersion        = "3.3.18"
+val awsLambdaJavaTests = "1.1.1"
 
 lazy val root =
   project
@@ -38,7 +39,9 @@ lazy val root =
     .settings(publish / skip := true)
     .aggregate(
       zioLambda,
-      zioLambdaExample
+      zioLambdaExample,
+      zioLambdaEvent,
+      zioLambdaResponse
     )
 
 lazy val zioLambda = module("zio-lambda", "lambda")
@@ -49,13 +52,36 @@ lazy val zioLambda = module("zio-lambda", "lambda")
     stdSettings("zio-lambda"),
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
-      "com.softwaremill.sttp.client3" %% "okhttp-backend" % sttpVersion
+      "com.softwaremill.sttp.client3" %% "okhttp-backend"        % sttpVersion,
+      "com.amazonaws"                  % "aws-lambda-java-tests" % awsLambdaJavaTests % "test"
     )
   )
   .settings(
     topLevelDirectory := None,
     Universal / mappings ++= Seq(file("bootstrap") -> "bootstrap"),
     Compile / mainClass := Some("zio.lambda.ZRuntimeApp")
+  )
+
+lazy val zioLambdaEvent = module("zio-lambda-event", "lambda-event")
+  .enablePlugins(BuildInfoPlugin)
+  .settings(buildInfoSettings("zio.lambda.event"))
+  .settings(
+    stdSettings("zio-lambda-event"),
+    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
+    libraryDependencies ++= Seq(
+      "com.amazonaws" % "aws-lambda-java-tests" % awsLambdaJavaTests % "test"
+    )
+  )
+
+lazy val zioLambdaResponse = module("zio-lambda-response", "lambda-response")
+  .enablePlugins(BuildInfoPlugin)
+  .settings(buildInfoSettings("zio.lambda.response"))
+  .settings(
+    stdSettings("zio-lambda-response"),
+    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
+    libraryDependencies ++= Seq(
+      "com.amazonaws" % "aws-lambda-java-tests" % awsLambdaJavaTests % "test"
+    )
   )
 
 lazy val zioLambdaExample = module("zio-lambda-example", "lambda-example")

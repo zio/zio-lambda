@@ -9,22 +9,34 @@ import java.net.InetAddress
 import java.net.Socket
 import javax.net.SocketFactory
 
-object SttpClient {
-  val layer: ULayer[Has[SttpBackend[Identity, Any]]] =
-    ZManaged
-      .make(
-        ZIO.succeed {
-          new OkHttpClient.Builder()
-            .socketFactory(new TcpNoDelaySocketFactory())
-            .build()
-        }
-      )(okHttpClient => ZIO.succeed(okHttpClient.dispatcher().executorService().shutdown()))
-      .use[Any, Nothing, SttpBackend[Identity, Any]](okHttpClient =>
-        ZIO.succeed(OkHttpSyncBackend.usingClient(okHttpClient))
-      )
-      .toLayer
+trait SttpClient {
+  def getSttpBackend: Task[SttpBackend[Identity, Any]]
+}
 
-  class TcpNoDelaySocketFactory extends SocketFactory {
+object SttpClient {
+
+  def getSttpBackend: ZIO[Has[SttpClient], Throwable, SttpBackend[Identity, Any]] =
+    ZIO.serviceWith(_.getSttpBackend)
+
+  val live: ULayer[Has[SttpClient]] = (
+    () =>
+      new SttpClient {
+        lazy val getSttpBackend: Task[SttpBackend[Identity, Any]] =
+          ZManaged
+            .make(
+              ZIO.succeed {
+                new OkHttpClient.Builder()
+                  .socketFactory(new TcpNoDelaySocketFactory())
+                  .build()
+              }
+            )(okHttpClient => ZIO.succeed(okHttpClient.dispatcher().executorService().shutdown()))
+            .use[Any, Nothing, SttpBackend[Identity, Any]](okHttpClient =>
+              ZIO.succeed(OkHttpSyncBackend.usingClient(okHttpClient))
+            )
+      }
+  ).toLayer
+
+  private class TcpNoDelaySocketFactory extends SocketFactory {
     private lazy val socketFactory = SocketFactory.getDefault()
 
     override def createSocket(): Socket =

@@ -2,64 +2,65 @@ package zio.lambda.internal
 
 import zio._
 import zio.blocking._
-import zio.lambda.internal.LambdaLoader.Error
+import zio.json._
+import zio.lambda.Context
 import zio.test.Assertion._
 import zio.test._
 
 object LambdaLoaderLiveSpec extends DefaultRunnableSpec {
 
   override def spec: ZSpec[Environment, Failure] =
-    suite("LambdaLoaderLive unit tests")(
-      testM("should return Error.UserError if taskRoot is None") {
-        val lambdaEnvironmentLayer = ZLayer.succeed(
-          LambdaEnvironment("", None, None, 128, None, None, None, None)
-        )
-
-        val lambdaLoaderLayer = (lambdaEnvironmentLayer ++ Blocking.live) >>> LambdaLoader.layer
-
-        LambdaLoader
-          .loadLambda()
-          .map(assert(_)(isLeft(equalTo(Error.userError("Task Root not defined")))))
-          .provideLayer(lambdaLoaderLayer)
-      },
-      testM("should return Error.UserError if Function Handler is None") {
+    suite("LambdaLoaderLive spec")(
+      testM("should return an error if Function Handler is None") {
         val lambdaEnvironmentLayer = ZLayer.succeed(
           LambdaEnvironment("", None, Some("/opt"), 128, None, None, None, None)
         )
 
-        val lambdaLoaderLayer = (lambdaEnvironmentLayer ++ Blocking.live) >>> LambdaLoader.layer
+        val lambdaLoaderLayer =
+          (lambdaEnvironmentLayer ++ Blocking.live ++ TestCustomClassLoader.test) >>> LambdaLoaderLive.layer
 
-        LambdaLoader
-          .loadLambda()
-          .map(assert(_)(isLeft(equalTo(Error.userError("Function Handler not defined")))))
+        LambdaLoader.loadLambda
+          .map(throwable => assert(throwable.left.map(_.getMessage()))(isLeft(equalTo("Function Handler not defined"))))
           .provideLayer(lambdaLoaderLayer)
-      }
-      // FIXME fails with SBT
-      // testM("should load ZLambda") {
-      //   val lambdaEnvironmentLayer = ZLayer.succeed(
-      //     LambdaEnvironment(
-      //       "",
-      //       Some("zio.lambda.internal.SuccessZLambda"),
-      //       Some(""),
-      //       None,
-      //       None,
-      //       None,
-      //       None,
-      //       None
-      //     )
-      //   )
-      //   val lambdaLoaderLayer = (lambdaEnvironmentLayer ++ Blocking.live) >>> LambdaLoader.layer
+      },
+      testM("should load ZLambda") {
+        val lambdaEnvironmentLayer = ZLayer.succeed(
+          LambdaEnvironment(
+            "",
+            Some("zio.lambda.internal.SuccessZLambda"),
+            Some(""),
+            0,
+            None,
+            None,
+            None,
+            None
+          )
+        )
 
-      //   LambdaLoader
-      //     .loadLambda()
-      //     .flatMap {
-      //       case Right(zLambda) =>
-      //         zLambda.runHandler(CustomPayload("payload").toJson)
-      //       case Left(error) => ZIO.fail(s"ZLambda not loaded. Error=$error")
-      //     }
-      //     .map(Function.const(assertCompletes))
-      //     .provideCustomLayer(lambdaLoaderLayer)
-      // }
+        val context = Context(
+          "",
+          None,
+          None,
+          None,
+          None,
+          None,
+          None,
+          1,
+          None,
+          None
+        )
+
+        val lambdaLoaderLayer =
+          (lambdaEnvironmentLayer ++ Blocking.live ++ TestCustomClassLoader.test) >>> LambdaLoaderLive.layer
+
+        LambdaLoader.loadLambda.flatMap {
+          case Right(zLambda) =>
+            zLambda.applyJson(CustomPayload("payload").toJson, context)
+          case Left(error) => ZIO.fail(s"ZLambda not loaded. Error=$error")
+        }
+          .map(Function.const(assertCompletes))
+          .provideCustomLayer(lambdaLoaderLayer ++ ZLayer.succeed(context))
+      }
     )
 
 }

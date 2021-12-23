@@ -2,54 +2,47 @@ package zio.lambda.internal
 
 import sttp.client3._
 import zio._
-import zio.blocking.Blocking
 import zio.json._
 
 import scala.concurrent.duration.Duration
 
 final case class RuntimeApiLive(
-  blocking: Blocking.Service,
   sttpBackend: SttpBackend[Identity, Any],
   environment: LambdaEnvironment
 ) extends RuntimeApi {
 
   val baseRuntimeUrl = s"http://${environment.runtimeApi}/2018-06-01/runtime"
 
-  def getNextInvocation(): Task[InvocationRequest] =
-    blocking
-      .effectBlocking(
-        sttpBackend.send(
+  def getNextInvocation: Task[InvocationRequest] =
+    ZIO.fromEither {
+      val response = sttpBackend
+        .send(
           basicRequest
             .get(uri"$baseRuntimeUrl/invocation/next")
             .readTimeout(Duration.Inf)
             .response(asString)
         )
-      )
-      .flatMap(response =>
-        response.body
-          .fold(
-            errorMessage =>
-              ZIO.fail(
-                new Throwable(s"Error response from Runtime API. message=$errorMessage, code=${response.code.code}")
-              ),
-            body =>
-              ZIO
-                .fromEither(
-                  InvocationRequest
-                    .fromHttpResponse(
-                      response.headers
-                        .map(header => header.name -> header.value)
-                        .toMap,
-                      body
-                    )
-                )
-                .mapError(new Throwable(_))
-          )
-      )
+
+      response.body
+        .fold(
+          errorMessage =>
+            Left(new Throwable(s"Error response from Runtime API. message=$errorMessage, code=${response.code.code}")),
+          body =>
+            InvocationRequest
+              .fromHttpResponse(
+                response.headers
+                  .map(header => header.name -> header.value)
+                  .toMap,
+                body
+              )
+              .left
+              .map(new Throwable(_))
+        )
+    }
 
   def sendInvocationResponse(invocationResponse: InvocationResponse): Task[Unit] =
-    blocking
-      .effectBlocking(
+    ZIO
+      .effect(
         sttpBackend.send(
           basicRequest
             .post(uri"$baseRuntimeUrl/invocation/${invocationResponse.requestId.value}/response")
@@ -60,8 +53,8 @@ final case class RuntimeApiLive(
       .unit
 
   def sendInvocationError(invocationError: InvocationError): Task[Unit] =
-    blocking
-      .effectBlocking(
+    ZIO
+      .effect(
         sttpBackend.send(
           basicRequest
             .post(uri"$baseRuntimeUrl/invocation/${invocationError.requestId.value}/error")
@@ -72,8 +65,8 @@ final case class RuntimeApiLive(
       .unit
 
   def sendInitializationError(errorResponse: InvocationErrorResponse): Task[Unit] =
-    blocking
-      .effectBlocking(
+    ZIO
+      .effect(
         sttpBackend.send(
           basicRequest
             .post(uri"$baseRuntimeUrl/init/error")
@@ -83,4 +76,11 @@ final case class RuntimeApiLive(
         )
       )
       .unit
+
+}
+
+object RuntimeApiLive {
+  val layer: ZLayer[Has[SttpBackend[Identity, Any]] with Has[LambdaEnvironment], Throwable, Has[RuntimeApi]] =
+    (RuntimeApiLive(_, _)).toLayer
+
 }

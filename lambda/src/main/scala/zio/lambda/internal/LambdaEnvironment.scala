@@ -2,7 +2,6 @@ package zio.lambda.internal
 
 import zio._
 import zio.system._
-
 import scala.util.Try
 
 final case class LambdaEnvironment(
@@ -40,4 +39,7 @@ object LambdaEnvironment {
       functionName,
       functionVersion
     )).toLayer
+
+  def getEnvironment: RIO[Has[LambdaEnvironment], LambdaEnvironment] =
+    ZIO.service[LambdaEnvironment]
 }

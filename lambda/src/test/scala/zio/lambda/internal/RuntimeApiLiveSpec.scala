@@ -16,7 +16,7 @@ import InvocationRequestImplicits._
 object RuntimeApiLiveSpec extends DefaultRunnableSpec {
 
   override def spec: ZSpec[Environment, Failure] =
-    suite("RuntimeApiLive unit tests")(
+    suite("RuntimeApiLive spec")(
       testM("should get next invocation") {
         checkM(InvocationRequestGen.gen, LambdaEnvironmentGen.gen) { (invocationRequest, lambdaEnvironment) =>
           val testingBackend: SttpBackend[Identity, Any] = SttpBackendStub.synchronous
@@ -48,10 +48,9 @@ object RuntimeApiLiveSpec extends DefaultRunnableSpec {
 
           val runtimeApiLayer = (ZLayer.succeed(lambdaEnvironment) ++
             Blocking.live ++
-            ZLayer.succeed(testingBackend)) >>> RuntimeApi.layer
+            ZLayer.succeed(testingBackend)) >>> RuntimeApiLive.layer
 
-          RuntimeApi
-            .getNextInvocation()
+          RuntimeApi.getNextInvocation
             .provideLayer(runtimeApiLayer)
             .map(assert(_)(equalTo(invocationRequest)))
         }
@@ -69,7 +68,7 @@ object RuntimeApiLiveSpec extends DefaultRunnableSpec {
 
             val runtimeApiLayer = (ZLayer.succeed(lambdaEnvironment) ++
               Blocking.live ++
-              ZLayer.succeed(testingBackend)) >>> RuntimeApi.layer
+              ZLayer.succeed(testingBackend)) >>> RuntimeApiLive.layer
 
             RuntimeApi
               .sendInvocationResponse(
@@ -91,7 +90,7 @@ object RuntimeApiLiveSpec extends DefaultRunnableSpec {
 
           val runtimeApiLayer = (ZLayer.succeed(lambdaEnvironment) ++
             Blocking.live ++
-            ZLayer.succeed(testingBackend)) >>> RuntimeApi.layer
+            ZLayer.succeed(testingBackend)) >>> RuntimeApiLive.layer
 
           RuntimeApi
             .sendInvocationError(invocationError)
@@ -113,7 +112,7 @@ object RuntimeApiLiveSpec extends DefaultRunnableSpec {
 
           val runtimeApiLayer = (ZLayer.succeed(lambdaEnvironment) ++
             Blocking.live ++
-            ZLayer.succeed(testingBackend)) >>> RuntimeApi.layer
+            ZLayer.succeed(testingBackend)) >>> RuntimeApiLive.layer
 
           RuntimeApi
             .sendInitializationError(invocationError.errorResponse)
