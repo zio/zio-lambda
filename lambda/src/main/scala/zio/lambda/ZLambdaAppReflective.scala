@@ -20,10 +20,12 @@ object ZLambdaReflectiveApp extends App {
         classLoaderBuilderLayer
     ) >>> LambdaLoaderLive.layer
 
+    val sttpBackendLayer = SttpClient.live >>> ZLayer.fromServiceM(_.getSttpBackend)
+
     val runtimeApiLayer = (
       LambdaEnvironment.live ++
         Blocking.live ++
-        SttpClient.live
+        sttpBackendLayer
     ) >>> RuntimeApiLive.layer
 
     val zRuntimeLayer = (runtimeApiLayer ++ LambdaEnvironment.live) >>> LoopProcessor.live

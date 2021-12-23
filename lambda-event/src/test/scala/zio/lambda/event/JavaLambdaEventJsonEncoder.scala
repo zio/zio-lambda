@@ -1,4 +1,4 @@
-package zio.lambda.internal
+package zio.lambda.event
 
 import com.amazonaws.services.lambda.runtime.serialization.PojoSerializer
 import com.amazonaws.services.lambda.runtime.serialization.events.LambdaEventSerializers

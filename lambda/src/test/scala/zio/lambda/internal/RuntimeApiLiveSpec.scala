@@ -48,7 +48,7 @@ object RuntimeApiLiveSpec extends DefaultRunnableSpec {
 
           val runtimeApiLayer = (ZLayer.succeed(lambdaEnvironment) ++
             Blocking.live ++
-            TestSttpClient.test(testingBackend)) >>> RuntimeApiLive.layer
+            ZLayer.succeed(testingBackend)) >>> RuntimeApiLive.layer
 
           RuntimeApi.getNextInvocation
             .provideLayer(runtimeApiLayer)
@@ -68,7 +68,7 @@ object RuntimeApiLiveSpec extends DefaultRunnableSpec {
 
             val runtimeApiLayer = (ZLayer.succeed(lambdaEnvironment) ++
               Blocking.live ++
-              TestSttpClient.test(testingBackend)) >>> RuntimeApiLive.layer
+              ZLayer.succeed(testingBackend)) >>> RuntimeApiLive.layer
 
             RuntimeApi
               .sendInvocationResponse(
@@ -90,7 +90,7 @@ object RuntimeApiLiveSpec extends DefaultRunnableSpec {
 
           val runtimeApiLayer = (ZLayer.succeed(lambdaEnvironment) ++
             Blocking.live ++
-            TestSttpClient.test(testingBackend)) >>> RuntimeApiLive.layer
+            ZLayer.succeed(testingBackend)) >>> RuntimeApiLive.layer
 
           RuntimeApi
             .sendInvocationError(invocationError)
@@ -112,7 +112,7 @@ object RuntimeApiLiveSpec extends DefaultRunnableSpec {
 
           val runtimeApiLayer = (ZLayer.succeed(lambdaEnvironment) ++
             Blocking.live ++
-            TestSttpClient.test(testingBackend)) >>> RuntimeApiLive.layer
+            ZLayer.succeed(testingBackend)) >>> RuntimeApiLive.layer
 
           RuntimeApi
             .sendInitializationError(invocationError.errorResponse)

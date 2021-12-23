@@ -55,10 +55,13 @@ abstract class ZLambdaApp[E, A](
   def getContext: ZIO[Has[Context], Nothing, Context] = ZIO.service[Context]
 
   final override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
+
+    val sttpBackendLayer = SttpClient.live >>> ZLayer.fromServiceM(_.getSttpBackend)
+
     val runtimeApiLayer = (
       LambdaEnvironment.live ++
         Blocking.live ++
-        SttpClient.live
+        sttpBackendLayer
     ) >>> RuntimeApiLive.layer
 
     val zRuntimeLayer = (runtimeApiLayer ++ LambdaEnvironment.live) >>> LoopProcessor.live
