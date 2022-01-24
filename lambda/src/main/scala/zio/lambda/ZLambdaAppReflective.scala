@@ -2,6 +2,7 @@ package zio.lambda.internal
 
 import zio._
 import zio.blocking.Blocking
+import zio.clock.Clock
 
 /**
  * The main class to use ZLambda as a Layer
@@ -20,12 +21,9 @@ object ZLambdaReflectiveApp extends App {
         classLoaderBuilderLayer
     ) >>> LambdaLoaderLive.layer
 
-    val sttpBackendLayer = SttpClient.live >>> ZLayer.fromServiceM(_.getSttpBackend)
-
     val runtimeApiLayer = (
       LambdaEnvironment.live ++
-        Blocking.live ++
-        sttpBackendLayer
+        Clock.live ++ Blocking.live
     ) >>> RuntimeApiLive.layer
 
     val zRuntimeLayer = (runtimeApiLayer ++ LambdaEnvironment.live) >>> LoopProcessor.live
