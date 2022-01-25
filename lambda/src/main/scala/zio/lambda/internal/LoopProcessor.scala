@@ -29,6 +29,7 @@ object LoopProcessor {
                   )
                 )
             )
+            .forever
 
         case Left(throwable) =>
           runtimeApi.getNextInvocation
@@ -44,7 +45,9 @@ object LoopProcessor {
       }
   }
 
-  def loop(eitherZLambda: Either[Throwable, ZLambdaApp[_, _]]): RIO[Has[LoopProcessor] with ZEnv, Unit] =
+  def loop(
+    eitherZLambda: Either[Throwable, ZLambdaApp[_, _]]
+  ): RIO[Has[LoopProcessor] with ZEnv, Unit] =
     ZIO.accessM(_.get.loop(eitherZLambda))
 
   val live: ZLayer[Has[RuntimeApi] with Has[LambdaEnvironment], Throwable, Has[LoopProcessor]] =

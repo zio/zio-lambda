@@ -30,7 +30,6 @@ inThisBuild(
 
 val zioVersion         = "1.0.13"
 val zioJsonVersion     = "0.2.0-M3"
-val sttpVersion        = "3.3.18"
 val awsLambdaJavaTests = "1.1.1"
 
 lazy val root =
@@ -52,8 +51,7 @@ lazy val zioLambda = module("zio-lambda", "lambda")
     stdSettings("zio-lambda"),
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
-      "com.softwaremill.sttp.client3" %% "okhttp-backend"        % sttpVersion,
-      "com.amazonaws"                  % "aws-lambda-java-tests" % awsLambdaJavaTests % "test"
+      "com.amazonaws" % "aws-lambda-java-tests" % awsLambdaJavaTests % "test"
     )
   )
   .settings(
