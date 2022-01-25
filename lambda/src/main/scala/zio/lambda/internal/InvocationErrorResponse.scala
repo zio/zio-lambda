@@ -14,7 +14,7 @@ object InvocationErrorResponse {
   def fromThrowable(throwable: Throwable): InvocationErrorResponse =
     InvocationErrorResponse(
       throwable.getMessage(),
-      throwable.getClass().toGenericString(),
+      throwable.getClass().getName(),
       throwable.getStackTrace().map(_.toString()).toList
     )
 }

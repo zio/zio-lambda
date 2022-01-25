@@ -2,11 +2,11 @@ package zio.lambda
 
 import zio._
 import zio.blocking.Blocking
+import zio.clock.Clock
 import zio.json._
-import zio.lambda.internal.RuntimeApiLive
-import zio.lambda.internal.SttpClient
-import zio.lambda.internal.LoopProcessor
 import zio.lambda.internal.LambdaEnvironment
+import zio.lambda.internal.LoopProcessor
+import zio.lambda.internal.RuntimeApiLive
 
 /**
  * Class to be extended by the Lambda function.
@@ -55,20 +55,14 @@ abstract class ZLambdaApp[E, A](
   def getContext: ZIO[Has[Context], Nothing, Context] = ZIO.service[Context]
 
   final override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
-
-    val sttpBackendLayer = SttpClient.live >>> ZLayer.fromServiceM(_.getSttpBackend)
-
     val runtimeApiLayer = (
-      LambdaEnvironment.live ++
-        Blocking.live ++
-        sttpBackendLayer
+      LambdaEnvironment.live ++ Clock.live ++ Blocking.live
     ) >>> RuntimeApiLive.layer
 
     val zRuntimeLayer = (runtimeApiLayer ++ LambdaEnvironment.live) >>> LoopProcessor.live
 
     LoopProcessor
       .loop(Right(self))
-      .forever
       .provideCustomLayer(zRuntimeLayer)
       .exitCode
   }
