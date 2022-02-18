@@ -10,25 +10,20 @@ final case class LambdaLoaderLive(
 
   override lazy val loadLambda: UIO[Either[Throwable, ZLambdaApp[_, _]]] =
     customClassLoader.getClassLoader
-      .flatMap(classLoader =>
+      .flatMap[Any, Throwable, ZLambdaApp[_, _]](classLoader =>
         ZIO
-          .fromOption[String](environment.handler)
-          .mapError[Throwable](_ => new Throwable("Function Handler not defined"))
-          .flatMap[Any, Throwable, ZLambdaApp[_, _]](handler =>
-            ZIO
-              .effect(
-                Class
-                  .forName(
-                    handler + "$",
-                    true,
-                    classLoader
-                  )
-                  .getDeclaredField("MODULE$")
-                  .get(null)
-                  .asInstanceOf[ZLambdaApp[_, _]]
+          .effect(
+            Class
+              .forName(
+                environment.handler + "$",
+                true,
+                classLoader
               )
-              .refineOrDie { case ex: ClassNotFoundException => ex }
+              .getDeclaredField("MODULE$")
+              .get(null)
+              .asInstanceOf[ZLambdaApp[_, _]]
           )
+          .refineOrDie { case ex: ClassNotFoundException => ex }
       )
       .either
 

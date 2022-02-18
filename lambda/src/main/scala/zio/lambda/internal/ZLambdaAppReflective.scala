@@ -30,7 +30,11 @@ object ZLambdaReflectiveApp extends App {
 
     LambdaLoader.loadLambda
       .flatMap(LoopProcessor.loop(_).forever)
-      .tapError(throwable => RuntimeApi.sendInitializationError(InvocationErrorResponse.fromThrowable(throwable)))
+      .tapError(throwable =>
+        RuntimeApi.sendInitializationError(
+          InvocationErrorResponse.fromThrowable(throwable)
+        )
+      )
       .provideCustomLayer(zRuntimeLayer ++ runtimeApiLayer ++ lambdaLoaderLayer)
       .exitCode
   }

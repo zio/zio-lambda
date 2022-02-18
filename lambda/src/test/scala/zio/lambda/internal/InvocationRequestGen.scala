@@ -4,6 +4,7 @@ import zio.random.Random
 import zio.test._
 import zio.lambda.ClientContext
 import zio.lambda.CognitoIdentity
+import zio.lambda.Client
 
 object InvocationRequestGen {
 
@@ -14,7 +15,7 @@ object InvocationRequestGen {
       appVersionName <- Gen.anyString
       appVersionCode <- Gen.anyString
       appPackageName <- Gen.anyString
-    } yield ClientContext.Client(
+    } yield Client(
       installationId = installationId,
       appTitle = appTitle,
       appVersionName = appVersionName,
@@ -45,14 +46,14 @@ object InvocationRequestGen {
   val gen: Gen[Random with Sized, InvocationRequest] =
     for {
       id                    <- Gen.anyString
-      remainingTimeInMillis <- Gen.option(Gen.anyInt)
-      invokedFunctionArn    <- Gen.option(Gen.anyString)
-      xrayTraceId           <- Gen.option(Gen.anyString)
+      remainingTimeInMillis <- Gen.anyLong
+      invokedFunctionArn    <- Gen.anyString
+      xrayTraceId           <- Gen.anyString
       clientContext         <- Gen.option(genClientContext)
       cognitoIdentity       <- Gen.option(genCognitoIdentity)
       payload               <- Gen.anyString
     } yield InvocationRequest(
-      id = InvocationRequest.Id(id),
+      id = id,
       remainingTimeInMillis = remainingTimeInMillis,
       invokedFunctionArn = invokedFunctionArn,
       xrayTraceId = xrayTraceId,
