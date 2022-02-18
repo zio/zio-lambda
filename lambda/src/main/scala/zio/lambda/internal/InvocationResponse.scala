@@ -1,3 +1,3 @@
 package zio.lambda.internal
 
-final case class InvocationResponse(requestId: InvocationRequest.Id, payload: String)
+final case class InvocationResponse(requestId: String, payload: String)

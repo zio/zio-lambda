@@ -5,12 +5,12 @@ import zio.lambda.internal.LambdaEnvironment
 
 final case class Context(
   awsRequestId: String,
-  logGroupName: Option[String],
-  logStreamName: Option[String],
-  functionName: Option[String],
-  functionVersion: Option[String],
-  invokedFunctionArn: Option[String],
-  remainingTimeInMillis: Option[Int],
+  logGroupName: String,
+  logStreamName: String,
+  functionName: String,
+  functionVersion: String,
+  invokedFunctionArn: String,
+  remainingTimeInMillis: Long,
   memoryLimitInMB: Int,
   clientContext: Option[ClientContext],
   cognitoIdentity: Option[CognitoIdentity]
@@ -19,7 +19,7 @@ final case class Context(
 object Context {
   private[lambda] def from(invocationRequest: InvocationRequest, environment: LambdaEnvironment): Context =
     Context(
-      awsRequestId = invocationRequest.id.value,
+      awsRequestId = invocationRequest.id,
       remainingTimeInMillis = invocationRequest.remainingTimeInMillis,
       clientContext = invocationRequest.clientContext,
       cognitoIdentity = invocationRequest.cognitoIdentity,

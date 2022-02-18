@@ -8,13 +8,13 @@ object LambdaEnvironmentGen {
   val gen: Gen[Random with Sized, LambdaEnvironment] =
     for {
       runtimeApi      <- Gen.string(Gen.anyChar)
-      handler         <- Gen.option(Gen.anyString)
-      taskRoot        <- Gen.option(Gen.anyString)
+      handler         <- Gen.anyString
+      taskRoot        <- Gen.anyString
       memoryLimitInMB <- Gen.anyInt
-      logGroupName    <- Gen.option(Gen.anyString)
-      logStreamName   <- Gen.option(Gen.anyString)
-      functionName    <- Gen.option(Gen.anyString)
-      functionVersion <- Gen.option(Gen.anyString)
+      logGroupName    <- Gen.anyString
+      logStreamName   <- Gen.anyString
+      functionName    <- Gen.anyString
+      functionVersion <- Gen.anyString
     } yield LambdaEnvironment(
       runtimeApi,
       handler,

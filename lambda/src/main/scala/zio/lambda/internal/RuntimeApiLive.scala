@@ -5,12 +5,10 @@ import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.json._
 
-import java.io.BufferedReader
 import java.io.InputStream
-import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
-import scala.jdk.CollectionConverters._
+import java.io.ByteArrayOutputStream
 
 final case class RuntimeApiLive(
   blocking: Blocking.Service,
@@ -18,42 +16,34 @@ final case class RuntimeApiLive(
   environment: LambdaEnvironment
 ) extends RuntimeApi {
 
-  val baseRuntimeUrl = s"http://${environment.runtimeApi}/2018-06-01/runtime"
+  private val baseRuntimeUrl    = s"http://${environment.runtimeApi}/2018-06-01/runtime"
+  private val nextInvocationUrl = new URL(s"$baseRuntimeUrl/invocation/next")
 
   def getNextInvocation: Task[InvocationRequest] = {
-    def readResponse(is: => InputStream) = {
-      var exhausted    = false
-      val in           = new BufferedReader(new InputStreamReader(is))
-      val responseBody = new StringBuffer()
-      while (!exhausted)
-        Option(in.readLine()) match {
-          case Some(line) => responseBody.append(line)
-          case None       => exhausted = true
-        }
-      in.close()
-      responseBody.toString()
+    def readResponse(is: InputStream) = {
+      val result = new ByteArrayOutputStream()
+      val buffer = new Array[Byte](1024)
+      var length = is.read(buffer)
+      while (length != -1) {
+        result.write(buffer, 0, length)
+        length = is.read(buffer)
+      }
+      try is.close() // Reusing connection
+      catch { case _: Throwable => () }
+
+      result.toString("UTF-8")
     }
 
     ZIO.effect {
-      val url = new URL(s"$baseRuntimeUrl/invocation/next")
-      val con = url.openConnection().asInstanceOf[HttpURLConnection]
+      val con = nextInvocationUrl.openConnection().asInstanceOf[HttpURLConnection]
       con.setRequestMethod("GET")
       val responseBody = readResponse(con.getInputStream())
-      val headers = con
-        .getHeaderFields()
-        .asScala
-        .map { case (key, values) => key -> values.asScala.headOption.getOrElse("") }
-        .toMap
-      InvocationRequest.fromHttpResponse(headers, responseBody)
-
-    }.flatMap {
-      case Left(value)  => ZIO.fail(new Throwable(value))
-      case Right(value) => ZIO.succeed(value)
+      InvocationRequest.fromHttpResponse(con.getHeaderFields(), responseBody)
     }
   }
 
   def sendInvocationResponse(invocationResponse: InvocationResponse): Task[Unit] = {
-    val url  = new URL(s"$baseRuntimeUrl/invocation/${invocationResponse.requestId.value}/response")
+    val url  = new URL(s"$baseRuntimeUrl/invocation/${invocationResponse.requestId}/response")
     val conn = url.openConnection().asInstanceOf[HttpURLConnection]
     conn.setRequestMethod("POST")
     conn.setRequestProperty("Content-Type", "application/json")
@@ -63,13 +53,14 @@ final case class RuntimeApiLive(
     ZIO.effect {
       val outputStream = conn.getOutputStream()
       outputStream.write(invocationResponse.payload.getBytes())
-      conn.getInputStream().close()
+      try conn.getInputStream().close()
+      catch { case _: Throwable => () } // Reusing connection
     }
   }
 
   def sendInvocationError(invocationError: InvocationError): Task[Unit] =
     postRequest(
-      s"$baseRuntimeUrl/invocation/${invocationError.requestId.value}/error",
+      s"$baseRuntimeUrl/invocation/${invocationError.requestId}/error",
       invocationError.errorResponse
     )
 

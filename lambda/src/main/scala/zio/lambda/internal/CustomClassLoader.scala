@@ -15,18 +15,17 @@ object CustomClassLoader {
   val live: URLayer[Has[LambdaEnvironment], Has[CustomClassLoader]] = (
     (environment: LambdaEnvironment) =>
       new CustomClassLoader {
-
-        override lazy val getClassLoader: Task[ClassLoader] = for {
-          taskRoot <- ZIO.require(new Throwable("Task Root not defined"))(ZIO.succeed(environment.taskRoot))
-          stream <- ZStream
-                      .fromJavaStream(Files.list(Paths.get(taskRoot)))
-                      .runCollect
-        } yield new URLClassLoader(
-          stream
-            .map(_.toUri().toURL())
-            .toArray
-        )
-
+        override def getClassLoader: Task[ClassLoader] =
+          ZStream
+            .fromJavaStream(Files.list(Paths.get(environment.taskRoot)))
+            .runCollect
+            .map(stream =>
+              new URLClassLoader(
+                stream
+                  .map(_.toUri().toURL())
+                  .toArray
+              )
+            )
       }
   ).toLayer
 

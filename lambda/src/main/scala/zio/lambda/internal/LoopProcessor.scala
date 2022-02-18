@@ -18,15 +18,15 @@ object LoopProcessor {
             .flatMap(request =>
               zLambda
                 .applyJson(request.payload, Context.from(request, environment))
-                .flatMap(payload =>
-                  runtimeApi.sendInvocationResponse(
-                    InvocationResponse(request.id, payload)
-                  )
-                )
-                .catchAll(throwable =>
-                  runtimeApi.sendInvocationError(
-                    InvocationError(request.id, InvocationErrorResponse.fromThrowable(throwable))
-                  )
+                .foldM(
+                  throwable =>
+                    runtimeApi.sendInvocationError(
+                      InvocationError(request.id, InvocationErrorResponse.fromThrowable(throwable))
+                    ),
+                  payload =>
+                    runtimeApi.sendInvocationResponse(
+                      InvocationResponse(request.id, payload)
+                    )
                 )
             )
             .forever

@@ -57,7 +57,7 @@ lazy val zioLambda = module("zio-lambda", "lambda")
   .settings(
     topLevelDirectory := None,
     Universal / mappings ++= Seq(file("bootstrap") -> "bootstrap"),
-    Compile / mainClass := Some("zio.lambda.ZRuntimeApp")
+    Compile / mainClass := Some("zio.lambda.internal.ZLambdaReflectiveApp")
   )
 
 lazy val zioLambdaEvent = module("zio-lambda-event", "lambda-event")
@@ -87,6 +87,7 @@ lazy val zioLambdaExample = module("zio-lambda-example", "lambda-example")
   .enablePlugins(GraalVMNativeImagePlugin)
   .settings(buildInfoSettings("zio.lambda.example"))
   .settings(
+    publish / skip := true,
     name := "zio-lambda-example",
     stdSettings("zio-lambda-example"),
     assembly / assemblyJarName := "zio-lambda-example.jar",

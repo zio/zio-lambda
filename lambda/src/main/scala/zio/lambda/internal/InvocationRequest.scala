@@ -1,10 +1,8 @@
 package zio.lambda.internal
 
-import zio.json._
 import zio.lambda.ClientContext
 import zio.lambda.CognitoIdentity
-
-import scala.util.Try
+import zio.json._
 
 /**
  * https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html
@@ -18,10 +16,10 @@ import scala.util.Try
  * @param payload The payload from the invocation, which is a JSON document that contains event data from the function trigger.
  */
 final case class InvocationRequest(
-  id: InvocationRequest.Id,
-  remainingTimeInMillis: Option[Int],
-  invokedFunctionArn: Option[String],
-  xrayTraceId: Option[String],
+  id: String,
+  remainingTimeInMillis: Long,
+  invokedFunctionArn: String,
+  xrayTraceId: String,
   clientContext: Option[ClientContext],
   cognitoIdentity: Option[CognitoIdentity],
   payload: String
@@ -29,38 +27,28 @@ final case class InvocationRequest(
 
 object InvocationRequest {
 
-  final case class Id(value: String) extends AnyVal
+  private[internal] def fromHttpResponse(
+    headers: java.util.Map[String, java.util.List[String]],
+    payload: String
+  ): InvocationRequest =
+    InvocationRequest(
+      headers.get("Lambda-Runtime-Aws-Request-Id").get(0),
+      headers.get("Lambda-Runtime-Deadline-Ms").get(0).toLong,
+      headers.get("Lambda-Runtime-Invoked-Function-Arn").get(0),
+      headers.get("Lambda-Runtime-Trace-Id").get(0),
+      try headers
+        .get("Lambda-Runtime-Client-Context")
+        .get(0)
+        .fromJson[ClientContext]
+        .toOption
+      catch {
+        case _: Throwable => None
+      },
+      try headers.get("Lambda-Runtime-Cognito-Identity").get(0).fromJson[CognitoIdentity].toOption
+      catch {
+        case _: Throwable => None
+      },
+      payload
+    )
 
-  def fromHttpResponse(headers: Map[String, String], payload: String): Either[String, InvocationRequest] =
-    headers
-      .get("Lambda-Runtime-Aws-Request-Id")
-      .toRight("Lambda-Runtime-Aws-Request-Id is missing")
-      .map { requestId =>
-        val clientContext = headers
-          .get("Lambda-Runtime-Client-Context")
-          .flatMap(_.fromJson[ClientContext].toOption)
-
-        val cognitoIdentity =
-          headers
-            .get("Lambda-Runtime-Cognito-Identity")
-            .flatMap(_.fromJson[CognitoIdentity].toOption)
-
-        val remainingTimeInMillis = headers
-          .get("Lambda-Runtime-Deadline-Ms")
-          .flatMap(s => Try(s.toInt).toOption)
-
-        val invokedFunctionArn = headers.get("Lambda-Runtime-Invoked-Function-Arn")
-
-        val xrayTraceId = headers.get("Lambda-Runtime-Trace-Id")
-
-        InvocationRequest(
-          Id(requestId),
-          remainingTimeInMillis,
-          invokedFunctionArn,
-          xrayTraceId,
-          clientContext,
-          cognitoIdentity,
-          payload
-        )
-      }
 }

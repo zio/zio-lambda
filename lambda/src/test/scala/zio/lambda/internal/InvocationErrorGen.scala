@@ -21,7 +21,7 @@ object InvocationErrorGen {
       requestId               <- Gen.anyString
       invocationErrorResponse <- genInvocationErrorResponse
     } yield InvocationError(
-      InvocationRequest.Id(requestId),
+      requestId,
       invocationErrorResponse
     )
 

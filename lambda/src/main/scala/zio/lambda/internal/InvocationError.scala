@@ -1,6 +1,3 @@
 package zio.lambda.internal
 
-final case class InvocationError(
-  requestId: InvocationRequest.Id,
-  errorResponse: InvocationErrorResponse
-)
+final case class InvocationError(requestId: String, errorResponse: InvocationErrorResponse)
