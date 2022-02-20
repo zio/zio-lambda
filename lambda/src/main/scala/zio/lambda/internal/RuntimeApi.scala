@@ -10,18 +10,15 @@ trait RuntimeApi {
 }
 
 object RuntimeApi {
-  def getNextInvocation: RIO[Has[RuntimeApi], InvocationRequest] =
-    ZIO.serviceWith(_.getNextInvocation)
+  def getNextInvocation: RIO[RuntimeApi, InvocationRequest] =
+    ZIO.serviceWithZIO(_.getNextInvocation)
 
-  def sendInvocationResponse(invocationResponse: InvocationResponse): RIO[Has[RuntimeApi], Unit] =
-    ZIO.serviceWith(_.sendInvocationResponse(invocationResponse))
+  def sendInvocationResponse(invocationResponse: InvocationResponse): RIO[RuntimeApi, Unit] =
+    ZIO.serviceWithZIO(_.sendInvocationResponse(invocationResponse))
 
-  def sendInvocationError(invocationError: InvocationError): RIO[Has[RuntimeApi], Unit] =
-    ZIO.serviceWith(_.sendInvocationError(invocationError))
+  def sendInvocationError(invocationError: InvocationError): RIO[RuntimeApi, Unit] =
+    ZIO.serviceWithZIO(_.sendInvocationError(invocationError))
 
-  def sendInitializationError(errorResponse: InvocationErrorResponse): RIO[Has[RuntimeApi], Unit] =
-    ZIO.serviceWith(_.sendInitializationError(errorResponse))
-
-  def getRuntimeApi: ZIO[Has[RuntimeApi], Nothing, RuntimeApi] =
-    ZIO.service[RuntimeApi]
+  def sendInitializationError(errorResponse: InvocationErrorResponse): RIO[RuntimeApi, Unit] =
+    ZIO.serviceWithZIO(_.sendInitializationError(errorResponse))
 }

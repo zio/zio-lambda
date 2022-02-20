@@ -1,8 +1,6 @@
 package zio.lambda.internal
 
 import zio._
-import zio.blocking.Blocking
-import zio.clock.Clock
 import zio.json._
 
 import java.io.InputStream
@@ -10,11 +8,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.io.ByteArrayOutputStream
 
-final case class RuntimeApiLive(
-  blocking: Blocking.Service,
-  clock: Clock.Service,
-  environment: LambdaEnvironment
-) extends RuntimeApi {
+final case class RuntimeApiLive(environment: LambdaEnvironment) extends RuntimeApi {
 
   private val baseRuntimeUrl    = s"http://${environment.runtimeApi}/2018-06-01/runtime"
   private val nextInvocationUrl = new URL(s"$baseRuntimeUrl/invocation/next")
@@ -34,7 +28,7 @@ final case class RuntimeApiLive(
       result.toString("UTF-8")
     }
 
-    ZIO.effect {
+    ZIO.attempt {
       val con = nextInvocationUrl.openConnection().asInstanceOf[HttpURLConnection]
       con.setRequestMethod("GET")
       val responseBody = readResponse(con.getInputStream())
@@ -50,7 +44,7 @@ final case class RuntimeApiLive(
     conn.setFixedLengthStreamingMode(invocationResponse.payload.length())
     conn.setDoOutput(true)
 
-    ZIO.effect {
+    ZIO.attempt {
       val outputStream = conn.getOutputStream()
       outputStream.write(invocationResponse.payload.getBytes())
       try conn.getInputStream().close()
@@ -87,7 +81,7 @@ final case class RuntimeApiLive(
       conn.setRequestProperty(header, value)
     }
 
-    ZIO.effect {
+    ZIO.attempt {
       val outputStream = conn.getOutputStream()
       outputStream.write(body.getBytes())
       conn.getInputStream().close()
@@ -96,11 +90,10 @@ final case class RuntimeApiLive(
 }
 
 object RuntimeApiLive {
-  val layer: ZLayer[Blocking with Clock with Has[LambdaEnvironment], Throwable, Has[RuntimeApi]] =
-    (for {
-      blocking          <- ZIO.service[Blocking.Service]
-      clock             <- ZIO.service[Clock.Service]
-      lambdaEnvironment <- LambdaEnvironment.getEnvironment
-    } yield RuntimeApiLive(blocking, clock, lambdaEnvironment)).toLayer
+  val layer: ZLayer[LambdaEnvironment, Throwable, RuntimeApi] =
+    ZIO
+      .service[LambdaEnvironment]
+      .map(RuntimeApiLive(_))
+      .toLayer
 
 }

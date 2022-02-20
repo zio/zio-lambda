@@ -7,7 +7,7 @@ import com.amazonaws.services.lambda.runtime.events.{SQSEvent => JavaSQSEvent}
 import com.amazonaws.services.lambda.runtime.events.models.kinesis.EncryptionType
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import zio.random.Random
+import zio.Random
 import zio.test._
 
 import java.nio.ByteBuffer
@@ -22,15 +22,15 @@ object JavaLambdaEventsGen {
 
   private val genKinesisEventRecordUnit =
     for {
-      kinesisSchemaVersion        <- Gen.anyString
+      kinesisSchemaVersion        <- Gen.string
       approximateArrivalTimestamp <- Gen.instant(Instant.now(), Instant.now().plus(365, ChronoUnit.DAYS))
       encryptionType <- Gen.oneOf(
                           Gen.const(EncryptionType.KMS.toString()),
                           Gen.const(EncryptionType.NONE.toString())
                         )
-      partitionKey   <- Gen.anyString
-      sequenceNumber <- Gen.anyString
-      data           <- Gen.anyString
+      partitionKey   <- Gen.string
+      sequenceNumber <- Gen.string
+      data           <- Gen.string
     } yield {
       val record = new JavaKinesisEvent.Record()
       record.setKinesisSchemaVersion(kinesisSchemaVersion)
@@ -44,13 +44,13 @@ object JavaLambdaEventsGen {
 
   private val genKinesisEventRecord =
     for {
-      awsRegion         <- Gen.anyString
-      eventID           <- Gen.anyString
-      eventName         <- Gen.anyString
-      eventSource       <- Gen.anyString
-      eventSourceArn    <- Gen.anyString
-      eventVersion      <- Gen.anyString
-      invokeIdentityArn <- Gen.anyString
+      awsRegion         <- Gen.string
+      eventID           <- Gen.string
+      eventName         <- Gen.string
+      eventSource       <- Gen.string
+      eventSourceArn    <- Gen.string
+      eventVersion      <- Gen.string
+      invokeIdentityArn <- Gen.string
       kinesis           <- genKinesisEventRecordUnit
     } yield {
       val record = new JavaKinesisEvent.KinesisEventRecord()
@@ -74,14 +74,14 @@ object JavaLambdaEventsGen {
 
   val genScheduledEvent: Gen[Random with Sized, JavaScheduledEvent] =
     for {
-      account    <- Gen.anyString
-      region     <- Gen.anyString
-      detail     <- Gen.mapOf(Gen.anyString, Gen.anyString)
-      source     <- Gen.anyString
-      id         <- Gen.anyString
+      account    <- Gen.string
+      region     <- Gen.string
+      detail     <- Gen.mapOf(Gen.string, Gen.string)
+      source     <- Gen.string
+      id         <- Gen.string
       time       <- Gen.offsetDateTime(OffsetDateTime.now(), OffsetDateTime.now().plusDays(365))
-      resources  <- Gen.listOf(Gen.anyString)
-      detailType <- Gen.anyString
+      resources  <- Gen.listOf(Gen.string)
+      detailType <- Gen.string
     } yield {
       val scheduledEvent = new JavaScheduledEvent()
       scheduledEvent
@@ -104,9 +104,9 @@ object JavaLambdaEventsGen {
 
   private val genKafkaEventRecord =
     for {
-      topic     <- Gen.anyString
-      partition <- Gen.anyInt
-      offset    <- Gen.anyLong
+      topic     <- Gen.string
+      partition <- Gen.int
+      offset    <- Gen.long
       timestamp <- Gen
                      .instant(
                        Instant.now(),
@@ -115,9 +115,9 @@ object JavaLambdaEventsGen {
                          .plus(365, ChronoUnit.DAYS)
                      )
                      .map(_.toEpochMilli())
-      timestampType <- Gen.anyString
-      key           <- Gen.anyString
-      value         <- Gen.anyString
+      timestampType <- Gen.string
+      key           <- Gen.string
+      value         <- Gen.string
     } yield JavaKafkaEvent.KafkaEventRecord
       .builder()
       .withTopic(topic)
@@ -131,10 +131,10 @@ object JavaLambdaEventsGen {
 
   val genKafkaEvent: Gen[Random with Sized, JavaKafkaEvent] =
     for {
-      eventSource      <- Gen.anyString
-      eventSourceArn   <- Gen.anyString
-      bootstrapServers <- Gen.anyString
-      records          <- Gen.mapOf(Gen.anyString, Gen.listOf(genKafkaEventRecord).map(_.asJava))
+      eventSource      <- Gen.string
+      eventSourceArn   <- Gen.string
+      bootstrapServers <- Gen.string
+      records          <- Gen.mapOf(Gen.string, Gen.listOf(genKafkaEventRecord).map(_.asJava))
     } yield JavaKafkaEvent
       .builder()
       .withEventSource(eventSource)
@@ -145,7 +145,7 @@ object JavaLambdaEventsGen {
 
   private val genMessageAttribute =
     for {
-      stringValue <- Gen.anyString
+      stringValue <- Gen.string
       dataType    <- Gen.oneOf(Gen.const("String"), Gen.const("Number"), Gen.const("Binary"))
     } yield {
       val messageAttribute = new JavaSQSEvent.MessageAttribute()
@@ -156,16 +156,16 @@ object JavaLambdaEventsGen {
 
   private val genSQSEventRecord =
     for {
-      messageId              <- Gen.anyString
-      receiptHandle          <- Gen.anyString
-      body                   <- Gen.anyString
-      md5OfBody              <- Gen.anyString
-      md5OfMessageAttributes <- Gen.anyString
-      eventSourceArn         <- Gen.anyString
-      eventSource            <- Gen.anyString
-      awsRegion              <- Gen.anyString
-      attributes             <- Gen.mapOf(Gen.anyString, Gen.anyString)
-      messageAttributes      <- Gen.mapOf(Gen.anyString, genMessageAttribute)
+      messageId              <- Gen.string
+      receiptHandle          <- Gen.string
+      body                   <- Gen.string
+      md5OfBody              <- Gen.string
+      md5OfMessageAttributes <- Gen.string
+      eventSourceArn         <- Gen.string
+      eventSource            <- Gen.string
+      awsRegion              <- Gen.string
+      attributes             <- Gen.mapOf(Gen.string, Gen.string)
+      messageAttributes      <- Gen.mapOf(Gen.string, genMessageAttribute)
     } yield {
       val sqsMessage = new JavaSQSEvent.SQSMessage()
       sqsMessage.setMessageId(messageId)

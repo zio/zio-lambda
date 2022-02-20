@@ -8,7 +8,7 @@ object ScheduledEventSpec extends DefaultRunnableSpec {
 
   override def spec: ZSpec[Environment, Failure] =
     suite("ScheduledEvent spec")(
-      testM("should decode Scheduled JSON") {
+      test("should decode Scheduled JSON") {
         check(JavaLambdaEventsGen.genScheduledEvent) { scheduledEvent =>
           assert(JavaLambdaEventJsonEncoder.toJson(scheduledEvent).fromJson[ScheduledEvent])(isRight)
         }

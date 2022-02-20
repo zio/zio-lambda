@@ -12,7 +12,7 @@ trait CustomClassLoader {
 }
 
 object CustomClassLoader {
-  val live: URLayer[Has[LambdaEnvironment], Has[CustomClassLoader]] = (
+  val live: URLayer[LambdaEnvironment, CustomClassLoader] = (
     (environment: LambdaEnvironment) =>
       new CustomClassLoader {
         override def getClassLoader: Task[ClassLoader] =
@@ -29,6 +29,6 @@ object CustomClassLoader {
       }
   ).toLayer
 
-  def getClassLoader: ZIO[Has[CustomClassLoader], Throwable, ClassLoader] =
-    ZIO.serviceWith(_.getClassLoader)
+  def getClassLoader: ZIO[CustomClassLoader, Throwable, ClassLoader] =
+    ZIO.serviceWithZIO(_.getClassLoader)
 }

@@ -8,7 +8,7 @@ object SQSEventSpec extends DefaultRunnableSpec {
 
   override def spec: ZSpec[Environment, Failure] =
     suite("SQSEvent spec")(
-      testM("should decode SQS JSON") {
+      test("should decode SQS JSON") {
         check(JavaLambdaEventsGen.genSQSEvent) { sqsEvent =>
           assert(JavaLambdaEventJsonEncoder.toJson(sqsEvent).fromJson[SQSEvent])(isRight)
         }

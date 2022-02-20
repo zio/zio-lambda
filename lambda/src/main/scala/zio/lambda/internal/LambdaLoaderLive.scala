@@ -12,7 +12,7 @@ final case class LambdaLoaderLive(
     customClassLoader.getClassLoader
       .flatMap[Any, Throwable, ZLambdaApp[_, _]](classLoader =>
         ZIO
-          .effect(
+          .attempt(
             Class
               .forName(
                 environment.handler + "$",
@@ -30,6 +30,6 @@ final case class LambdaLoaderLive(
 }
 
 object LambdaLoaderLive {
-  val layer: ZLayer[Has[CustomClassLoader] with Has[LambdaEnvironment], Throwable, Has[LambdaLoader]] =
+  val layer: ZLayer[CustomClassLoader with LambdaEnvironment, Throwable, LambdaLoader] =
     (LambdaLoaderLive(_, _)).toLayer
 }

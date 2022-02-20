@@ -3,6 +3,7 @@ package zio.lambda.internal
 import zio.lambda.ClientContext
 import zio.lambda.CognitoIdentity
 import zio.json._
+import zio.json.internal.FastStringReader
 
 /**
  * https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html
@@ -36,19 +37,18 @@ object InvocationRequest {
       headers.get("Lambda-Runtime-Deadline-Ms").get(0).toLong,
       headers.get("Lambda-Runtime-Invoked-Function-Arn").get(0),
       headers.get("Lambda-Runtime-Trace-Id").get(0),
-      try headers
-        .get("Lambda-Runtime-Client-Context")
-        .get(0)
-        .fromJson[ClientContext]
-        .toOption
-      catch {
-        case _: Throwable => None
-      },
-      try headers.get("Lambda-Runtime-Cognito-Identity").get(0).fromJson[CognitoIdentity].toOption
-      catch {
-        case _: Throwable => None
-      },
+      parseHeader[ClientContext]("Lambda-Runtime-Client-Context", headers),
+      parseHeader[CognitoIdentity]("Lambda-Runtime-Cognito-Identity", headers),
       payload
     )
 
+  private def parseHeader[A](
+    header: String,
+    headers: java.util.Map[String, java.util.List[String]]
+  )(implicit decoder: JsonDecoder[A]): Option[A] = {
+    val values = headers.get(header)
+    if (values != null && !values.isEmpty()) {
+      Some(decoder.unsafeDecode(Nil, new FastStringReader(values.get(0))))
+    } else None
+  }
 }

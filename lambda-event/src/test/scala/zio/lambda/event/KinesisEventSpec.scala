@@ -8,7 +8,7 @@ object KinesisEventSpec extends DefaultRunnableSpec {
 
   override def spec: ZSpec[Environment, Failure] =
     suite("KinesisEvent spec")(
-      testM("should decode Kinesis JSON") {
+      test("should decode Kinesis JSON") {
         check(JavaLambdaEventsGen.genKinesisEvent) { kinesisEvent =>
           assert(JavaLambdaEventJsonEncoder.toJson(kinesisEvent).fromJson[KinesisEvent])(isRight)
         }

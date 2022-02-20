@@ -1,7 +1,7 @@
 package zio.lambda.internal
 
 import zio._
-import zio.system._
+import zio.System._
 
 final case class LambdaEnvironment(
   runtimeApi: String,
@@ -15,12 +15,12 @@ final case class LambdaEnvironment(
 )
 
 object LambdaEnvironment {
-  val live: ZLayer[System, Throwable, Has[LambdaEnvironment]] =
+  val live: ZLayer[System, Throwable, LambdaEnvironment] =
     (for {
       runtimeApi <-
-        ZIO.require(new Throwable("AWS_LAMBDA_RUNTIME_API env variable not defined"))(
-          env("AWS_LAMBDA_RUNTIME_API")
-        )
+        env("AWS_LAMBDA_RUNTIME_API")
+          .someOrFail(new Throwable("AWS_LAMBDA_RUNTIME_API env variable not defined"))
+
       handler         <- envOrElse("_HANDLER", "")
       taskRoot        <- envOrElse("LAMBDA_TASK_ROOT", "")
       memoryLimitInMB <- envOrElse("AWS_LAMBDA_FUNCTION_MEMORY_SIZE", "128")
@@ -39,6 +39,4 @@ object LambdaEnvironment {
       functionVersion
     )).toLayer
 
-  def getEnvironment: RIO[Has[LambdaEnvironment], LambdaEnvironment] =
-    ZIO.service[LambdaEnvironment]
 }

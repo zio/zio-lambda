@@ -8,6 +8,6 @@ trait LambdaLoader {
 }
 
 object LambdaLoader {
-  def loadLambda: URIO[Has[LambdaLoader], Either[Throwable, ZLambdaApp[_, _]]] =
-    ZIO.serviceWith(_.loadLambda)
+  def loadLambda: URIO[LambdaLoader, Either[Throwable, ZLambdaApp[_, _]]] =
+    ZIO.serviceWithZIO(_.loadLambda)
 }

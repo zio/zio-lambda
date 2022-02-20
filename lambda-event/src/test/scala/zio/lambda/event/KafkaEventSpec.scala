@@ -8,7 +8,7 @@ object KafkaEventSpec extends DefaultRunnableSpec {
 
   override def spec: ZSpec[Environment, Failure] =
     suite("KafkaEvent spec")(
-      testM("should decode Kafka JSON") {
+      test("should decode Kafka JSON") {
         check(JavaLambdaEventsGen.genKafkaEvent) { kafkaEvent =>
           assert(JavaLambdaEventJsonEncoder.toJson(kafkaEvent).fromJson[KafkaEvent])(isRight)
         }

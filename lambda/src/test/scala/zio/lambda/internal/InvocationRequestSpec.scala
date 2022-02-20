@@ -11,7 +11,7 @@ object InvocationRequestSpec extends DefaultRunnableSpec {
   override def spec: ZSpec[Environment, Failure] =
     suite("InvocationRequest spec")(
       suite("fromHttpResponse")(
-        testM("should return InvocationRequest") {
+        test("should return InvocationRequest") {
           check(InvocationRequestGen.gen) { invocationRequest =>
             val headers = new java.util.HashMap[String, java.util.List[String]]()
             headers.put("Lambda-Runtime-Aws-Request-Id", java.util.Collections.singletonList(invocationRequest.id))
@@ -26,11 +26,17 @@ object InvocationRequestSpec extends DefaultRunnableSpec {
             )
             headers.put(
               "Lambda-Runtime-Client-Context",
-              java.util.Collections.singletonList(invocationRequest.clientContext.toJson)
+              invocationRequest.clientContext match {
+                case Some(value) => java.util.Collections.singletonList(value.toJson)
+                case None        => java.util.Collections.emptyList()
+              }
             )
             headers.put(
               "Lambda-Runtime-Cognito-Identity",
-              java.util.Collections.singletonList(invocationRequest.cognitoIdentity.toJson)
+              invocationRequest.cognitoIdentity match {
+                case Some(value) => java.util.Collections.singletonList(value.toJson)
+                case None        => java.util.Collections.emptyList()
+              }
             )
 
             assert(
