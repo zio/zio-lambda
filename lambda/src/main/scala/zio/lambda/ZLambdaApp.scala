@@ -1,8 +1,6 @@
 package zio.lambda
 
 import zio._
-import zio.blocking.Blocking
-import zio.clock.Clock
 import zio.json._
 import zio.lambda.internal.LambdaEnvironment
 import zio.lambda.internal.LoopProcessor
@@ -40,7 +38,7 @@ import zio.lambda.internal.RuntimeApiLive
 abstract class ZLambdaApp[E, A](
   implicit val lambdaEventDecoder: JsonDecoder[E],
   implicit val lambdaResponseEncoder: JsonEncoder[A]
-) extends App { self =>
+) extends ZIOAppDefault { self =>
 
   def apply(event: E, context: Context): RIO[ZEnv, A]
 
@@ -52,19 +50,13 @@ abstract class ZLambdaApp[E, A](
       case Right(event) => apply(event, context).map(_.toJson)
     }
 
-  def getContext: ZIO[Has[Context], Nothing, Context] = ZIO.service[Context]
-
-  final override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
-    val runtimeApiLayer = (
-      LambdaEnvironment.live ++ Clock.live ++ Blocking.live
-    ) >>> RuntimeApiLive.layer
-
-    val zRuntimeLayer = (runtimeApiLayer ++ LambdaEnvironment.live) >>> LoopProcessor.live
-
+  def run =
     LoopProcessor
       .loop(Right(self))
-      .provideCustomLayer(zRuntimeLayer)
-      .exitCode
-  }
+      .provideCustom(
+        LambdaEnvironment.live,
+        RuntimeApiLive.layer,
+        LoopProcessor.live
+      )
 
 }

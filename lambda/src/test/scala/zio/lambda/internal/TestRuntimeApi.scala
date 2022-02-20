@@ -46,24 +46,26 @@ object TestRuntimeApi {
       initializationErrorQueue.offer(errorResponse).unit
   }
 
-  val testLayer: ULayer[Has[TestRuntimeApi] with Has[RuntimeApi]] =
+  val testLayer: ULayer[TestRuntimeApi with RuntimeApi] =
     (for {
       invocationRequestQueue   <- Queue.unbounded[InvocationRequest]
       invocationResponseQueue  <- Queue.unbounded[InvocationResponse]
       invocationErrorQueue     <- Queue.unbounded[InvocationError]
       initializationErrorQueue <- Queue.unbounded[InvocationErrorResponse]
-    } yield {
-      val test = Test(invocationRequestQueue, invocationResponseQueue, invocationErrorQueue, initializationErrorQueue)
-      Has.allOf[TestRuntimeApi, RuntimeApi](test, test)
-    }).toLayerMany
+    } yield Test(
+      invocationRequestQueue,
+      invocationResponseQueue,
+      invocationErrorQueue,
+      initializationErrorQueue
+    )).toLayer
 
-  def addInvocationRequest(invocationRequest: InvocationRequest): RIO[Has[TestRuntimeApi], Unit] =
-    ZIO.serviceWith(_.addInvocationRequest(invocationRequest))
+  def addInvocationRequest(invocationRequest: InvocationRequest): RIO[TestRuntimeApi, Unit] =
+    ZIO.serviceWithZIO(_.addInvocationRequest(invocationRequest))
 
-  def getInvocationResponse(): RIO[Has[TestRuntimeApi], InvocationResponse] =
-    ZIO.serviceWith(_.getInvocationResponse())
+  def getInvocationResponse(): RIO[TestRuntimeApi, InvocationResponse] =
+    ZIO.serviceWithZIO(_.getInvocationResponse())
 
-  def getInvocationError(): RIO[Has[TestRuntimeApi], InvocationError] =
-    ZIO.serviceWith(_.getInvocationError())
+  def getInvocationError(): RIO[TestRuntimeApi, InvocationError] =
+    ZIO.serviceWithZIO(_.getInvocationError())
 
 }

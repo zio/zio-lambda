@@ -1,8 +1,8 @@
 package zio.lambda.internal
 
 import zio._
-import zio.lambda.ZLambdaApp
 import zio.lambda.Context
+import zio.lambda.ZLambdaApp
 
 trait LoopProcessor {
   def loop(eitherZLambda: Either[Throwable, ZLambdaApp[_, _]]): RIO[ZEnv, Unit]
@@ -18,7 +18,7 @@ object LoopProcessor {
             .flatMap(request =>
               zLambda
                 .applyJson(request.payload, Context.from(request, environment))
-                .foldM(
+                .foldZIO(
                   throwable =>
                     runtimeApi.sendInvocationError(
                       InvocationError(request.id, InvocationErrorResponse.fromThrowable(throwable))
@@ -29,6 +29,7 @@ object LoopProcessor {
                     )
                 )
             )
+            .tapError(throwable => ZIO.attempt(println(s"Error=$throwable")))
             .forever
 
         case Left(throwable) =>
@@ -47,13 +48,13 @@ object LoopProcessor {
 
   def loop(
     eitherZLambda: Either[Throwable, ZLambdaApp[_, _]]
-  ): RIO[Has[LoopProcessor] with ZEnv, Unit] =
-    ZIO.accessM(_.get.loop(eitherZLambda))
+  ): RIO[LoopProcessor with ZEnv, Unit] =
+    ZIO.serviceWithZIO[LoopProcessor](_.loop(eitherZLambda))
 
-  val live: ZLayer[Has[RuntimeApi] with Has[LambdaEnvironment], Throwable, Has[LoopProcessor]] =
+  val live: ZLayer[RuntimeApi with LambdaEnvironment, Throwable, LoopProcessor] =
     (for {
-      runtimeApi  <- RuntimeApi.getRuntimeApi
-      environment <- LambdaEnvironment.getEnvironment
+      runtimeApi  <- ZIO.service[RuntimeApi]
+      environment <- ZIO.service[LambdaEnvironment]
     } yield Live(runtimeApi, environment)).toLayer
 
 }

@@ -1,6 +1,6 @@
 package zio.lambda.internal
 
-import zio.random.Random
+import zio.Random
 import zio.test._
 import zio.lambda.ClientContext
 import zio.lambda.CognitoIdentity
@@ -10,11 +10,11 @@ object InvocationRequestGen {
 
   private val genClient =
     for {
-      installationId <- Gen.anyString
-      appTitle       <- Gen.anyString
-      appVersionName <- Gen.anyString
-      appVersionCode <- Gen.anyString
-      appPackageName <- Gen.anyString
+      installationId <- Gen.string
+      appTitle       <- Gen.string
+      appVersionName <- Gen.string
+      appVersionCode <- Gen.string
+      appPackageName <- Gen.string
     } yield Client(
       installationId = installationId,
       appTitle = appTitle,
@@ -26,8 +26,8 @@ object InvocationRequestGen {
   private val genClientContext =
     for {
       client <- genClient
-      custom <- Gen.mapOf(Gen.anyString, Gen.anyString)
-      env    <- Gen.mapOf(Gen.anyString, Gen.anyString)
+      custom <- Gen.mapOf(Gen.string, Gen.string)
+      env    <- Gen.mapOf(Gen.string, Gen.string)
     } yield ClientContext(
       client = client,
       custom = custom,
@@ -36,8 +36,8 @@ object InvocationRequestGen {
 
   private val genCognitoIdentity =
     for {
-      cognitoIdentityId     <- Gen.anyString
-      cognitoIdentityPoolId <- Gen.anyString
+      cognitoIdentityId     <- Gen.string
+      cognitoIdentityPoolId <- Gen.string
     } yield CognitoIdentity(
       cognitoIdentityId = cognitoIdentityId,
       cognitoIdentityPoolId = cognitoIdentityPoolId
@@ -45,13 +45,13 @@ object InvocationRequestGen {
 
   val gen: Gen[Random with Sized, InvocationRequest] =
     for {
-      id                    <- Gen.anyString
-      remainingTimeInMillis <- Gen.anyLong
-      invokedFunctionArn    <- Gen.anyString
-      xrayTraceId           <- Gen.anyString
+      id                    <- Gen.string
+      remainingTimeInMillis <- Gen.long
+      invokedFunctionArn    <- Gen.string
+      xrayTraceId           <- Gen.string
       clientContext         <- Gen.option(genClientContext)
       cognitoIdentity       <- Gen.option(genCognitoIdentity)
-      payload               <- Gen.anyString
+      payload               <- Gen.string
     } yield InvocationRequest(
       id = id,
       remainingTimeInMillis = remainingTimeInMillis,

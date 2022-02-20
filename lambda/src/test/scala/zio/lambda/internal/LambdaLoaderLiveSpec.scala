@@ -1,7 +1,6 @@
 package zio.lambda.internal
 
 import zio._
-import zio.blocking._
 import zio.json._
 import zio.lambda.Context
 import zio.test.Assertion._
@@ -14,19 +13,20 @@ object LambdaLoaderLiveSpec extends DefaultRunnableSpec {
 
   override def spec: ZSpec[Environment, Failure] =
     suite("LambdaLoaderLive spec")(
-      testM("should return an error if Function Handler is None") {
+      test("should return an error if Function Handler is None") {
         val lambdaEnvironmentLayer = ZLayer.succeed(
           LambdaEnvironment("", "non_exists", "/opt", 128, "", "", "", "")
         )
 
-        val lambdaLoaderLayer =
-          (lambdaEnvironmentLayer ++ Blocking.live ++ TestCustomClassLoader.test) >>> LambdaLoaderLive.layer
-
         LambdaLoader.loadLambda
           .map(assert(_)(isLeft))
-          .provideLayer(lambdaLoaderLayer)
+          .provide(
+            lambdaEnvironmentLayer,
+            TestCustomClassLoader.test,
+            LambdaLoaderLive.layer
+          )
       },
-      testM("should load ZLambda") {
+      test("should load ZLambda") {
         val lambdaEnvironmentLayer = ZLayer.succeed(
           LambdaEnvironment(
             "",
@@ -53,16 +53,17 @@ object LambdaLoaderLiveSpec extends DefaultRunnableSpec {
           Some(CognitoIdentity("", ""))
         )
 
-        val lambdaLoaderLayer =
-          (lambdaEnvironmentLayer ++ Blocking.live ++ TestCustomClassLoader.test) >>> LambdaLoaderLive.layer
-
         LambdaLoader.loadLambda.flatMap {
           case Right(zLambda) =>
             zLambda.applyJson(CustomPayload("payload").toJson, context)
           case Left(error) => ZIO.fail(s"ZLambda not loaded. Error=$error")
         }
           .map(Function.const(assertCompletes))
-          .provideCustomLayer(lambdaLoaderLayer ++ ZLayer.succeed(context))
+          .provideCustom(
+            lambdaEnvironmentLayer,
+            TestCustomClassLoader.test,
+            LambdaLoaderLive.layer
+          )
       }
     )
 
