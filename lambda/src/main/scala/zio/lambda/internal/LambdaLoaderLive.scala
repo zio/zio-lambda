@@ -1,16 +1,16 @@
 package zio.lambda.internal
 
 import zio._
-import zio.lambda.ZLambdaApp
+import zio.lambda.ZLambda
 
 final case class LambdaLoaderLive(
   customClassLoader: CustomClassLoader,
   environment: LambdaEnvironment
 ) extends LambdaLoader {
 
-  override lazy val loadLambda: UIO[Either[Throwable, ZLambdaApp[_, _]]] =
+  override lazy val loadLambda: UIO[Either[Throwable, ZLambda[_, _]]] =
     customClassLoader.getClassLoader
-      .flatMap[Any, Throwable, ZLambdaApp[_, _]](classLoader =>
+      .flatMap[Any, Throwable, ZLambda[_, _]](classLoader =>
         ZIO
           .attempt(
             Class
@@ -21,7 +21,7 @@ final case class LambdaLoaderLive(
               )
               .getDeclaredField("MODULE$")
               .get(null)
-              .asInstanceOf[ZLambdaApp[_, _]]
+              .asInstanceOf[ZLambda[_, _]]
           )
           .refineOrDie { case ex: ClassNotFoundException => ex }
       )

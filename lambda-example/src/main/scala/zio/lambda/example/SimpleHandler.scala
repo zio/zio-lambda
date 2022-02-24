@@ -1,15 +1,14 @@
 package zio.lambda.example
 
-import zio._
 import zio.Console._
-import zio.lambda.Context
-import zio.lambda.ZLambdaApp
+import zio._
+import zio.lambda._
 
-object SimpleHandler extends ZLambdaApp[CustomEvent, CustomResponse] {
+object SimpleHandler extends ZLambda[CustomEvent, String] {
 
-  override def apply(event: CustomEvent, context: Context): RIO[ZEnv, CustomResponse] =
+  override def apply(event: CustomEvent, context: Context): RIO[ZEnv, String] =
     for {
       _ <- printLine(event.message)
-    } yield CustomResponse("Handler ran successfully")
+    } yield "Handler ran successfully"
 
 }
