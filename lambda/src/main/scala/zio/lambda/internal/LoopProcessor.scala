@@ -2,16 +2,16 @@ package zio.lambda.internal
 
 import zio._
 import zio.lambda.Context
-import zio.lambda.ZLambdaApp
+import zio.lambda.ZLambda
 
 trait LoopProcessor {
-  def loop(eitherZLambda: Either[Throwable, ZLambdaApp[_, _]]): RIO[ZEnv, Unit]
+  def loop(eitherZLambda: Either[Throwable, ZLambda[_, _]]): RIO[ZEnv, Unit]
 }
 
 object LoopProcessor {
 
   final case class Live(runtimeApi: RuntimeApi, environment: LambdaEnvironment) extends LoopProcessor {
-    def loop(eitherZLambda: Either[Throwable, ZLambdaApp[_, _]]): RIO[ZEnv, Unit] =
+    def loop(eitherZLambda: Either[Throwable, ZLambda[_, _]]): RIO[ZEnv, Unit] =
       eitherZLambda match {
         case Right(zLambda) =>
           runtimeApi.getNextInvocation
@@ -29,7 +29,6 @@ object LoopProcessor {
                     )
                 )
             )
-            .tapError(throwable => ZIO.attempt(println(s"Error=$throwable")))
             .forever
 
         case Left(throwable) =>
@@ -47,7 +46,7 @@ object LoopProcessor {
   }
 
   def loop(
-    eitherZLambda: Either[Throwable, ZLambdaApp[_, _]]
+    eitherZLambda: Either[Throwable, ZLambda[_, _]]
   ): RIO[LoopProcessor with ZEnv, Unit] =
     ZIO.serviceWithZIO[LoopProcessor](_.loop(eitherZLambda))
 

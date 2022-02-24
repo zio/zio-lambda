@@ -31,6 +31,8 @@ final case class RuntimeApiLive(environment: LambdaEnvironment) extends RuntimeA
     ZIO.attempt {
       val con = nextInvocationUrl.openConnection().asInstanceOf[HttpURLConnection]
       con.setRequestMethod("GET")
+      con.setConnectTimeout(0)
+      con.setReadTimeout(0)
       val responseBody = readResponse(con.getInputStream())
       InvocationRequest.fromHttpResponse(con.getHeaderFields(), responseBody)
     }
