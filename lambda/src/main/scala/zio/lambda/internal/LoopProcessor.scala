@@ -18,7 +18,7 @@ object LoopProcessor {
             .flatMap(request =>
               zLambda
                 .applyJson(request.payload, Context.from(request, environment))
-                .foldZIO(
+                .foldZIO[Any, Throwable, Unit](
                   throwable =>
                     runtimeApi.sendInvocationError(
                       InvocationError(request.id, InvocationErrorResponse.fromThrowable(throwable))
