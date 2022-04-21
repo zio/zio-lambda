@@ -1,6 +1,5 @@
 package zio.lambda.internal
 
-import zio.Random
 import zio.test._
 import zio.lambda.ClientContext
 import zio.lambda.CognitoIdentity
@@ -43,7 +42,7 @@ object InvocationRequestGen {
       cognitoIdentityPoolId = cognitoIdentityPoolId
     )
 
-  val gen: Gen[Random with Sized, InvocationRequest] =
+  val gen: Gen[Sized, InvocationRequest] =
     for {
       id                    <- Gen.string
       remainingTimeInMillis <- Gen.long

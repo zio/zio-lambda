@@ -1,6 +1,5 @@
 package zio.lambda.internal
 
-import zio.Random
 import zio.test._
 
 object InvocationErrorGen {
@@ -16,7 +15,7 @@ object InvocationErrorGen {
       stackTrace
     )
 
-  val gen: Gen[Random with Sized, InvocationError] =
+  val gen: Gen[Sized, InvocationError] =
     for {
       requestId               <- Gen.string
       invocationErrorResponse <- genInvocationErrorResponse

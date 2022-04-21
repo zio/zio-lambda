@@ -12,22 +12,21 @@ trait CustomClassLoader {
 }
 
 object CustomClassLoader {
-  val live: URLayer[LambdaEnvironment, CustomClassLoader] = (
-    (environment: LambdaEnvironment) =>
-      new CustomClassLoader {
-        override def getClassLoader: Task[ClassLoader] =
-          ZStream
-            .fromJavaStream(Files.list(Paths.get(environment.taskRoot)))
-            .runCollect
-            .map(stream =>
-              new URLClassLoader(
-                stream
-                  .map(_.toUri().toURL())
-                  .toArray
-              )
+  val live: URLayer[LambdaEnvironment, CustomClassLoader] = ZLayer.fromFunction { (environment: LambdaEnvironment) =>
+    new CustomClassLoader {
+      override def getClassLoader: Task[ClassLoader] =
+        ZStream
+          .fromJavaStream(Files.list(Paths.get(environment.taskRoot)))
+          .runCollect
+          .map(stream =>
+            new URLClassLoader(
+              stream
+                .map(_.toUri().toURL())
+                .toArray
             )
-      }
-  ).toLayer
+          )
+    }
+  }
 
   def getClassLoader: ZIO[CustomClassLoader, Throwable, ClassLoader] =
     ZIO.serviceWithZIO(_.getClassLoader)

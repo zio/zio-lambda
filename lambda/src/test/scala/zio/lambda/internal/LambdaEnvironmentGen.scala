@@ -1,11 +1,10 @@
 package zio.lambda.internal
 
-import zio.Random
 import zio.test._
 
 object LambdaEnvironmentGen {
 
-  val gen: Gen[Random with Sized, LambdaEnvironment] =
+  val gen: Gen[Sized, LambdaEnvironment] =
     for {
       runtimeApi      <- Gen.string(Gen.char)
       handler         <- Gen.string

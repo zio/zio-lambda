@@ -5,13 +5,13 @@ import zio.lambda.Context
 import zio.lambda.ZLambda
 
 trait LoopProcessor {
-  def loop(eitherZLambda: Either[Throwable, ZLambda[_, _]]): RIO[ZEnv, Unit]
+  def loop(eitherZLambda: Either[Throwable, ZLambda[_, _]]): Task[Unit]
 }
 
 object LoopProcessor {
 
   final case class Live(runtimeApi: RuntimeApi, environment: LambdaEnvironment) extends LoopProcessor {
-    def loop(eitherZLambda: Either[Throwable, ZLambda[_, _]]): RIO[ZEnv, Unit] =
+    def loop(eitherZLambda: Either[Throwable, ZLambda[_, _]]): Task[Unit] =
       eitherZLambda match {
         case Right(zLambda) =>
           runtimeApi.getNextInvocation
@@ -47,13 +47,15 @@ object LoopProcessor {
 
   def loop(
     eitherZLambda: Either[Throwable, ZLambda[_, _]]
-  ): RIO[LoopProcessor with ZEnv, Unit] =
+  ): RIO[LoopProcessor, Unit] =
     ZIO.serviceWithZIO[LoopProcessor](_.loop(eitherZLambda))
 
   val live: ZLayer[RuntimeApi with LambdaEnvironment, Throwable, LoopProcessor] =
-    (for {
-      runtimeApi  <- ZIO.service[RuntimeApi]
-      environment <- ZIO.service[LambdaEnvironment]
-    } yield Live(runtimeApi, environment)).toLayer
+    ZLayer {
+      for {
+        runtimeApi  <- ZIO.service[RuntimeApi]
+        environment <- ZIO.service[LambdaEnvironment]
+      } yield Live(runtimeApi, environment)
+    }
 
 }

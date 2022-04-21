@@ -1,22 +1,21 @@
 package zio.lambda.event
 
-import com.amazonaws.services.lambda.runtime.events.{KinesisEvent => JavaKinesisEvent}
-import com.amazonaws.services.lambda.runtime.events.{ScheduledEvent => JavaScheduledEvent}
-import com.amazonaws.services.lambda.runtime.events.{KafkaEvent => JavaKafkaEvent}
-import com.amazonaws.services.lambda.runtime.events.{SQSEvent => JavaSQSEvent}
 import com.amazonaws.services.lambda.runtime.events.models.kinesis.EncryptionType
+import com.amazonaws.services.lambda.runtime.events.{KafkaEvent => JavaKafkaEvent}
+import com.amazonaws.services.lambda.runtime.events.{KinesisEvent => JavaKinesisEvent}
+import com.amazonaws.services.lambda.runtime.events.{SQSEvent => JavaSQSEvent}
+import com.amazonaws.services.lambda.runtime.events.{ScheduledEvent => JavaScheduledEvent}
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import zio.Random
 import zio.test._
 
 import java.nio.ByteBuffer
 import java.time.Instant
+import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 import java.util.Date
 import java.util.TimeZone
 import scala.jdk.CollectionConverters._
-import java.time.OffsetDateTime
 
 object JavaLambdaEventsGen {
 
@@ -65,14 +64,14 @@ object JavaLambdaEventsGen {
       record
     }
 
-  val genKinesisEvent: Gen[Random with Sized, JavaKinesisEvent] =
+  val genKinesisEvent: Gen[Sized, JavaKinesisEvent] =
     Gen.listOf1(genKinesisEventRecord).map { records =>
       val kinesisEvent = new JavaKinesisEvent()
       kinesisEvent.setRecords(records.asJava)
       kinesisEvent
     }
 
-  val genScheduledEvent: Gen[Random with Sized, JavaScheduledEvent] =
+  val genScheduledEvent: Gen[Sized, JavaScheduledEvent] =
     for {
       account    <- Gen.string
       region     <- Gen.string
@@ -129,7 +128,7 @@ object JavaLambdaEventsGen {
       .withValue(value)
       .build()
 
-  val genKafkaEvent: Gen[Random with Sized, JavaKafkaEvent] =
+  val genKafkaEvent: Gen[Sized, JavaKafkaEvent] =
     for {
       eventSource      <- Gen.string
       eventSourceArn   <- Gen.string
@@ -181,7 +180,7 @@ object JavaLambdaEventsGen {
       sqsMessage
     }
 
-  val genSQSEvent: Gen[Random with Sized, JavaSQSEvent] =
+  val genSQSEvent: Gen[Sized, JavaSQSEvent] =
     Gen.listOf(genSQSEventRecord).map { records =>
       val sqsEvent = new JavaSQSEvent()
       sqsEvent.setRecords(records.asJava)

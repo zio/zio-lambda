@@ -11,9 +11,9 @@ abstract class ZLambda[E, A](
   implicit val lambdaResponseEncoder: JsonEncoder[A]
 ) extends ZIOAppDefault { self =>
 
-  def apply(event: E, context: Context): RIO[ZEnv, A]
+  def apply(event: E, context: Context): Task[A]
 
-  def applyJson(json: String, context: Context): RIO[ZEnv, String] =
+  def applyJson(json: String, context: Context): Task[String] =
     lambdaEventDecoder.decodeJson(json) match {
       case Left(errorMessage) =>
         ZIO.fail(new Throwable(s"Error decoding json. Json=$json, Error$errorMessage"))
@@ -24,7 +24,7 @@ abstract class ZLambda[E, A](
   def run =
     LoopProcessor
       .loop(Right(self))
-      .provideCustom(
+      .provide(
         LambdaEnvironment.live,
         RuntimeApiLive.layer,
         LoopProcessor.live

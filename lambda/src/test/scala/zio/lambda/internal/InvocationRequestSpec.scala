@@ -6,9 +6,9 @@ import zio.test._
 
 import InvocationRequestImplicits._
 
-object InvocationRequestSpec extends DefaultRunnableSpec {
+object InvocationRequestSpec extends ZIOSpecDefault {
 
-  override def spec: ZSpec[Environment, Failure] =
+  override def spec =
     suite("InvocationRequest spec")(
       suite("fromHttpResponse")(
         test("should return InvocationRequest") {

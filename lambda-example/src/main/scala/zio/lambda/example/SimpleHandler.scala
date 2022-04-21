@@ -6,7 +6,7 @@ import zio.lambda._
 
 object SimpleHandler extends ZLambda[CustomEvent, String] {
 
-  override def apply(event: CustomEvent, context: Context): RIO[ZEnv, String] =
+  override def apply(event: CustomEvent, context: Context): Task[String] =
     for {
       _ <- printLine(event.message)
     } yield "Handler ran successfully"
