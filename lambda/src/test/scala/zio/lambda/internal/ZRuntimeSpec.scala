@@ -5,9 +5,9 @@ import zio.json._
 import zio.test.Assertion._
 import zio.test._
 
-object ZRuntimeSpec extends DefaultRunnableSpec {
+object ZRuntimeSpec extends ZIOSpecDefault {
 
-  override def spec: ZSpec[Environment, Failure] = suite("ZRuntimeLive spec")(
+  override def spec = suite("ZRuntimeLive spec")(
     test("should process invocation and send invocation response") {
       checkN(1)(InvocationRequestGen.gen.noShrink, LambdaEnvironmentGen.gen.noShrink) {
         (invocationRequest, lambdaEnvironment) =>
@@ -29,7 +29,7 @@ object ZRuntimeSpec extends DefaultRunnableSpec {
                 CustomResponse(invocationRequest.payload).toJson
               )
             )
-          )).provideCustom(
+          )).provide(
             TestRuntimeApi.testLayer,
             ZLayer.succeed(lambdaEnvironment),
             LoopProcessor.live
@@ -58,7 +58,7 @@ object ZRuntimeSpec extends DefaultRunnableSpec {
               InvocationErrorResponse.fromThrowable(loaderLambdaError)
             )
           )
-        )).provideCustom(
+        )).provide(
           TestRuntimeApi.testLayer,
           ZLayer.succeed(lambdaEnvironment),
           LoopProcessor.live
@@ -82,7 +82,7 @@ object ZRuntimeSpec extends DefaultRunnableSpec {
 
           _ <- TestRuntimeApi.getInvocationError()
 
-        } yield assertCompletes).provideCustomLayer(loopProcessorLayer)
+        } yield assertCompletes).provide(loopProcessorLayer)
       }
     }
   )

@@ -4,9 +4,9 @@ import zio.json._
 import zio.test.Assertion._
 import zio.test._
 
-object KafkaEventSpec extends DefaultRunnableSpec {
+object KafkaEventSpec extends ZIOSpecDefault {
 
-  override def spec: ZSpec[Environment, Failure] =
+  override def spec =
     suite("KafkaEvent spec")(
       test("should decode Kafka JSON") {
         check(JavaLambdaEventsGen.genKafkaEvent) { kafkaEvent =>

@@ -18,7 +18,7 @@ object ZLambdaReflectiveApp extends ZIOAppDefault {
           InvocationErrorResponse.fromThrowable(throwable)
         )
       )
-      .provideCustom(
+      .provide(
         LambdaEnvironment.live,
         CustomClassLoader.live,
         LambdaLoaderLive.layer,

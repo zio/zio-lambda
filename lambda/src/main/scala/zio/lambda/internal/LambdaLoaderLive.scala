@@ -31,5 +31,5 @@ final case class LambdaLoaderLive(
 
 object LambdaLoaderLive {
   val layer: ZLayer[CustomClassLoader with LambdaEnvironment, Throwable, LambdaLoader] =
-    (LambdaLoaderLive(_, _)).toLayer
+    ZLayer.fromFunction(LambdaLoaderLive.apply _)
 }

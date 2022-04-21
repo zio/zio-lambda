@@ -1,12 +1,12 @@
 package zio.lambda.event
 
-import zio.test._
-import zio.test.Assertion._
 import zio.json._
+import zio.test.Assertion._
+import zio.test._
 
-object KinesisEventSpec extends DefaultRunnableSpec {
+object KinesisEventSpec extends ZIOSpecDefault {
 
-  override def spec: ZSpec[Environment, Failure] =
+  override def spec =
     suite("KinesisEvent spec")(
       test("should decode Kinesis JSON") {
         check(JavaLambdaEventsGen.genKinesisEvent) { kinesisEvent =>

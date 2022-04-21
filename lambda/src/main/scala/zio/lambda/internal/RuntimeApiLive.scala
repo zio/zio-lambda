@@ -93,9 +93,6 @@ final case class RuntimeApiLive(environment: LambdaEnvironment) extends RuntimeA
 
 object RuntimeApiLive {
   val layer: ZLayer[LambdaEnvironment, Throwable, RuntimeApi] =
-    ZIO
-      .service[LambdaEnvironment]
-      .map(RuntimeApiLive(_))
-      .toLayer
+    ZLayer.fromFunction(RuntimeApiLive.apply _)
 
 }

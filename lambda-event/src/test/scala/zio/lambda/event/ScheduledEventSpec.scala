@@ -1,12 +1,12 @@
 package zio.lambda.event
 
-import zio.test._
-import zio.test.Assertion._
 import zio.json._
+import zio.test.Assertion._
+import zio.test._
 
-object ScheduledEventSpec extends DefaultRunnableSpec {
+object ScheduledEventSpec extends ZIOSpecDefault {
 
-  override def spec: ZSpec[Environment, Failure] =
+  override def spec =
     suite("ScheduledEvent spec")(
       test("should decode Scheduled JSON") {
         check(JavaLambdaEventsGen.genScheduledEvent) { scheduledEvent =>

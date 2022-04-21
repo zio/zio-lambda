@@ -17,11 +17,11 @@ object CustomResponse {
 }
 
 object SuccessZLambda extends ZLambda[CustomPayload, CustomResponse] {
-  override def apply(event: CustomPayload, context: Context): RIO[ZEnv, CustomResponse] =
+  override def apply(event: CustomPayload, context: Context): Task[CustomResponse] =
     ZIO.succeed(CustomResponse(event.value))
 }
 
 object ErrorZLambda extends ZLambda[CustomPayload, CustomResponse] {
-  override def apply(event: CustomPayload, context: Context): RIO[ZEnv, CustomResponse] =
+  override def apply(event: CustomPayload, context: Context): Task[CustomResponse] =
     ZIO.fail(new Throwable("ZLambda error"))
 }

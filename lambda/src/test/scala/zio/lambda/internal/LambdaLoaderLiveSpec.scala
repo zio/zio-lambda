@@ -9,9 +9,9 @@ import zio.lambda.ClientContext
 import zio.lambda.Client
 import zio.lambda.CognitoIdentity
 
-object LambdaLoaderLiveSpec extends DefaultRunnableSpec {
+object LambdaLoaderLiveSpec extends ZIOSpecDefault {
 
-  override def spec: ZSpec[Environment, Failure] =
+  override def spec =
     suite("LambdaLoaderLive spec")(
       test("should return an error if Function Handler is None") {
         val lambdaEnvironmentLayer = ZLayer.succeed(
@@ -59,7 +59,7 @@ object LambdaLoaderLiveSpec extends DefaultRunnableSpec {
           case Left(error) => ZIO.fail(s"ZLambda not loaded. Error=$error")
         }
           .map(Function.const(assertCompletes))
-          .provideCustom(
+          .provide(
             lambdaEnvironmentLayer,
             TestCustomClassLoader.test,
             LambdaLoaderLive.layer

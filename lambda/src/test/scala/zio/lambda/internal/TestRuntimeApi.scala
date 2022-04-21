@@ -47,17 +47,19 @@ object TestRuntimeApi {
   }
 
   val testLayer: ULayer[TestRuntimeApi with RuntimeApi] =
-    (for {
-      invocationRequestQueue   <- Queue.unbounded[InvocationRequest]
-      invocationResponseQueue  <- Queue.unbounded[InvocationResponse]
-      invocationErrorQueue     <- Queue.unbounded[InvocationError]
-      initializationErrorQueue <- Queue.unbounded[InvocationErrorResponse]
-    } yield Test(
-      invocationRequestQueue,
-      invocationResponseQueue,
-      invocationErrorQueue,
-      initializationErrorQueue
-    )).toLayer
+    ZLayer {
+      for {
+        invocationRequestQueue   <- Queue.unbounded[InvocationRequest]
+        invocationResponseQueue  <- Queue.unbounded[InvocationResponse]
+        invocationErrorQueue     <- Queue.unbounded[InvocationError]
+        initializationErrorQueue <- Queue.unbounded[InvocationErrorResponse]
+      } yield Test(
+        invocationRequestQueue,
+        invocationResponseQueue,
+        invocationErrorQueue,
+        initializationErrorQueue
+      )
+    }
 
   def addInvocationRequest(invocationRequest: InvocationRequest): RIO[TestRuntimeApi, Unit] =
     ZIO.serviceWithZIO(_.addInvocationRequest(invocationRequest))
