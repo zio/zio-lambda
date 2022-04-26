@@ -6,15 +6,12 @@ import zio.lambda.internal.LambdaEnvironment
 import zio.lambda.internal.LoopProcessor
 import zio.lambda.internal.RuntimeApiLive
 
-abstract class ZLambda[E, A](
-  implicit val lambdaEventDecoder: JsonDecoder[E],
-  implicit val lambdaResponseEncoder: JsonEncoder[A]
-) extends ZIOAppDefault { self =>
+abstract class ZLambda[E: JsonDecoder, A: JsonEncoder] extends ZIOAppDefault { self =>
 
   def apply(event: E, context: Context): Task[A]
 
   def applyJson(json: String, context: Context): Task[String] =
-    lambdaEventDecoder.decodeJson(json) match {
+    JsonDecoder[E].decodeJson(json) match {
       case Left(errorMessage) =>
         ZIO.fail(new Throwable(s"Error decoding json. Json=$json, Error$errorMessage"))
 
