@@ -28,8 +28,8 @@ inThisBuild(
   )
 )
 
-val zioVersion         = "2.0.0-RC6"
-val zioJsonVersion     = "0.3.0-RC8"
+val zioVersion         = "2.0.0"
+val zioJsonVersion     = "0.3.0-RC10"
 val awsLambdaJavaTests = "1.1.1"
 
 lazy val root =
