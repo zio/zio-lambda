@@ -40,12 +40,13 @@ Create your Lambda function by extending ZLambda
 import zio.Console._
 import zio._
 import zio.lambda._
+import zio.lambda.event._
 
 object SimpleHandler extends ZLambda[KinesisEvent, String] {
 
-  override def apply(event: KinesisEvent, context: Context): RIO[ZEnv, String] =
+  override def apply(event: KinesisEvent, context: Context): Task[String] =
     for {
-      _ <- printLine(event.message)
+      _ <- printLine(event)
     } yield "Handler ran successfully"
 }
 ```
