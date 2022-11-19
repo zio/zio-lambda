@@ -3,7 +3,7 @@ import BuildHelper._
 inThisBuild(
   List(
     organization := "dev.zio",
-    homepage := Some(url("https://zio.github.io/zio-lambda/")),
+    homepage := Some(url("https://zio.dev/zio-lambda/")),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(
       Developer(
@@ -28,8 +28,8 @@ inThisBuild(
   )
 )
 
-val zioVersion         = "2.0.0-RC6"
-val zioJsonVersion     = "0.3.0-RC8"
+val zioVersion         = "2.0.2"
+val zioJsonVersion     = "0.3.0"
 val awsLambdaJavaTests = "1.1.1"
 
 lazy val root =
@@ -37,6 +37,7 @@ lazy val root =
     .in(file("."))
     .settings(publish / skip := true)
     .aggregate(
+      docs,
       zioLambda,
       zioLambdaExample,
       zioLambdaEvent,
@@ -131,15 +132,10 @@ lazy val docs = project
     scalacOptions -= "-Xfatal-warnings",
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio" % zioVersion
-    ),
-    ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(root),
-    ScalaUnidoc / unidoc / target := (LocalRootProject / baseDirectory).value / "website" / "static" / "api",
-    cleanFiles += (ScalaUnidoc / unidoc / target).value,
-    docusaurusCreateSite := docusaurusCreateSite.dependsOn(Compile / unidoc).value,
-    docusaurusPublishGhpages := docusaurusPublishGhpages.dependsOn(Compile / unidoc).value
+    )
   )
   .dependsOn(zioLambda)
-  .enablePlugins(MdocPlugin, DocusaurusPlugin, ScalaUnidocPlugin)
+  .enablePlugins(WebsitePlugin)
 
 addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt")
 addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck")
