@@ -1,26 +1,24 @@
 ---
 id: index
-title: "ZIO Lambda"
+title: "Introduction to ZIO Lambda"
+sidebar_label: "ZIO Lambda"
 ---
-
-# Overview
 
 A ZIO-based AWS Custom Runtime compatible with GraalVM Native Image.
 
-# Installation
+@PROJECT_BADGES@
+
+## Installation
 
 ```scala
 libraryDependencies += "dev.zio" %% "zio-lambda" % "@VERSION@"
-```
 
-### Optional dependencies
-
-```scala
+// Optional dependencies
 libraryDependencies += "dev.zio" %% "zio-lambda-event"    % "@VERSION@"
 libraryDependencies += "dev.zio" %% "zio-lambda-response" % "@VERSION@"
 ```
 
-# Usage
+## Usage
 
 Create your Lambda function by extending ZLambda
 
@@ -38,8 +36,8 @@ object SimpleHandler extends ZLambda[KinesisEvent, String] {
     } yield "Handler ran successfully"
 }
 ```
-zio-lambda depends on [**zio-json**](https://github.com/zio/zio-json) for decoding any event you send to it and enconding any response you send back to the Lambda service.
-You can either create your own data types or use the ones that are included in **zio-lambda-event** and **zio-lambda-response**.
+
+zio-lambda depends on [**zio-json**](https://github.com/zio/zio-json) for decoding any event you send to it and enconding any response you send back to the Lambda service. You can either create your own data types or use the ones that are included in **zio-lambda-event** and **zio-lambda-response**.
 
 The last step is to define the way your function will be invoked. There are three ways, detailed below:
 
@@ -67,7 +65,6 @@ Each release will contain a zip file ready to be used as a lambda layer) and you
     ```
 
    ![bootstrap-alongside-native-binary](https://user-images.githubusercontent.com/14280155/164103935-0bf7a6cb-814d-4de1-8fa1-4d0d54fb6e88.png)
-
 
 4. Now we can zip both these files up:
     ```log

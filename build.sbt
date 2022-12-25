@@ -132,7 +132,15 @@ lazy val docs = project
     scalacOptions -= "-Xfatal-warnings",
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio" % zioVersion
-    )
+    ),
+    projectName := "ZIO Lambda",
+    badgeInfo := Some(
+      BadgeInfo(
+        artifact = "zio-lambda_2.12",
+        projectStage = ProjectStage.Development
+      )
+    ),
+    docsPublishBranch := "master"
   )
   .dependsOn(zioLambda)
   .enablePlugins(WebsitePlugin)
