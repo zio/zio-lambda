@@ -126,23 +126,17 @@ def module(moduleName: String, fileName: String): Project =
 lazy val docs = project
   .in(file("zio-lambda-docs"))
   .settings(
-    publish / skip := true,
     moduleName := "zio-lambda-docs",
     scalacOptions -= "-Yno-imports",
     scalacOptions -= "-Xfatal-warnings",
-    libraryDependencies ++= Seq(
-      "dev.zio" %% "zio" % zioVersion
-    ),
+    libraryDependencies ++= Seq("dev.zio" %% "zio" % zioVersion),
     projectName := "ZIO Lambda",
-    badgeInfo := Some(
-      BadgeInfo(
-        artifact = "zio-lambda_2.12",
-        projectStage = ProjectStage.Development
-      )
-    ),
+    mainModuleName := (zioLambda / moduleName).value,
+    projectStage := ProjectStage.Development,
+    ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(zioLambda, zioLambdaEvent, zioLambdaResponse),
     docsPublishBranch := "master"
   )
-  .dependsOn(zioLambda)
+  .dependsOn(zioLambda, zioLambdaEvent, zioLambdaResponse)
   .enablePlugins(WebsitePlugin)
 
 addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt")
