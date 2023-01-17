@@ -9,6 +9,6 @@ addSbtPlugin("com.github.sbt"            % "sbt-ci-release"      % "1.5.10")
 addSbtPlugin("com.eed3si9n"              % "sbt-assembly"        % "0.14.6")
 addSbtPlugin("com.github.sbt"            % "sbt-native-packager" % "1.9.9")
 addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat"        % "0.3.1")
-addSbtPlugin("dev.zio"                   % "zio-sbt-website"     % "0.3.4")
+addSbtPlugin("dev.zio"                   % "zio-sbt-website"     % "0.3.6")
 
 resolvers += Resolver.sonatypeRepo("public")
