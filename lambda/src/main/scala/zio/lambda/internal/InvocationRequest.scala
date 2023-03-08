@@ -20,7 +20,7 @@ final case class InvocationRequest(
   id: String,
   remainingTimeInMillis: Long,
   invokedFunctionArn: String,
-  xrayTraceId: String,
+  xrayTraceId: Option[String],
   clientContext: Option[ClientContext],
   cognitoIdentity: Option[CognitoIdentity],
   payload: String
@@ -36,19 +36,25 @@ object InvocationRequest {
       headers.get("Lambda-Runtime-Aws-Request-Id").get(0),
       headers.get("Lambda-Runtime-Deadline-Ms").get(0).toLong,
       headers.get("Lambda-Runtime-Invoked-Function-Arn").get(0),
-      headers.get("Lambda-Runtime-Trace-Id").get(0),
+      extractHeader("Lambda-Runtime-Trace-Id", headers),
       parseHeader[ClientContext]("Lambda-Runtime-Client-Context", headers),
       parseHeader[CognitoIdentity]("Lambda-Runtime-Cognito-Identity", headers),
       payload
     )
 
+  private def extractHeader(
+    header: String,
+    headers: java.util.Map[String, java.util.List[String]]
+  ): Option[String] = {
+    val values = headers.get(header)
+    if (values != null && !values.isEmpty()) {
+      Some(values.get(0))
+    } else None
+  }
+
   private def parseHeader[A](
     header: String,
     headers: java.util.Map[String, java.util.List[String]]
-  )(implicit decoder: JsonDecoder[A]): Option[A] = {
-    val values = headers.get(header)
-    if (values != null && !values.isEmpty()) {
-      Some(decoder.unsafeDecode(Nil, new FastStringReader(values.get(0))))
-    } else None
-  }
+  )(implicit decoder: JsonDecoder[A]): Option[A] =
+    extractHeader(header, headers).map(value => decoder.unsafeDecode(Nil, new FastStringReader(value)))
 }
