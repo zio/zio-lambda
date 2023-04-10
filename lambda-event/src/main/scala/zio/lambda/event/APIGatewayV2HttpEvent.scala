@@ -31,7 +31,7 @@ final case class APIGatewayV2HTTPRequestContext(
   time: String,
   timeEpoch: Long,
   http: APIGatewayV2HTTPRequestContextHttp,
-  authorizer: APIGatewayV2HTTPRequestContextAuthorizer,
+  authorizer: Option[APIGatewayV2HTTPRequestContextAuthorizer],
   requestId: String
 )
 
