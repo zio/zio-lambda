@@ -76,7 +76,8 @@ final case class RuntimeApiLive(environment: LambdaEnvironment) extends RuntimeA
     val body = payload.toJson
     conn.setRequestMethod("POST")
     conn.setRequestProperty("Content-Type", "application/json")
-    conn.setFixedLengthStreamingMode(body.length())
+    val bodyBytes = body.getBytes("UTF-8")
+    conn.setFixedLengthStreamingMode(bodyBytes.length)
     conn.setDoOutput(true)
 
     headers.foreach { case (header, value) =>
@@ -85,7 +86,7 @@ final case class RuntimeApiLive(environment: LambdaEnvironment) extends RuntimeA
 
     ZIO.attempt {
       val outputStream = conn.getOutputStream()
-      outputStream.write(body.getBytes())
+      outputStream.write(body.getBytes("UTF-8"))
       conn.getInputStream().close()
     }
   }
