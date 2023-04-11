@@ -86,7 +86,7 @@ final case class RuntimeApiLive(environment: LambdaEnvironment) extends RuntimeA
 
     ZIO.attempt {
       val outputStream = conn.getOutputStream()
-      outputStream.write(body.getBytes())
+      outputStream.write(body.getBytes("UTF-8"))
       conn.getInputStream().close()
     }
   }
