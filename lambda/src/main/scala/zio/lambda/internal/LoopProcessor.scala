@@ -1,24 +1,30 @@
 package zio.lambda.internal
 
 import zio._
-import zio.lambda.Context
-import zio.lambda.ZLambda
+import zio.lambda.{Context, ZLambda, ZLambdaApp}
 
 trait LoopProcessor {
+  //This method is deprecated. Use loop*App methods instead.
   def loop(eitherZLambda: Either[Throwable, ZLambda[_, _]]): Task[Unit]
+  def loopZioApp[R](eitherZLambda: Either[Throwable, ZLambdaApp[R,_,_]]): RIO[R,Unit]
 }
 
 object LoopProcessor {
 
   final case class Live(runtimeApi: RuntimeApi, environment: LambdaEnvironment) extends LoopProcessor {
-    def loop(eitherZLambda: Either[Throwable, ZLambda[_, _]]): Task[Unit] =
+
+    def loop(eitherZLambda: Either[Throwable, ZLambda[_, _]]): Task[Unit] = {
+      loopZioApp(eitherZLambda.map(_.toNewLambda))
+    }
+
+    def loopZioApp[R](eitherZLambda: Either[Throwable, ZLambdaApp[R,_,_]]): RIO[R,Unit] =
       eitherZLambda match {
         case Right(zLambda) =>
           runtimeApi.getNextInvocation
-            .flatMap(request =>
+            .flatMap[R, Throwable, Unit](request =>
               zLambda
                 .applyJson(request.payload, Context.from(request, environment))
-                .foldZIO[Any, Throwable, Unit](
+                .foldZIO(
                   throwable =>
                     runtimeApi.sendInvocationError(
                       InvocationError(request.id, InvocationErrorResponse.fromThrowable(throwable))
@@ -49,6 +55,11 @@ object LoopProcessor {
     eitherZLambda: Either[Throwable, ZLambda[_, _]]
   ): RIO[LoopProcessor, Unit] =
     ZIO.serviceWithZIO[LoopProcessor](_.loop(eitherZLambda))
+
+  def loopZioApp[R](
+    eitherZLambda: Either[Throwable, ZLambdaApp[R,_, _]]
+  ): RIO[LoopProcessor & R, Unit] =
+    ZIO.serviceWithZIO[LoopProcessor](_.loopZioApp(eitherZLambda))
 
   val live: ZLayer[RuntimeApi with LambdaEnvironment, Throwable, LoopProcessor] =
     ZLayer {
