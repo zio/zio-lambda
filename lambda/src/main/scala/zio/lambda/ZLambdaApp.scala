@@ -16,7 +16,7 @@ class ZLambdaApp[R, E:JsonDecoder, A:JsonEncoder](userFunction:(E,Context) => ZI
 }
 
 object ZLambdaApp {
-  def zio[R,I:JsonDecoder, O:JsonEncoder](fn:(I,Context)=>ZIO[R,Throwable,O]):ZLambdaApp[R,I,O] =
+  def apply[R,I:JsonDecoder, O:JsonEncoder](fn:(I,Context)=>ZIO[R,Throwable,O]):ZLambdaApp[R,I,O] =
     new ZLambdaApp(fn)
 
 }

@@ -18,7 +18,7 @@ abstract class ZLambda[E: JsonDecoder, A: JsonEncoder] extends ZIOAppDefault { s
       case Right(event) => apply(event, context).map(_.toJson)
     }
 
-  def toNewLambda: ZLambdaApp[Any, E, A] = ZLambdaApp.zio(apply)
+  def toNewLambda: ZLambdaApp[Any, E, A] = ZLambdaApp(apply)
 
   def run =
     LoopProcessor

@@ -1,7 +1,7 @@
 package zio.lambda
 
 import zio.{RIO, ZIO}
-import zio.lambda.internal.LoopProcessor
+import zio.lambda.internal.{LambdaEnvironment, LoopProcessor, RuntimeApiLive}
 
 object ZLambdaRunner {
 
@@ -10,5 +10,8 @@ object ZLambdaRunner {
       lp <- ZIO.service[LoopProcessor]
       res <- lp.loopZioApp(Right(app))
     } yield res
+
+  def default =
+      LambdaEnvironment.live >>> (RuntimeApiLive.layer ++ LambdaEnvironment.live) >>> LoopProcessor.live
 
 }
