@@ -6,18 +6,17 @@ import zio.lambda.{Context, ZLambda, ZLambdaApp}
 trait LoopProcessor {
   //This method is deprecated. Use loop*App methods instead.
   def loop(eitherZLambda: Either[Throwable, ZLambda[_, _]]): Task[Unit]
-  def loopZioApp[R](eitherZLambda: Either[Throwable, ZLambdaApp[R,_,_]]): RIO[R,Unit]
+  def loopZioApp[R](eitherZLambda: Either[Throwable, ZLambdaApp[R, _, _]]): RIO[R, Unit]
 }
 
 object LoopProcessor {
 
   final case class Live(runtimeApi: RuntimeApi, environment: LambdaEnvironment) extends LoopProcessor {
 
-    def loop(eitherZLambda: Either[Throwable, ZLambda[_, _]]): Task[Unit] = {
+    def loop(eitherZLambda: Either[Throwable, ZLambda[_, _]]): Task[Unit] =
       loopZioApp(eitherZLambda.map(_.toNewLambda))
-    }
 
-    def loopZioApp[R](eitherZLambda: Either[Throwable, ZLambdaApp[R,_,_]]): RIO[R,Unit] =
+    def loopZioApp[R](eitherZLambda: Either[Throwable, ZLambdaApp[R, _, _]]): RIO[R, Unit] =
       eitherZLambda match {
         case Right(zLambda) =>
           runtimeApi.getNextInvocation
@@ -57,7 +56,7 @@ object LoopProcessor {
     ZIO.serviceWithZIO[LoopProcessor](_.loop(eitherZLambda))
 
   def loopZioApp[R](
-    eitherZLambda: Either[Throwable, ZLambdaApp[R,_, _]]
+    eitherZLambda: Either[Throwable, ZLambdaApp[R, _, _]]
   ): RIO[LoopProcessor & R, Unit] =
     ZIO.serviceWithZIO[LoopProcessor](_.loopZioApp(eitherZLambda))
 

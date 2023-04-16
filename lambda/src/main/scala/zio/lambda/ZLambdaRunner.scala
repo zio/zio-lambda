@@ -5,13 +5,13 @@ import zio.lambda.internal.{LambdaEnvironment, LoopProcessor, RuntimeApiLive}
 
 object ZLambdaRunner {
 
-  def serve[R](app: ZLambdaApp[R,_,_]):RIO[R with LoopProcessor,Unit] =
+  def serve[R](app: ZLambdaApp[R, _, _]): RIO[R with LoopProcessor, Unit] =
     for {
-      lp <- ZIO.service[LoopProcessor]
+      lp  <- ZIO.service[LoopProcessor]
       res <- lp.loopZioApp(Right(app))
     } yield res
 
   def default =
-      LambdaEnvironment.live >>> (RuntimeApiLive.layer ++ LambdaEnvironment.live) >>> LoopProcessor.live
+    LambdaEnvironment.live >>> (RuntimeApiLive.layer ++ LambdaEnvironment.live) >>> LoopProcessor.live
 
 }
