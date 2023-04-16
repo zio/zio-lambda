@@ -4,7 +4,7 @@ import zio.ZIO
 import zio.json.{JsonDecoder, JsonEncoder}
 import zio.json._
 
-class ZLambdaApp[R, E: JsonDecoder, A: JsonEncoder](userFunction: (E, Context) => ZIO[R, Throwable, A]) {
+class ZLambdaApp[-R, E: JsonDecoder, A: JsonEncoder](userFunction: (E, Context) => ZIO[R, Throwable, A]) {
   def applyJson(json: String, context: Context): ZIO[R, Throwable, String] =
     JsonDecoder[E].decodeJson(json) match {
       case Left(errorMessage) =>
