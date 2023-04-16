@@ -1,16 +1,24 @@
 package zio.lambda.internal
 
 import zio._
-import zio.lambda.ZLambda
+import zio.lambda.{ZLambda, ZLambdaApp}
 
 final case class LambdaLoaderLive(
   customClassLoader: CustomClassLoader,
   environment: LambdaEnvironment
-) extends LambdaLoader {
+) extends LambdaLoaderLiveCommon[ZLambda[_,_]](customClassLoader,environment)
 
-  override lazy val loadLambda: UIO[Either[Throwable, ZLambda[_, _]]] =
+final case class LambdaAppLoaderLive(
+                                   customClassLoader: CustomClassLoader,
+                                   environment: LambdaEnvironment
+                                 ) extends LambdaLoaderLiveCommon[ZLambdaApp[Any,_,_]](customClassLoader,environment)
+
+abstract class LambdaLoaderLiveCommon[T](customClassLoader: CustomClassLoader,
+                                environment: LambdaEnvironment) extends LambdaLoader[T] {
+
+  override lazy val loadLambda: UIO[Either[Throwable, T]] =
     customClassLoader.getClassLoader
-      .flatMap[Any, Throwable, ZLambda[_, _]](classLoader =>
+      .flatMap[Any, Throwable, T](classLoader =>
         ZIO
           .attempt(
             Class
@@ -21,7 +29,7 @@ final case class LambdaLoaderLive(
               )
               .getDeclaredField("MODULE$")
               .get(null)
-              .asInstanceOf[ZLambda[_, _]]
+              .asInstanceOf[T]
           )
           .refineOrDie { case ex: ClassNotFoundException => ex }
       )
@@ -32,4 +40,9 @@ final case class LambdaLoaderLive(
 object LambdaLoaderLive {
   val layer =
     ZLayer.fromFunction(LambdaLoaderLive.apply _)
+}
+
+object LambdaAppLoaderLive {
+  val layer =
+    ZLayer.fromFunction(LambdaAppLoaderLive.apply _)
 }

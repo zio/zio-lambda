@@ -27,3 +27,23 @@ object ZLambdaReflectiveApp extends ZIOAppDefault {
       )
 
 }
+
+object ZLambdaAppReflectiveApp extends ZIOAppDefault {
+
+  def run =
+    LambdaLoader.loadLambdaApp
+      .flatMap(v => LoopProcessor.loopZioApp(v).forever)
+      .tapError(throwable =>
+        RuntimeApi.sendInitializationError(
+          InvocationErrorResponse.fromThrowable(throwable)
+        )
+      )
+      .provide(
+        LambdaEnvironment.live,
+        CustomClassLoader.live,
+        LambdaAppLoaderLive.layer,
+        LoopProcessor.live,
+        RuntimeApiLive.layer
+      )
+
+}
