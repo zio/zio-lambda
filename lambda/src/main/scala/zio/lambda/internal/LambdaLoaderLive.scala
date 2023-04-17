@@ -6,15 +6,15 @@ import zio.lambda.{ZLambda, ZLambdaApp}
 final case class LambdaLoaderLive(
   customClassLoader: CustomClassLoader,
   environment: LambdaEnvironment
-) extends LambdaLoaderLiveCommon[ZLambda[_,_]](customClassLoader,environment)
+) extends LambdaLoaderLiveCommon[ZLambda[_, _]](customClassLoader, environment)
 
 final case class LambdaAppLoaderLive(
-                                   customClassLoader: CustomClassLoader,
-                                   environment: LambdaEnvironment
-                                 ) extends LambdaLoaderLiveCommon[ZLambdaApp[Any,_,_]](customClassLoader,environment)
+  customClassLoader: CustomClassLoader,
+  environment: LambdaEnvironment
+) extends LambdaLoaderLiveCommon[ZLambdaApp[Any, _, _]](customClassLoader, environment)
 
-abstract class LambdaLoaderLiveCommon[T](customClassLoader: CustomClassLoader,
-                                environment: LambdaEnvironment) extends LambdaLoader[T] {
+abstract class LambdaLoaderLiveCommon[T](customClassLoader: CustomClassLoader, environment: LambdaEnvironment)
+    extends LambdaLoader[T] {
 
   override lazy val loadLambda: UIO[Either[Throwable, T]] =
     customClassLoader.getClassLoader
