@@ -20,20 +20,23 @@ libraryDependencies += "dev.zio" %% "zio-lambda-response" % "@VERSION@"
 
 ## Usage
 
-Create your Lambda function by extending ZLambda
+Create your Lambda function by extending ZLambdaApp
 
 ```scala
 import zio.Console._
 import zio._
 import zio.lambda._
-import zio.lambda.event._
 
-object SimpleHandler extends ZLambda[KinesisEvent, String] {
+object SimpleHandler extends ZIOAppDefault {
 
-  override def apply(event: KinesisEvent, context: Context): Task[String] =
-    for {
-      _ <- printLine(event)
-    } yield "Handler ran successfully"
+   val app = ZLambdaApp { (event: CustomEvent, _: Context) =>
+      for {
+         _ <- printLine(event.message)
+      } yield "Handler ran successfully"
+   }
+
+   override val run =
+      ZLambdaRunner.serve(app).provide(ZLambdaRunner.default)
 }
 ```
 
