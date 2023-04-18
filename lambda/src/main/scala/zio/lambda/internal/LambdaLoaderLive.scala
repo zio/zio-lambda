@@ -3,9 +3,6 @@ package zio.lambda.internal
 import zio._
 import zio.lambda.{ZLambda, ZLambdaApp}
 
-import scala.annotation.nowarn
-
-@nowarn("cat=deprecation")
 @deprecated("Use LambdaAppLoaderLive", "1.0.3")
 final case class LambdaLoaderLive(
   customClassLoader: CustomClassLoader,
@@ -41,7 +38,6 @@ abstract class LambdaLoaderLiveCommon[T](customClassLoader: CustomClassLoader, e
 
 }
 
-@nowarn("cat=deprecation")
 @deprecated("Use LambdaAppLoaderLive", "1.0.3")
 object LambdaLoaderLive {
   val layer =

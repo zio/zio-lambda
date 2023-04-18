@@ -6,9 +6,6 @@ import zio.lambda.internal.LambdaEnvironment
 import zio.lambda.internal.LoopProcessor
 import zio.lambda.internal.RuntimeApiLive
 
-import scala.annotation.nowarn
-
-@nowarn("cat=deprecation")
 @deprecated("Use ZLambdaApp", "1.0.3")
 abstract class ZLambda[E: JsonDecoder, A: JsonEncoder] extends ZIOAppDefault { self =>
 

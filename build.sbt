@@ -50,6 +50,7 @@ lazy val zioLambda = module("zio-lambda", "lambda")
   .settings(buildInfoSettings("zio.lambda"))
   .settings(
     stdSettings("zio-lambda"),
+    scalacOptions += "Xlint:-deprecation",
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-lambda-java-tests" % awsLambdaJavaTests % "test"
