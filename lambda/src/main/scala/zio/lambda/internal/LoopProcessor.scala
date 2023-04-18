@@ -3,7 +3,10 @@ package zio.lambda.internal
 import zio._
 import zio.lambda.{Context, ZLambda, ZLambdaApp}
 
+import scala.annotation.nowarn
+
 trait LoopProcessor {
+  @nowarn("cat=deprecation")
   @deprecated("Use loopZioApp", "1.0.3")
   def loop(eitherZLambda: Either[Throwable, ZLambda[_, _]]): Task[Unit]
   def loopZioApp[R](eitherZLambda: Either[Throwable, ZLambdaApp[R, _, _]]): RIO[R, Unit]
@@ -13,6 +16,7 @@ object LoopProcessor {
 
   final case class Live(runtimeApi: RuntimeApi, environment: LambdaEnvironment) extends LoopProcessor {
 
+    @nowarn("cat=deprecation")
     @deprecated("Use loopZioApp", "1.0.3")
     def loop(eitherZLambda: Either[Throwable, ZLambda[_, _]]): Task[Unit] =
       loopZioApp(eitherZLambda.map(_.toNewLambda))
