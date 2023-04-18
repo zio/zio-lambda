@@ -8,6 +8,7 @@ import zio._
  * https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html
  * https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html
  */
+@deprecated("Use ZLambdaAppReflectiveApp", "1.0.3")
 object ZLambdaReflectiveApp extends ZIOAppDefault {
 
   def run =

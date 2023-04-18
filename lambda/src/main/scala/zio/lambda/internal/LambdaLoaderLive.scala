@@ -3,6 +3,7 @@ package zio.lambda.internal
 import zio._
 import zio.lambda.{ZLambda, ZLambdaApp}
 
+@deprecated("Use LambdaAppLoaderLive", "1.0.3")
 final case class LambdaLoaderLive(
   customClassLoader: CustomClassLoader,
   environment: LambdaEnvironment
@@ -37,6 +38,7 @@ abstract class LambdaLoaderLiveCommon[T](customClassLoader: CustomClassLoader, e
 
 }
 
+@deprecated("Use LambdaAppLoaderLive", "1.0.3")
 object LambdaLoaderLive {
   val layer =
     ZLayer.fromFunction(LambdaLoaderLive.apply _)
