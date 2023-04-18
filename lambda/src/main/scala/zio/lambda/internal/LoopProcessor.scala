@@ -55,6 +55,7 @@ object LoopProcessor {
       }
   }
 
+  @nowarn("cat=deprecation")
   @deprecated("Use loopZioApp", "1.0.3")
   def loop(
     eitherZLambda: Either[Throwable, ZLambda[_, _]]
