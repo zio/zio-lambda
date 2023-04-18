@@ -50,7 +50,7 @@ lazy val zioLambda = module("zio-lambda", "lambda")
   .settings(buildInfoSettings("zio.lambda"))
   .settings(
     stdSettings("zio-lambda"),
-    scalacOptions += "-nowarn", //temporary added to suppress deprication method call errors.
+    scalacOptions -= "-Xfatal-warnings", //temporary disable fatal errors on depricated method calls.
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-lambda-java-tests" % awsLambdaJavaTests % "test"
