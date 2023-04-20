@@ -43,7 +43,7 @@ object ZLambdaAppReflectiveApp extends ZIOAppDefault { self =>
         RuntimeApi.sendInitializationError(
           InvocationErrorResponse.fromThrowable(new IllegalStateException(any.toString))
         )
-    }.provideSome(
+    }.provideSome[Scope with ZIOAppArgs](
       LambdaEnvironment.live,
       CustomClassLoader.live,
       LambdaAppLoaderLive.layer,
