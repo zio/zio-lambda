@@ -29,22 +29,25 @@ object ZLambdaReflectiveApp extends ZIOAppDefault {
 
 }
 
-object ZLambdaAppReflectiveApp extends ZIOAppDefault {
+object ZLambdaAppReflectiveApp extends ZIOAppDefault { self =>
 
   def run =
-    LambdaLoader.loadLambdaApp
-      .flatMap(v => LoopProcessor.loopZioApp(v).forever)
-      .tapError(throwable =>
+    LambdaLoader.loadLambdaApp.flatMap { v =>
+      ZIO.fromEither(v).flatMap(_.run)
+    }.tapError {
+      case throwable: Throwable =>
         RuntimeApi.sendInitializationError(
           InvocationErrorResponse.fromThrowable(throwable)
         )
-      )
-      .provide(
-        LambdaEnvironment.live,
-        CustomClassLoader.live,
-        LambdaAppLoaderLive.layer,
-        LoopProcessor.live,
-        RuntimeApiLive.layer
-      )
+      case any =>
+        RuntimeApi.sendInitializationError(
+          InvocationErrorResponse.fromThrowable(new IllegalStateException(any.toString))
+        )
+    }.provideSome(
+      LambdaEnvironment.live,
+      CustomClassLoader.live,
+      LambdaAppLoaderLive.layer,
+      RuntimeApiLive.layer
+    )
 
 }

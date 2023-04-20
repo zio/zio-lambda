@@ -1,7 +1,7 @@
 package zio.lambda.internal
 
 import zio._
-import zio.lambda.{ZLambda, ZLambdaApp}
+import zio.lambda.ZLambda
 
 @deprecated("Use LambdaAppLoaderLive", "1.0.3")
 final case class LambdaLoaderLive(
@@ -12,7 +12,7 @@ final case class LambdaLoaderLive(
 final case class LambdaAppLoaderLive(
   customClassLoader: CustomClassLoader,
   environment: LambdaEnvironment
-) extends LambdaLoaderLiveCommon[ZLambdaApp[Any, _, _]](customClassLoader, environment)
+) extends LambdaLoaderLiveCommon[ZIOAppDefault](customClassLoader, environment)
 
 abstract class LambdaLoaderLiveCommon[T](customClassLoader: CustomClassLoader, environment: LambdaEnvironment)
     extends LambdaLoader[T] {
