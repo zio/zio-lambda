@@ -8,28 +8,7 @@ import zio._
  * https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html
  * https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html
  */
-@deprecated("Use ZLambdaAppReflectiveApp", "1.0.3")
-object ZLambdaReflectiveApp extends ZIOAppDefault {
-
-  def run =
-    LambdaLoader.loadLambda
-      .flatMap(LoopProcessor.loop(_).forever)
-      .tapError(throwable =>
-        RuntimeApi.sendInitializationError(
-          InvocationErrorResponse.fromThrowable(throwable)
-        )
-      )
-      .provide(
-        LambdaEnvironment.live,
-        CustomClassLoader.live,
-        LambdaLoaderLive.layer,
-        LoopProcessor.live,
-        RuntimeApiLive.layer
-      )
-
-}
-
-object ZLambdaAppReflectiveApp extends ZIOAppDefault { self =>
+object ZLambdaAppReflective extends ZIOAppDefault { self =>
 
   def run =
     LambdaLoader.loadLambdaApp.flatMap { v =>
