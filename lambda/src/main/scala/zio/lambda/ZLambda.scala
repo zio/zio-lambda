@@ -6,7 +6,7 @@ import zio.lambda.internal.LambdaEnvironment
 import zio.lambda.internal.LoopProcessor
 import zio.lambda.internal.RuntimeApiLive
 
-@deprecated("Use ZLambdaApp", "1.0.3")
+@deprecated("Use ZLambdaRunner", "1.0.3")
 abstract class ZLambda[E: JsonDecoder, A: JsonEncoder] extends ZIOAppDefault { self =>
 
   def apply(event: E, context: Context): Task[A]
@@ -18,8 +18,6 @@ abstract class ZLambda[E: JsonDecoder, A: JsonEncoder] extends ZIOAppDefault { s
 
       case Right(event) => apply(event, context).map(_.toJson)
     }
-
-  def toNewLambda: ZLambdaApp[Any, E, A] = ZLambdaApp(apply)
 
   def run =
     LoopProcessor
