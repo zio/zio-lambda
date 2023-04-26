@@ -10,16 +10,14 @@ object ZLambdaRunner {
   def serve[R, IN: JsonDecoder, OUT: JsonEncoder, ERR <: Throwable](
     appFunction: (IN, Context) => ZIO[R, ERR, OUT]
   ): RIO[R, Unit] =
-    (for {
-      lp  <- ZIO.service[LoopProcessor]
-      res <- lp.loopZioApp(Right(defaultRaw[R, IN, OUT, ERR](_, _, appFunction)))
-    } yield res).provideSomeLayer[R](ZLambdaRunner.default)
+    LoopProcessor
+      .loopZioApp(Right(defaultRaw[R, IN, OUT, ERR](_, _, appFunction)))
+      .provideSomeLayer[R](ZLambdaRunner.default)
 
-  def serveRaw[R](rawFunction: (String, Context) => ZIO[R, Throwable, String]): RIO[R with LoopProcessor, Unit] =
-    (for {
-      lp  <- ZIO.service[LoopProcessor]
-      res <- lp.loopZioApp(Right(rawFunction))
-    } yield res).provideSomeLayer[R](ZLambdaRunner.default)
+  def serveRaw[R](rawFunction: (String, Context) => ZIO[R, Throwable, String]): RIO[R, Unit] =
+    LoopProcessor
+      .loopZioApp(Right(rawFunction))
+      .provideSomeLayer[R](ZLambdaRunner.default)
 
   private def defaultRaw[R, IN: JsonDecoder, OUT: JsonEncoder, ERR <: Throwable](
     json: String,
@@ -33,7 +31,7 @@ object ZLambdaRunner {
         userFunction(event, context).map(_.toJson)
     }
 
-  def default =
+  private def default =
     LambdaEnvironment.live >>> (RuntimeApiLive.layer ++ LambdaEnvironment.live) >>> LoopProcessor.live
 
 }
