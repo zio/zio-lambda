@@ -9,17 +9,17 @@ object ZLambdaRunner {
 
   def serve[R, IN: JsonDecoder, OUT: JsonEncoder, ERR <: Throwable](
     appFunction: (IN, Context) => ZIO[R, ERR, OUT]
-  ): RIO[R with LoopProcessor, Unit] =
-    for {
+  ): RIO[R, Unit] =
+    (for {
       lp  <- ZIO.service[LoopProcessor]
       res <- lp.loopZioApp(Right(defaultRaw[R, IN, OUT, ERR](_, _, appFunction)))
-    } yield res
+    } yield res).provideSomeLayer[R](ZLambdaRunner.default)
 
   def serveRaw[R](rawFunction: (String, Context) => ZIO[R, Throwable, String]): RIO[R with LoopProcessor, Unit] =
-    for {
+    (for {
       lp  <- ZIO.service[LoopProcessor]
       res <- lp.loopZioApp(Right(rawFunction))
-    } yield res
+    } yield res).provideSomeLayer[R](ZLambdaRunner.default)
 
   private def defaultRaw[R, IN: JsonDecoder, OUT: JsonEncoder, ERR <: Throwable](
     json: String,

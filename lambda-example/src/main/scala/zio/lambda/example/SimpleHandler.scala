@@ -12,5 +12,5 @@ object SimpleHandler extends ZIOAppDefault {
     } yield "Handler ran successfully"
 
   override val run =
-    ZLambdaRunner.serve(app).provide(ZLambdaRunner.default)
+    ZLambdaRunner.serve(app)
 }
