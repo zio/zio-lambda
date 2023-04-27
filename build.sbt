@@ -59,7 +59,7 @@ lazy val zioLambda = module("zio-lambda", "lambda")
   .settings(
     topLevelDirectory := None,
     Universal / mappings ++= Seq(file("bootstrap") -> "bootstrap"),
-    Compile / mainClass := Some("zio.lambda.internal.ZLambdaReflectiveApp")
+    Compile / mainClass := Some("zio.lambda.internal.ZLambdaAppReflective")
   )
 
 lazy val zioLambdaEvent = module("zio-lambda-event", "lambda-event")
