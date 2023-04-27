@@ -18,12 +18,12 @@ object LambdaLoaderLiveSpec extends ZIOSpecDefault {
           LambdaEnvironment("", "non_exists", "/opt", 128, "", "", "", "")
         )
 
-        LambdaLoader.loadLambda
+        LambdaLoader.loadLambdaApp
           .map(assert(_)(isLeft))
           .provide(
             lambdaEnvironmentLayer,
             TestCustomClassLoader.test,
-            LambdaLoaderLive.layer
+            LambdaAppLoaderLive.layer
           )
       },
       test("should load ZLambda") {

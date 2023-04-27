@@ -11,29 +11,30 @@ A ZIO-based AWS Custom Runtime compatible with GraalVM Native Image.
 ## Installation
 
 ```scala
-libraryDependencies += "dev.zio" %% "zio-lambda" % "1.0.2"
+libraryDependencies += "dev.zio" %% "zio-lambda" % "1.0.3"
 
 // Optional dependencies
-libraryDependencies += "dev.zio" %% "zio-lambda-event"    % "1.0.2"
-libraryDependencies += "dev.zio" %% "zio-lambda-response" % "1.0.2"
+libraryDependencies += "dev.zio" %% "zio-lambda-event"    % "1.0.3"
+libraryDependencies += "dev.zio" %% "zio-lambda-response" % "1.0.3"
 ```
 
 ## Usage
 
-Create your Lambda function by extending ZLambda
+Create your Lambda function by extending ZLambdaApp
 
 ```scala
 import zio.Console._
 import zio._
 import zio.lambda._
-import zio.lambda.event._
 
-object SimpleHandler extends ZLambda[KinesisEvent, String] {
+object SimpleHandler extends ZIOAppDefault {
 
-  override def apply(event: KinesisEvent, context: Context): Task[String] =
-    for {
-      _ <- printLine(event)
-    } yield "Handler ran successfully"
+   def app(request: CustomEvent, context: Context) = for {
+      _ <- printLine(event.message)
+   } yield "Handler ran successfully"
+
+   override val run =
+      ZLambdaRunner.serve(app)
 }
 ```
 
