@@ -2,7 +2,7 @@ package zio.lambda.internal
 
 import zio._
 
-@deprecated("Use ZLambdaAppReflectiveApp", "1.0.3")
+@deprecated("Use ZLambdaAppReflective", "1.0.3")
 object ZLambdaReflectiveAppOld extends ZIOAppDefault {
 
   def run =
