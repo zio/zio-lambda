@@ -3,7 +3,7 @@ package zio.lambda.internal
 import zio._
 
 /**
- * The main class to use ZLambda as a Layer
+ * The main class to use ZIOAppDefault as a Layer
  *
  * https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html
  * https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html
