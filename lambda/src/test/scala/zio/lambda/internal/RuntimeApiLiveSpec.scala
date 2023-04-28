@@ -4,7 +4,7 @@ import zio._
 import zio.test.Assertion._
 import zio.test._
 
-import java.net.ServerSocket
+import java.net.{ConnectException, ServerSocket}
 
 object RuntimeApiLiveSpec extends ZIOSpecDefault {
 
@@ -21,7 +21,7 @@ object RuntimeApiLiveSpec extends ZIOSpecDefault {
                  val clientSocket = serverSocket.accept()
                  clientSocket.close()
                }.fork
-          res <- runtime.sendInvocationResponse(resp)
+          res <- runtime.sendInvocationResponse(resp).retryWhile(_.isInstanceOf[ConnectException])
         } yield assert(res)(isUnit)
 
       }
