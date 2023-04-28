@@ -43,12 +43,14 @@ final case class RuntimeApiLive(environment: LambdaEnvironment) extends RuntimeA
     val conn = url.openConnection().asInstanceOf[HttpURLConnection]
     conn.setRequestMethod("POST")
     conn.setRequestProperty("Content-Type", "application/json")
-    conn.setFixedLengthStreamingMode(invocationResponse.payload.length())
+    val payload      = invocationResponse.payload
+    val payloadBytes = payload.getBytes("UTF-8")
+    conn.setFixedLengthStreamingMode(payloadBytes.length)
     conn.setDoOutput(true)
 
     ZIO.attempt {
       val outputStream = conn.getOutputStream()
-      outputStream.write(invocationResponse.payload.getBytes())
+      outputStream.write(payloadBytes)
       try conn.getInputStream().close()
       catch { case _: Throwable => () } // Reusing connection
     }
