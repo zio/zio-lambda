@@ -8,21 +8,23 @@ import java.net.{ConnectException, ServerSocket}
 
 object RuntimeApiLiveSpec extends ZIOSpecDefault {
 
+  val serverSocket = new ServerSocket(8085)
+
   override def spec =
     suite("RuntimeApiLiveSpec spec")(
-      test("sendInvocationResponse should not throw any error when UTF-8 characters are provided") {
+      test("sendInvocationResponse should not throw any error when unicode string is provided") {
 
-        val env     = LambdaEnvironment("localhost:8085", "", "", 0, "", "", "", "")
-        val resp    = InvocationResponse("id", "payload with UTF-8 characters: 'тест'")
-        val runtime = new RuntimeApiLive(env)
-        for {
-          _ <- ZIO.attempt {
-                 val serverSocket = new ServerSocket(8085)
-                 val clientSocket = serverSocket.accept()
-                 clientSocket.close()
-               }.fork
-          res <- runtime.sendInvocationResponse(resp).retryWhile(_.isInstanceOf[ConnectException])
-        } yield assert(res)(isUnit)
+        check(Gen.string(Gen.unicodeChar)) { unicodeString =>
+          val env     = LambdaEnvironment("localhost:8085", "", "", 0, "", "", "", "")
+          val resp    = InvocationResponse("id", unicodeString)
+          val runtime = new RuntimeApiLive(env)
+          for {
+            _ <- ZIO.attempt {
+                   serverSocket.accept().close()
+                 }.fork
+            res <- runtime.sendInvocationResponse(resp).retryWhile(_.isInstanceOf[ConnectException])
+          } yield assert(res)(isUnit)
+        }
 
       }
     )
