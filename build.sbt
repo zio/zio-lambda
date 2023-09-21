@@ -28,7 +28,7 @@ inThisBuild(
   )
 )
 
-val zioVersion         = "2.0.10"
+val zioVersion         = "2.0.17"
 val zioJsonVersion     = "0.4.2"
 val awsLambdaJavaTests = "1.1.1"
 
