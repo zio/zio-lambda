@@ -11,6 +11,7 @@ A ZIO-based AWS Custom Runtime compatible with GraalVM Native Image.
 ## Installation
 
 ```scala
+libraryDependencies += "dev.zio" %% "zio-json" % "0.6.2"
 libraryDependencies += "dev.zio" %% "zio-lambda" % "@VERSION@"
 
 // Optional dependencies
