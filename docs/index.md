@@ -89,7 +89,7 @@ Following the steps from `Direct deployment of native image binary` to produce y
 up the native binary into a Docker image and deploy it like that to AWS Lambda.
 
 ```Dockerfile
-FROM gcr.io/distroless/base
+FROM gcr.io/distroless/base-debian12
 COPY lambda-example/target/graalvm-native-image/zio-lambda-example /app/zio-lambda-example
 CMD ["/app/zio-lambda-example"]
 ```
