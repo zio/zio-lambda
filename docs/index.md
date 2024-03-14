@@ -53,7 +53,7 @@ Each release will contain a zip file ready to be used as a lambda layer) and you
 1. Create an AWS Lambda function and choose the runtime where you provide your own bootstrap on Amazon Linux 2
 
    ![create-lambda](https://user-images.githubusercontent.com/14280155/164102664-3686e415-20be-4dd9-8979-ea6098a7a4b9.png)
-2. Run `sbt graalvm-native-image:packageBin`, we'll find the binary present under the `graalvm-native-image` folder:
+2. Run `sbt GraalVMNativeImage/packageBin`, we'll find the binary present under the `graalvm-native-image` folder:
 
    ![binary-located](https://user-images.githubusercontent.com/14280155/164103337-6645dfeb-7fc4-4f7f-9b13-8005b0cddead.png)
 
