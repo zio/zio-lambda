@@ -1,4 +1,4 @@
-import BuildHelper._
+import BuildHelper.*
 
 inThisBuild(
   List(
@@ -28,8 +28,8 @@ inThisBuild(
   )
 )
 
-val zioVersion         = "2.0.10"
-val zioJsonVersion     = "0.4.2"
+val zioVersion         = "2.1.9"
+val zioJsonVersion     = "0.7.3"
 val awsLambdaJavaTests = "1.1.1"
 
 lazy val root =
@@ -67,6 +67,7 @@ lazy val zioLambdaEvent = module("zio-lambda-event", "lambda-event")
   .settings(buildInfoSettings("zio.lambda.event"))
   .settings(
     stdSettings("zio-lambda-event"),
+    scalacOptions -= "-Yretain-trees",
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-lambda-java-tests" % awsLambdaJavaTests % "test"
@@ -78,6 +79,7 @@ lazy val zioLambdaResponse = module("zio-lambda-response", "lambda-response")
   .settings(buildInfoSettings("zio.lambda.response"))
   .settings(
     stdSettings("zio-lambda-response"),
+    scalacOptions -= "-Yretain-trees",
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-lambda-java-tests" % awsLambdaJavaTests % "test"
@@ -125,14 +127,12 @@ lazy val docs = project
   .in(file("zio-lambda-docs"))
   .settings(
     moduleName := "zio-lambda-docs",
-    scalacOptions -= "-Yno-imports",
-    scalacOptions -= "-Xfatal-warnings",
-    libraryDependencies ++= Seq("dev.zio" %% "zio" % zioVersion),
     projectName := "ZIO Lambda",
     mainModuleName := (zioLambda / moduleName).value,
     projectStage := ProjectStage.Development,
     ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(zioLambda, zioLambdaEvent, zioLambdaResponse),
-    docsPublishBranch := "master"
+    docsPublishBranch := "master",
+    excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_2.13"
   )
   .dependsOn(zioLambda, zioLambdaEvent, zioLambdaResponse)
   .enablePlugins(WebsitePlugin)
