@@ -1,4 +1,4 @@
-import BuildHelper._
+import BuildHelper.*
 
 inThisBuild(
   List(
@@ -132,8 +132,8 @@ lazy val docs = project
     projectStage := ProjectStage.Development,
     ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(zioLambda, zioLambdaEvent, zioLambdaResponse),
     docsPublishBranch := "master",
-    excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_2.13",
-)
+    excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_2.13"
+  )
   .dependsOn(zioLambda, zioLambdaEvent, zioLambdaResponse)
   .enablePlugins(WebsitePlugin)
 
