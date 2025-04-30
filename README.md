@@ -11,11 +11,12 @@ A ZIO-based AWS Custom Runtime compatible with GraalVM Native Image.
 ## Installation
 
 ```scala
-libraryDependencies += "dev.zio" %% "zio-lambda" % "1.0.3"
+libraryDependencies += "dev.zio" %% "zio-json" % "0.6.2"
+libraryDependencies += "dev.zio" %% "zio-lambda" % "1.0.5"
 
 // Optional dependencies
-libraryDependencies += "dev.zio" %% "zio-lambda-event"    % "1.0.3"
-libraryDependencies += "dev.zio" %% "zio-lambda-response" % "1.0.3"
+libraryDependencies += "dev.zio" %% "zio-lambda-event"    % "1.0.5"
+libraryDependencies += "dev.zio" %% "zio-lambda-response" % "1.0.5"
 ```
 
 ## Usage
@@ -52,7 +53,7 @@ Each release will contain a zip file ready to be used as a lambda layer) and you
 1. Create an AWS Lambda function and choose the runtime where you provide your own bootstrap on Amazon Linux 2
 
    ![create-lambda](https://user-images.githubusercontent.com/14280155/164102664-3686e415-20be-4dd9-8979-ea6098a7a4b9.png)
-2. Run `sbt graalvm-native-image:packageBin`, we'll find the binary present under the `graalvm-native-image` folder:
+2. Run `sbt GraalVMNativeImage/packageBin`, we'll find the binary present under the `graalvm-native-image` folder:
 
    ![binary-located](https://user-images.githubusercontent.com/14280155/164103337-6645dfeb-7fc4-4f7f-9b13-8005b0cddead.png)
 
@@ -88,7 +89,7 @@ Following the steps from `Direct deployment of native image binary` to produce y
 up the native binary into a Docker image and deploy it like that to AWS Lambda.
 
 ```Dockerfile
-FROM gcr.io/distroless/base
+FROM gcr.io/distroless/base-debian12
 COPY lambda-example/target/graalvm-native-image/zio-lambda-example /app/zio-lambda-example
 CMD ["/app/zio-lambda-example"]
 ```
