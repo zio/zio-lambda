@@ -6,7 +6,7 @@ import BuildInfoKeys._
 object BuildHelper {
   private val Scala212             = "2.12.19"
   private val Scala213             = "2.13.16"
-  private val Scala3               = "3.3.3"
+  private val Scala3               = "3.3.5"
   private val KindProjectorVersion = "0.13.3"
 
   def buildInfoSettings(packageName: String) =
