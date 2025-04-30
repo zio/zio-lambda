@@ -47,7 +47,7 @@ object InvocationRequestGen {
       id                    <- Gen.string
       remainingTimeInMillis <- Gen.long
       invokedFunctionArn    <- Gen.string
-      xrayTraceId           <- Gen.string
+      xrayTraceId           <- Gen.option(Gen.string)
       clientContext         <- Gen.option(genClientContext)
       cognitoIdentity       <- Gen.option(genCognitoIdentity)
       payload               <- Gen.string

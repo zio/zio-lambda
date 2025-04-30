@@ -15,7 +15,12 @@ object InvocationRequestSpec extends ZIOSpecDefault {
           check(InvocationRequestGen.gen) { invocationRequest =>
             val headers = new java.util.HashMap[String, java.util.List[String]]()
             headers.put("Lambda-Runtime-Aws-Request-Id", java.util.Collections.singletonList(invocationRequest.id))
-            headers.put("Lambda-Runtime-Trace-Id", java.util.Collections.singletonList(invocationRequest.xrayTraceId))
+            headers.put(
+              "Lambda-Runtime-Trace-Id",
+              invocationRequest.xrayTraceId
+                .map(java.util.Collections.singletonList[String])
+                .getOrElse(java.util.Collections.emptyList())
+            )
             headers.put(
               "Lambda-Runtime-Invoked-Function-Arn",
               java.util.Collections.singletonList(invocationRequest.invokedFunctionArn)
