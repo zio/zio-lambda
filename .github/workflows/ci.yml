@@ -14,7 +14,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ 'amazon-corretto@1.17' ]
         java: [ '17' ]
         scala: [ '2.12.19', '2.13.16', '3.3.3' ]
     steps:
