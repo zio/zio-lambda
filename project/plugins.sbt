@@ -7,7 +7,7 @@ addSbtPlugin("ch.epfl.scala"             % "sbt-bloop"           % "1.5.15")
 addSbtPlugin("com.eed3si9n"              % "sbt-unidoc"          % "0.4.3")
 addSbtPlugin("com.github.sbt"            % "sbt-ci-release"      % "1.5.12")
 addSbtPlugin("com.eed3si9n"              % "sbt-assembly"        % "0.14.6")
-addSbtPlugin("com.github.sbt"            % "sbt-native-packager" % "1.9.16")
+addSbtPlugin("com.github.sbt"            % "sbt-native-packager" % "1.11.1")
 addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat"        % "0.4.4")
 addSbtPlugin("dev.zio"                   % "zio-sbt-website"     % "0.3.9")
 
