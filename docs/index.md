@@ -31,7 +31,7 @@ import zio.lambda._
 object SimpleHandler extends ZIOAppDefault {
 
    def app(request: KinesisEvent, context: Context) = for {
-      _ <- printLine(event.message)
+      _ <- printLine(event.records.length)
    } yield "Handler ran successfully"
 
    override val run =
