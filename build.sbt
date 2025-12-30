@@ -28,9 +28,9 @@ inThisBuild(
   )
 )
 
-val zioVersion         = "2.1.17"
-val zioJsonVersion     = "0.7.3"
-val awsLambdaJavaTests = "1.1.1"
+val zioVersion         = "2.1.24"
+val zioJsonVersion     = "0.7.45"
+val awsLambdaJavaTests = "1.1.2"
 
 lazy val root =
   project
@@ -51,7 +51,6 @@ lazy val zioLambda = module("zio-lambda", "lambda")
   .settings(
     stdSettings("zio-lambda"),
     scalacOptions -= "-Xfatal-warnings", //temporary disable fatal errors on depricated method calls.
-    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-lambda-java-tests" % awsLambdaJavaTests % "test"
     )
@@ -68,7 +67,6 @@ lazy val zioLambdaEvent = module("zio-lambda-event", "lambda-event")
   .settings(
     stdSettings("zio-lambda-event"),
     scalacOptions -= "-Yretain-trees",
-    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-lambda-java-tests" % awsLambdaJavaTests % "test"
     )
@@ -80,7 +78,6 @@ lazy val zioLambdaResponse = module("zio-lambda-response", "lambda-response")
   .settings(
     stdSettings("zio-lambda-response"),
     scalacOptions -= "-Yretain-trees",
-    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-lambda-java-tests" % awsLambdaJavaTests % "test"
     )
