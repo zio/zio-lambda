@@ -128,7 +128,8 @@ lazy val docs = project
     mainModuleName := (zioLambda / moduleName).value,
     projectStage := ProjectStage.Development,
     ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(zioLambda, zioLambdaEvent, zioLambdaResponse),
-    excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_2.13"
+    excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_2.13",
+    test := {}
   )
   .dependsOn(zioLambda, zioLambdaEvent, zioLambdaResponse)
   .enablePlugins(WebsitePlugin)
