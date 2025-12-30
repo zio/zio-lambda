@@ -27,6 +27,10 @@ jobs:
         distribution: temurin
         java-version: 17
         check-latest: true
+    - name: Setup sbt
+      uses: sbt/setup-sbt@v1
+    - name: Cache scala dependencies
+      uses: coursier/cache-action@v6
     - name: Check if the README file is up to date
       run: sbt  docs/checkReadme
     - name: Check if the site workflow is up to date
@@ -50,6 +54,10 @@ jobs:
         distribution: temurin
         java-version: 17
         check-latest: true
+    - name: Setup sbt
+      uses: sbt/setup-sbt@v1
+    - name: Cache scala dependencies
+      uses: coursier/cache-action@v6
     - name: Setup NodeJs
       uses: actions/setup-node@v3
       with:
@@ -75,6 +83,10 @@ jobs:
         distribution: temurin
         java-version: 17
         check-latest: true
+    - name: Setup sbt
+      uses: sbt/setup-sbt@v1
+    - name: Cache scala dependencies
+      uses: coursier/cache-action@v6
     - name: Generate Readme
       run: sbt  docs/generateReadme
     - name: Commit Changes
