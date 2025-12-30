@@ -4,9 +4,9 @@ import sbtbuildinfo._
 import BuildInfoKeys._
 
 object BuildHelper {
-  private val Scala212 = "2.12.19"
-  private val Scala213 = "2.13.16"
-  private val Scala3   = "3.3.5"
+  private val Scala212 = "2.12.21"
+  private val Scala213 = "2.13.18"
+  private val Scala3   = "3.3.7"
 
   def buildInfoSettings(packageName: String) =
     Seq(
