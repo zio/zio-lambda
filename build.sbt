@@ -128,7 +128,6 @@ lazy val docs = project
     mainModuleName := (zioLambda / moduleName).value,
     projectStage := ProjectStage.Development,
     ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(zioLambda, zioLambdaEvent, zioLambdaResponse),
-    docsPublishBranch := "master",
     excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_2.13"
   )
   .dependsOn(zioLambda, zioLambdaEvent, zioLambdaResponse)
