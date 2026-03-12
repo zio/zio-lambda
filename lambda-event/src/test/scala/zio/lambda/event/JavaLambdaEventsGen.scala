@@ -159,7 +159,7 @@ object JavaLambdaEventsGen {
       receiptHandle          <- Gen.string
       body                   <- Gen.string
       md5OfBody              <- Gen.string
-      md5OfMessageAttributes <- Gen.string
+      md5OfMessageAttributes <- Gen.option(Gen.string)
       eventSourceArn         <- Gen.string
       eventSource            <- Gen.string
       awsRegion              <- Gen.string
@@ -171,7 +171,7 @@ object JavaLambdaEventsGen {
       sqsMessage.setReceiptHandle(receiptHandle)
       sqsMessage.setBody(body)
       sqsMessage.setMd5OfBody(md5OfBody)
-      sqsMessage.setMd5OfMessageAttributes(md5OfMessageAttributes)
+      md5OfMessageAttributes.foreach(attributes => sqsMessage.setMd5OfMessageAttributes(attributes))
       sqsMessage.setEventSourceArn(eventSourceArn)
       sqsMessage.setEventSource(eventSource)
       sqsMessage.setAwsRegion(awsRegion)

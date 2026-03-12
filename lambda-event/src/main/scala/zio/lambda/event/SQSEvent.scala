@@ -13,7 +13,7 @@ final case class SQSRecord(
   receiptHandle: String,
   body: String,
   md5OfBody: String,
-  md5OfMessageAttributes: String,
+  md5OfMessageAttributes: Option[String],
   eventSourceARN: String,
   eventSource: String,
   awsRegion: String,
