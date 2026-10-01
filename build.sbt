@@ -28,6 +28,16 @@ inThisBuild(
   )
 )
 
+ThisBuild / ciTargetJavaVersions := Seq("17")
+ThisBuild / ciTargetScalaVersions := {
+  val all = Seq("2.12.21", "2.13.18", "3.3.7")
+  Map(
+    "zio-lambda"          -> all,
+    "zio-lambda-event"    -> all,
+    "zio-lambda-response" -> all
+  )
+}
+
 val zioVersion         = "2.1.24"
 val zioJsonVersion     = "0.9.0"
 val awsLambdaJavaTests = "1.1.2"
@@ -136,3 +146,4 @@ lazy val docs = project
 
 addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt")
 addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck")
+addCommandAlias("lint", "check")
