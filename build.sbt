@@ -39,7 +39,7 @@ ThisBuild / ciTargetScalaVersions := {
 }
 
 val zioVersion         = "2.1.24"
-val zioJsonVersion     = "0.9.2"
+val zioJsonVersion     = "0.10.0"
 val awsLambdaJavaTests = "1.1.2"
 
 lazy val root =
