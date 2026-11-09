@@ -5,7 +5,12 @@ const sidebars = {
       label: "ZIO Lambda",
       collapsed: false,
       link: { type: "doc", id: "index" },
-      items: [ ]
+      items: [
+        "getting-started",
+        "event-and-response-types",
+        "testing-locally",
+        "deployment"
+      ]
     }
   ]
 };
