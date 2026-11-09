@@ -78,4 +78,4 @@ Test each case that matters for your function: a normal event, an event that fai
 
 ## Testing Raw Handlers
 
-A handler registered with `ZLambdaRunner.serveRaw` takes and returns a `String`, so test it the same way, without codecs. Pass the raw JSON string and check the returned string.
+A handler that uses `ZLambdaRunner.serveRaw` takes and returns a `String`, so you test it the same way, without codecs. Pass the raw JSON string and check the returned string.

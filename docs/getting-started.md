@@ -54,7 +54,7 @@ Your function receives the `Context` as its second argument. Use it to read thes
 
 ## Working with Raw JSON
 
-If you want to decode the JSON yourself, use `ZLambdaRunner.serveRaw` instead of `serve`. It passes the event as a `String` and expects a `String` in return, so no codecs are needed:
+If you want to decode the JSON yourself, use `ZLambdaRunner.serveRaw` instead of `ZLambdaRunner.serve`. It passes the event as a `String` and expects a `String` in return, so no codecs are needed:
 
 ```scala mdoc:compile-only
 import zio._
@@ -68,11 +68,11 @@ object RawHandler extends ZIOAppDefault {
 }
 ```
 
-This form suits functions that only forward or log the payload. For typed events, prefer `serve`.
+This form suits functions that only forward or log the payload. For typed events, prefer `ZLambdaRunner.serve`.
 
 ## Using Event Types from zio-lambda-event
 
-The `zio-lambda-event` module provides types for common AWS event sources. Use them as the event type of your function, and the codecs are already in place:
+The `zio-lambda-event` module provides types for common AWS event sources. Use them as the event type of your function, and the codecs are already in place. This function logs each message in an SQS batch and returns the number of messages, which the runner encodes as a JSON number:
 
 ```scala mdoc:compile-only
 import zio._
@@ -82,7 +82,7 @@ import zio.lambda.event._
 object QueueHandler extends ZIOAppDefault {
 
   val handle = (event: SQSEvent, _: Context) =>
-    ZIO.foreachDiscard(event.records)(record => ZIO.logInfo(s"Message: ${record.body}"))
+    ZIO.foreachDiscard(event.records)(record => ZIO.logInfo(s"Message: ${record.body}")).as(event.records.size)
 
   override val run = ZLambdaRunner.serve(handle)
 }

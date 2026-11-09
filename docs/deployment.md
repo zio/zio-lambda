@@ -20,7 +20,7 @@ The build writes the binary to `lambda-example/target/graalvm-native-image/zio-l
 
 ## Deploying a Native Binary as a Zip File
 
-Lambda runs a custom runtime from a file called `bootstrap` at the root of the zip. The binary is your program, and `bootstrap` starts it.
+Lambda reads its custom runtime from a `bootstrap` file at the root of the zip. The binary is your program, and `bootstrap` starts it.
 
 To create the `bootstrap` file, write a script that runs your binary and place it next to the binary:
 
@@ -39,7 +39,7 @@ chmod +x bootstrap zio-lambda-example
 zip upload.zip bootstrap zio-lambda-example
 ```
 
-To create the function, open the AWS Lambda console and choose **Author from scratch**. Under **Runtime**, choose **Amazon Linux 2023** (`provided.al2023`). Under **Code source**, upload `upload.zip`. Then open the **Test** tab, create an event with a JSON body that matches your handler's event type, and run it. The response shows the JSON that your handler returned.
+To create the function, open the AWS Lambda console and choose **Author from scratch**. Under **Runtime**, choose **Amazon Linux 2023** (`provided.al2023`). Under **Code source**, upload `upload.zip`. Then open the **Test** tab, create an event with a JSON body that matches your handler's event type, and run it. The response shows the JSON that your handler returns.
 
 ## Deploying a Native Binary in a Container Image
 

@@ -29,7 +29,7 @@ Event types live in the `zio.lambda.event` package. Each type decodes the JSON t
 | `CodeCommitEvent`                          | AWS CodeCommit repository trigger                       |
 | `CloudFrontEvent`                          | CloudFront event for Lambda@Edge                        |
 
-`APIGatewayProxyRequestEvent` is the exception to the companion rule: its codec is in the `APIGatewayProxyRequest` object in the same file, so import that object to use it with `serve`:
+`APIGatewayProxyRequestEvent` is the exception to the companion rule: its codec is in the `APIGatewayProxyRequest` object in the same file, so import that object to use it with `ZLambdaRunner.serve`:
 
 ```scala mdoc:compile-only
 import zio.lambda.event.APIGatewayProxyRequest._
