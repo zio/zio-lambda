@@ -4,7 +4,7 @@ title: "Introduction to ZIO Lambda"
 sidebar_label: "ZIO Lambda"
 ---
 
-ZIO Lambda is a ZIO-based AWS Custom Runtime compatible with GraalVM Native Image. It lets you write an AWS Lambda function as a ZIO program, with typed JSON events in and typed JSON responses out, and run it as a native binary or as a JVM layer.
+ZIO Lambda is a ZIO-based AWS Custom Runtime compatible with GraalVM Native Image. It lets you write an AWS Lambda function as a ZIO program, with typed JSON events in and typed JSON responses out, and deploy it as a GraalVM native binary.
 
 @PROJECT_BADGES@
 
