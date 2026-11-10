@@ -12,11 +12,11 @@ A ZIO-based AWS Custom Runtime compatible with GraalVM Native Image.
 
 ```scala
 libraryDependencies += "dev.zio" %% "zio-json" % "0.6.2"
-libraryDependencies += "dev.zio" %% "zio-lambda" % "1.0.5"
+libraryDependencies += "dev.zio" %% "zio-lambda" % "1.0.6"
 
 // Optional dependencies
-libraryDependencies += "dev.zio" %% "zio-lambda-event"    % "1.0.5"
-libraryDependencies += "dev.zio" %% "zio-lambda-response" % "1.0.5"
+libraryDependencies += "dev.zio" %% "zio-lambda-event"    % "1.0.6"
+libraryDependencies += "dev.zio" %% "zio-lambda-response" % "1.0.6"
 ```
 
 ## Usage
