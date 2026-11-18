@@ -6,7 +6,13 @@ sidebar_label: "Event and Response Types"
 
 The `zio-lambda-event` and `zio-lambda-response` modules provide Scala case classes that match the JSON that AWS services send to Lambda and expect back from it. Use them as the event and response types of your handler, so you do not have to write those case classes yourself.
 
-Each type comes with its codec in its companion object, so `ZLambdaRunner.serve` finds it without an extra import. The tables below list the most common types. The complete set is in the [API documentation](https://javadoc.io/doc/dev.zio/zio-lambda-docs_2.13).
+Most types come with their codec in their companion object, so `ZLambdaRunner.serve` finds it without an extra import. The exceptions are `DynamoDBEvent`, which has no codec, and five types whose codec sits in a differently named object, so you must import that object: `APIGatewayProxyRequestEvent` (`APIGatewayProxyRequest`), `APIGatewayV2CustomAuthorizerEvent` (`APIGatewayV2CustomAuthorizer`), `ConfigEvent` (`Config`), `CognitoUserPoolCreateAuthChallengeEvent` (`CognitoUserPoolCreateAuthChallenge`) and `CognitoUserPoolPreAuthenticationEvent` (`CognitoUserPoolPreAuthentication`). The tables below list the most common types. The reference pages describe every type and its fields:
+
+- [API Gateway Events](./reference/events-api-gateway.md): API Gateway REST, HTTP and WebSocket APIs, custom authorizers and Application Load Balancer.
+- [Messaging Events](./reference/events-messaging.md): SQS, SNS, Kafka, ActiveMQ, Kinesis, Firehose, Kinesis Analytics and DynamoDB.
+- [Cognito Events](./reference/events-cognito.md): Cognito Sync and the user pool triggers.
+- [Other Events](./reference/events-other.md): S3, S3 Batch, scheduled events, CloudWatch Logs, CloudFormation, CloudFront, CodeCommit, Config, Connect, IoT Button, Lex, Lambda destinations and Secrets Manager rotation.
+- [Response Types](./reference/responses.md): all eight response types.
 
 ## Event Types
 
@@ -67,8 +73,10 @@ object HttpHandler extends ZIOAppDefault {
 
 ## Placeholder Types
 
-Some types in the two modules are placeholders. They have no fields yet, so they decode any JSON object and discard its contents. Examples are `S3Event`, `SNSEvent`, `DynamoDBEvent`, `S3BatchEvent` and `S3BatchResponse`. Do not rely on them to read data from an event. Define your own case class for the fields you need, with its own codec, until the type is filled in.
+Some types in the two modules are empty case classes with no fields. A placeholder event decodes any payload and discards its contents, so it carries no data. Placeholder events include `S3Event`, `SNSEvent`, `S3BatchEvent`, `LexEvent`, `LambdaDestinationEvent`, `SecretsManagerRotationEvent` and most of the Cognito user pool trigger events. The placeholder responses are `S3BatchResponse` and `SimpleIAMPolicyResponse`. The reference pages mark every placeholder.
+
+`DynamoDBEvent` is different: it has no decoder at all, so it does not compile with `ZLambdaRunner.serve`. Do not rely on a placeholder to read data from an event. Define your own case class for the fields you need, as described in [How to Define Your Own Event Type](./how-to/decode-only-the-fields-you-need.md).
 
 ## Custom Types
 
-If the AWS event you receive is not in the modules, or you need only some of its fields, write your own case class and codec, as shown in [Getting Started](./getting-started.md). zio-json ignores JSON fields that your case class does not declare, so you can decode a subset of a larger event.
+If the AWS event you receive is not in the modules, or you need only some of its fields, write your own case class and codec, as shown in [How to Define Your Own Event Type](./how-to/decode-only-the-fields-you-need.md). zio-json ignores JSON fields that your case class does not declare, so you can decode a subset of a larger event.

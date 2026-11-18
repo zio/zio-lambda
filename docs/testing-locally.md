@@ -1,7 +1,7 @@
 ---
 id: testing-locally
-title: "Testing Locally"
-sidebar_label: "Testing Locally"
+title: "How to Test a Handler Locally"
+sidebar_label: "Test a Handler Locally"
 ---
 
 A handler is a plain function, so you can test it on your machine without deploying to AWS. Call the function with an event, a `Context` that you construct yourself, and run the resulting ZIO. This checks your logic and your codecs, which covers most of what a handler does.
@@ -12,7 +12,7 @@ ZIO Lambda has no local emulator of the Lambda runtime. The loop that talks to t
 
 The handler under test is the same function you pass to `ZLambdaRunner.serve`. Define it as a top-level `val` so that your tests can call it. The example below uses a simple greeting:
 
-```scala mdoc:silent
+```scala mdoc:reset-object
 import zio._
 import zio.lambda._
 import zio.json._

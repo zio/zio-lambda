@@ -10,7 +10,7 @@ A ZIO Lambda function is an ordinary function from an event and a `Context` to a
 
 To write a handler, define an `object` that extends `ZIOAppDefault` and pass your function to `ZLambdaRunner.serve` in its `run` method. The function takes the decoded event and the `Context`, and returns a `ZIO`:
 
-```scala mdoc:compile-only
+```scala mdoc:reset-object
 import zio._
 import zio.lambda._
 import zio.json._
@@ -45,10 +45,11 @@ The runner loops forever. It asks the AWS Lambda Runtime API for the next invoca
 The `Context` describes the current invocation. It is a case class with these fields:
 
 - `awsRequestId` is the ID of the current request, which is useful for logging.
-- `remainingTimeInMillis` is the time left before Lambda stops the invocation.
+- `remainingTimeInMillis` holds the deadline of the invocation as a Unix time in milliseconds, not a duration. See [Context](./reference/context.md).
+- `logGroupName` and `logStreamName` name the CloudWatch Logs group and stream.
 - `functionName`, `functionVersion` and `invokedFunctionArn` identify the function that runs.
 - `memoryLimitInMB` is the memory size configured for the function.
-- `clientContext` and `cognitoIdentity` are `Option` values that Lambda fills in only for some invocation sources, such as mobile SDK calls and Cognito triggers.
+- `clientContext` and `cognitoIdentity` are `Option` values that Lambda fills in only for invocations from the AWS Mobile SDK.
 
 Your function receives the `Context` as its second argument. Use it to read these values, and do not construct one in production code, because the runtime creates it for each invocation.
 

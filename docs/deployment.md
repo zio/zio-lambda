@@ -1,7 +1,7 @@
 ---
 id: deployment
-title: "Deployment"
-sidebar_label: "Deployment"
+title: "How to Deploy to AWS Lambda"
+sidebar_label: "Deploy to AWS Lambda"
 ---
 
 ZIO Lambda functions run on AWS Lambda through a custom runtime. You package the function as a GraalVM native image, which starts quickly and needs no JVM, and then deploy it either as a zip file or as a container image. This page covers both paths.
