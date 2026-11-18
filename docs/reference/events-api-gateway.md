@@ -12,12 +12,9 @@ keywords:
 
 The `zio-lambda-event` module decodes the JSON that API Gateway and Application Load Balancer send to a Lambda function. The `zio-lambda-response` module encodes the JSON that these services expect back. This page lists each event type with its real fields and names the response type that goes with it. For the general model of event and response types, see [Event and Response Types](../event-and-response-types.md).
 
-Event types live in the `zio.lambda.event` package and response types in the `zio.lambda.response` package. Every type is a `final case class` that derives its codec with zio-json. `ZLambdaRunner.serve` needs a `JsonDecoder` for the event and a `JsonEncoder` for the response, and finds each one as an implicit.
+Event types live in the `zio.lambda.event` package and response types in the `zio.lambda.response` package. Every type is a `final case class` that derives its codec with zio-json. [`ZLambdaRunner.serve`](./zlambda-runner.md) needs a `JsonDecoder` for the event and a `JsonEncoder` for the response, and finds each one as an implicit.
 
-Where a codec lives is not the same for every event. Most events keep it in the companion object of the event class, so no import is needed. Two events keep it in a separate object with a different name, and you must import that object's members:
-
-- `APIGatewayProxyRequestEvent` has its decoder in `object APIGatewayProxyRequest`, so you need `import zio.lambda.event.APIGatewayProxyRequest._`.
-- `APIGatewayV2CustomAuthorizerEvent` has its decoder in `object APIGatewayV2CustomAuthorizer`, so you need `import zio.lambda.event.APIGatewayV2CustomAuthorizer._`.
+Where a codec lives is not the same for every event. Most events keep it in the companion object of the event class, so no import is needed. Two events keep it in a separate object with a different name, and you must import that object's members. `APIGatewayProxyRequestEvent` has its decoder in `object APIGatewayProxyRequest`, so you need `import zio.lambda.event.APIGatewayProxyRequest._`. `APIGatewayV2CustomAuthorizerEvent` has its decoder in `object APIGatewayV2CustomAuthorizer`, so you need `import zio.lambda.event.APIGatewayV2CustomAuthorizer._`.
 
 Fields written without `Option` are required: a case class field with no `Option` wrapper must be present in the JSON for decoding to succeed. The sections below say where a field is optional.
 
@@ -207,7 +204,7 @@ All fields are required.
 
 ### Example
 
-The handler below uses the optional query parameters and the `http` context. Because `queryStringParameters` is an `Option`, the code unwraps it before it looks up a key. The response sets only `body` and `statusCode`, and the defaults fill in the rest:
+The handler below uses the optional query parameters and the `APIGatewayV2HTTPRequestContext#http` field. Because `queryStringParameters` is an `Option`, the code unwraps it before it looks up a key. The response sets only `body` and `statusCode`, and the defaults fill in the rest:
 
 ```scala mdoc:compile-only
 import zio._
@@ -299,7 +296,7 @@ All fields are required and are `String`. It has the same fields as `APIGatewayP
 
 ### APIGatewayV2WebSocketResponse
 
-All fields are required, and none has a default value. Note that `isBase64Encoded` comes first here, unlike in the other response types.
+All fields are required, and none has a default value. `isBase64Encoded` comes first here, unlike in the other response types.
 
 - `isBase64Encoded: Boolean`
 - `statusCode: Int`
@@ -376,7 +373,7 @@ Two event types carry the request that API Gateway sends to a Lambda authorizer:
 
 Its companion object defines an implicit `JsonDecoder[OffsetDateTime]` that parses the `time` string with the pattern `dd/MMM/yyyy:HH:mm:ss Z`. A timestamp in another format fails to decode.
 
-The `http` field has the type `Http`. This is a top-level case class in the `zio.lambda.event` package, and it is not prefixed with the API Gateway name. Its fields are all required `String` values: `method`, `path`, `protocol`, `sourceIp` and `userAgent`. It is a separate type from `APIGatewayV2HTTPRequestContextHttp`, which has the same fields.
+The `APIGatewayV2CustomAuthorizerRequestContext#http` field has the type `Http`. This is a top-level case class in the `zio.lambda.event` package, and it is not prefixed with the API Gateway name. Its fields are all required `String` values: `method`, `path`, `protocol`, `sourceIp` and `userAgent`. It is a separate type from `APIGatewayV2HTTPRequestContextHttp`, which has the same fields.
 
 ## Application Load Balancer
 

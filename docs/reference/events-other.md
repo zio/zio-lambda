@@ -12,7 +12,7 @@ keywords:
 
 This page documents the event types in `zio.lambda.event` that are not API Gateway, load balancer, messaging or Cognito events. They decode the JSON that services such as EventBridge, CloudWatch Logs, CloudFormation, CloudFront, CodeCommit, AWS Config, Amazon Connect and AWS IoT send to a Lambda function.
 
-Every type is a `final case class` whose companion object holds an implicit `JsonDecoder`, so `ZLambdaRunner.serve` finds the decoder without an extra import. The one exception, `ConfigEvent`, is described below. Field names follow the Scala source, and a field that is not wrapped in `Option` is required: the type declares no default for it. None of the types on this page has an `Option` field.
+Every type is a `final case class` whose companion object holds an implicit `JsonDecoder`, so [`ZLambdaRunner.serve`](./zlambda-runner.md) finds the decoder without an extra import. The one exception, `ConfigEvent`, is described below. Field names follow the Scala source, and a field that is not wrapped in `Option` is required: the type declares no default for it. None of the types on this page has an `Option` field.
 
 For the API Gateway types see [API Gateway events](./events-api-gateway.md), and for the queue and stream types see [messaging events](./events-messaging.md).
 
@@ -31,6 +31,8 @@ A handler that takes one of these types runs, but it cannot read anything from t
 The response side has the same gap: `S3BatchResponse` and `SimpleIAMPolicyResponse` in `zio.lambda.response` are empty placeholders too. See [Response Types](./responses.md).
 
 ## Types With Fields
+
+The eight types below have fields, and each section lists them with their types.
 
 ### ScheduledEvent
 

@@ -12,22 +12,17 @@ keywords:
 
 The `zio-lambda-event` module models the events that messaging and streaming services send to a Lambda function: queues (SQS, ActiveMQ), topics (SNS), streams (Kinesis, Kafka, DynamoDB Streams) and the Kinesis Analytics hooks. This page lists each type with its fields. The event types live in the `zio.lambda.event` package, and the Kinesis Analytics response types live in `zio.lambda.response`.
 
-Every type that has fields comes with a `JsonDecoder` in its companion object, so `ZLambdaRunner.serve` finds it without an extra import. For how to write a handler, see [Getting Started](../getting-started.md). For the full list of event and response types, see [Event and Response Types](../event-and-response-types.md).
+Every type that has fields comes with a `JsonDecoder` in its companion object, so [`ZLambdaRunner.serve`](./zlambda-runner.md) finds it without an extra import. For how to write a handler, see [Getting Started](../getting-started.md). For the full list of event and response types, see [Event and Response Types](../event-and-response-types.md).
 
 ## Placeholder Types
 
-Four types in this group are not usable for reading data yet:
-
-- `SNSEvent`, `KinesisFirehoseEvent` and `KinesisAnalyticsStreamsInputPreprocessingEvent` are empty placeholders. Each is a case class with no fields, and each has a derived decoder. The decoder succeeds on a JSON object of any shape and discards its contents, because zio-json ignores JSON fields that the case class does not declare. Your handler receives the value `SNSEvent()`, with none of the message data, so these types only let a function compile and run.
-- `DynamoDBEvent` is also an empty case class, but it has no decoder at all. It cannot be passed to `ZLambdaRunner.serve`. See [DynamoDBEvent](#dynamodbevent) for a workaround.
+Four types in this group are not usable for reading data yet. `SNSEvent`, `KinesisFirehoseEvent` and `KinesisAnalyticsStreamsInputPreprocessingEvent` are empty placeholders. Each is a case class with no fields, and each has a derived decoder. The decoder succeeds on a JSON object of any shape and discards its contents, because zio-json ignores JSON fields that the case class does not declare. Your handler receives the value `SNSEvent()`, with none of the message data, so these types only let a function compile and run. `DynamoDBEvent` is also an empty case class, but it has no decoder at all. It cannot be passed to `ZLambdaRunner.serve`. See [DynamoDBEvent](#dynamodbevent) for a workaround.
 
 For any of these four sources, define your own case class for the fields you need.
 
 ## SQSEvent
 
-`SQSEvent` is a batch of messages from an Amazon SQS queue. It has one field:
-
-- `records: List[SQSRecord]` is read from the JSON field `Records`, with a capital `R`.
+`SQSEvent` is a batch of messages from an Amazon SQS queue. Its one field, `records: List[SQSRecord]`, is read from the JSON field `Records`, with a capital `R`.
 
 Each `SQSRecord` has these fields:
 
@@ -83,10 +78,7 @@ Each `KafkaRecord` has these fields, all required:
 
 ## ActiveMQEvent
 
-`ActiveMQEvent` is a batch of messages from an Amazon MQ for ActiveMQ broker. It has these fields, all required:
-
-- `eventSource: String` and `eventSourceArn: String` identify the broker.
-- `messages: List[ActiveMQMessage]` is the batch.
+`ActiveMQEvent` is a batch of messages from an Amazon MQ for ActiveMQ broker. It has three required fields: `eventSource: String` and `eventSourceArn: String` identify the broker, and `messages: List[ActiveMQMessage]` is the batch.
 
 Each `ActiveMQMessage` has these fields, all required:
 
@@ -100,14 +92,9 @@ Each `ActiveMQMessage` has these fields, all required:
 
 ## KinesisEvent
 
-`KinesisEvent` is a batch of records from an Amazon Kinesis data stream. It has one field:
+`KinesisEvent` is a batch of records from an Amazon Kinesis data stream. Its one field, `records: List[KinesisRecord]`, is read from the JSON field `Records`, with a capital `R`.
 
-- `records: List[KinesisRecord]` is read from the JSON field `Records`, with a capital `R`.
-
-Each `KinesisRecord` has these fields, all required:
-
-- `kinesis: KinesisRecordUnit` is the record itself.
-- `eventSource`, `eventID`, `invokeIdentityArn`, `eventName`, `eventVersion`, `eventSourceARN` and `awsRegion` are strings that describe the source of the record.
+Each `KinesisRecord` has eight required fields. `kinesis: KinesisRecordUnit` is the record itself, and `eventSource`, `eventID`, `invokeIdentityArn`, `eventName`, `eventVersion`, `eventSourceARN` and `awsRegion` are strings that describe the source of the record.
 
 `KinesisRecordUnit` has these fields, all required:
 
@@ -152,10 +139,7 @@ Kinesis Analytics calls a Lambda function to preprocess input records or to deli
 
 ### KinesisAnalyticsFirehoseInputPreprocessingEvent
 
-This is the event for an input preprocessing function on a Kinesis Data Firehose source. It has these fields, all required:
-
-- `invocationId`, `applicationArn` and `streamArn` are strings.
-- `records: List[KinesisAnalyticsFirehoseInputPreprocessingRecord]` is the batch.
+This is the event for an input preprocessing function on a Kinesis Data Firehose source. It has four required fields. `invocationId`, `applicationArn` and `streamArn` are strings, and `records: List[KinesisAnalyticsFirehoseInputPreprocessingRecord]` is the batch.
 
 Each `KinesisAnalyticsFirehoseInputPreprocessingRecord` has these fields, all required:
 
@@ -171,10 +155,7 @@ This is the event for an input preprocessing function on a Kinesis Data Streams 
 
 ### KinesisAnalyticsOutputDeliveryEvent
 
-This is the event for an output delivery function. It has these fields, all required:
-
-- `invocationId` and `applicationArn` are strings.
-- `records: List[KinesisAnalyticsOutputDeliveryRecord]` is the batch.
+This is the event for an output delivery function. It has three required fields. `invocationId` and `applicationArn` are strings, and `records: List[KinesisAnalyticsOutputDeliveryRecord]` is the batch.
 
 Each `KinesisAnalyticsOutputDeliveryRecord` has these fields, all required:
 
@@ -188,25 +169,11 @@ The `zio-lambda-response` module has one response type for each of the two funct
 
 ### KinesisAnalyticsInputPreprocessingResponse
 
-Return this from an input preprocessing function. It has one field:
-
-- `records: List[KinesisAnalyticsInputPreprocessingResponseRecord]` is the list of results, one per input record.
-
-Each `KinesisAnalyticsInputPreprocessingResponseRecord` has these fields:
-
-- `recordId: String` is the ID of the input record that this result answers.
-- `result: KinesisAnalyticsInputPreprocessingResponseRecordResult` is a sealed trait with three case objects: `Ok`, `ProcessingFailed` and `Dropped`.
+Return this from an input preprocessing function. Its one field, `records: List[KinesisAnalyticsInputPreprocessingResponseRecord]`, is the list of results, one per input record. Each `KinesisAnalyticsInputPreprocessingResponseRecord` has `recordId: String`, the ID of the input record that this result answers, and `result: KinesisAnalyticsInputPreprocessingResponseRecordResult`, a sealed trait with three case objects: `Ok`, `ProcessingFailed` and `Dropped`.
 
 ### KinesisAnalyticsOutputDeliveryResponse
 
-Return this from an output delivery function. It has one field:
-
-- `records: List[KinesisAnalyticsOutputDeliveryResponseRecord]` is the list of results, one per delivered record.
-
-Each `KinesisAnalyticsOutputDeliveryResponseRecord` has these fields:
-
-- `recordId: String` is the ID of the delivered record that this result answers.
-- `result: KinesisAnalyticsOutputDeliveryResponseRecordResult` is a sealed trait with two case objects: `Ok` and `DeliveryFailed`.
+Return this from an output delivery function. Its one field, `records: List[KinesisAnalyticsOutputDeliveryResponseRecord]`, is the list of results, one per delivered record. Each `KinesisAnalyticsOutputDeliveryResponseRecord` has `recordId: String`, the ID of the delivered record that this result answers, and `result: KinesisAnalyticsOutputDeliveryResponseRecordResult`, a sealed trait with two case objects: `Ok` and `DeliveryFailed`.
 
 The result case objects live in the companion object of their sealed trait, for example `KinesisAnalyticsOutputDeliveryResponseRecordResult.Ok`.
 
