@@ -7,17 +7,17 @@ const sidebars = {
       label: "Reference",
       collapsed: false,
       items: [
-        "zlambda-runner",
-        "context",
+        "reference/zlambda-runner",
+        "reference/context",
         "event-and-response-types",
-        "events-api-gateway",
-        "events-messaging",
-        "events-cognito",
-        "events-other",
-        "responses"
+        "reference/events-api-gateway",
+        "reference/events-messaging",
+        "reference/events-cognito",
+        "reference/events-other",
+        "reference/responses"
       ]
     },
-    "http-api-on-api-gateway",
+    "tutorials/http-api-on-api-gateway",
     {
       type: "category",
       label: "How-to Guides",
@@ -25,8 +25,8 @@ const sidebars = {
       items: [
         "testing-locally",
         "deployment",
-        "consume-an-sqs-batch",
-        "decode-only-the-fields-you-need"
+        "how-to/consume-an-sqs-batch",
+        "how-to/decode-only-the-fields-you-need"
       ]
     }
   ]
