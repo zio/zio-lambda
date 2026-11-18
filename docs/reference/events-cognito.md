@@ -114,5 +114,5 @@ These nine types are case classes with no fields. Each has a decoder, and none o
 Because they hold nothing, they are not enough to implement the triggers they are named after. For a trigger that needs the request data, define your own case class with the fields you read and a `JsonDecoder` for it, or use `ZLambdaRunner.serveRaw` and parse the JSON yourself.
 
 :::note[One more decoder in a differently named object]
-The decoder of `CognitoUserPoolPreAuthenticationEvent` is in an object named `CognitoUserPoolPreAuthentication`, without the `Event` suffix, as with the Create Auth Challenge event. The other eight placeholder types have their decoder in the companion object of the same name.
+The decoder of `CognitoUserPoolPreAuthenticationEvent` is in an object named `CognitoUserPoolPreAuthentication`, without the `Event` suffix, as with the Create Auth Challenge event. To use it with `ZLambdaRunner.serve`, import `zio.lambda.event.CognitoUserPoolPreAuthentication._`. The other eight placeholder types have their decoder in the companion object of the same name.
 :::

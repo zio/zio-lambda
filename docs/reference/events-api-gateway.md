@@ -16,6 +16,10 @@ Event types live in the `zio.lambda.event` package and response types in the `zi
 
 Where a codec lives is not the same for every event. Most events keep it in the companion object of the event class, so no import is needed. Two events keep it in a separate object with a different name, and you must import that object's members. `APIGatewayProxyRequestEvent` has its decoder in `object APIGatewayProxyRequest`, so you need `import zio.lambda.event.APIGatewayProxyRequest._`. `APIGatewayV2CustomAuthorizerEvent` has its decoder in `object APIGatewayV2CustomAuthorizer`, so you need `import zio.lambda.event.APIGatewayV2CustomAuthorizer._`.
 
+:::warning
+Without the import, `ZLambdaRunner.serve` does not compile for `APIGatewayProxyRequestEvent`. The compiler reports `could not find implicit value for evidence parameter of type zio.json.JsonDecoder[zio.lambda.event.APIGatewayProxyRequestEvent]`.
+:::
+
 Fields written without `Option` are required: a case class field with no `Option` wrapper must be present in the JSON for decoding to succeed. The sections below say where a field is optional.
 
 ## REST API Proxy Integration
