@@ -1,6 +1,7 @@
 ---
 id: events-cognito
 title: "Cognito Events"
+sidebar_label: "Cognito Events"
 description: "Reference for the Amazon Cognito event types in zio-lambda-event: the Sync event, user pool trigger events, and which are empty placeholders."
 keywords:
   - "Amazon Cognito"

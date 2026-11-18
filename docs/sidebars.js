@@ -1,15 +1,32 @@
 const sidebars = {
   sidebar: [
+    "index",
+    "getting-started",
     {
       type: "category",
-      label: "ZIO Lambda",
+      label: "Reference",
       collapsed: false,
-      link: { type: "doc", id: "index" },
       items: [
-        "getting-started",
+        "zlambda-runner",
+        "context",
         "event-and-response-types",
+        "events-api-gateway",
+        "events-messaging",
+        "events-cognito",
+        "events-other",
+        "responses"
+      ]
+    },
+    "http-api-on-api-gateway",
+    {
+      type: "category",
+      label: "How-to Guides",
+      collapsed: true,
+      items: [
         "testing-locally",
-        "deployment"
+        "deployment",
+        "consume-an-sqs-batch",
+        "decode-only-the-fields-you-need"
       ]
     }
   ]

@@ -1,6 +1,7 @@
 ---
 id: events-other
 title: "Other AWS Events"
+sidebar_label: "Other Events"
 description: "Reference for the S3, EventBridge, CloudWatch Logs, CloudFormation, CloudFront, CodeCommit, Config, Connect and IoT event types."
 keywords:
   - "AWS Lambda Events"

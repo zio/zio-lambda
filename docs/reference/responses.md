@@ -1,6 +1,7 @@
 ---
 id: responses
 title: "Response Types"
+sidebar_label: "Response Types"
 description: "Reference for the eight response types in zio.lambda.response: fields, the events they pair with, and which ones are empty placeholders."
 keywords:
   - "Lambda Response Types"

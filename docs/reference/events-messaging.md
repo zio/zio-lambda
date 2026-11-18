@@ -1,6 +1,7 @@
 ---
 id: events-messaging
 title: "Messaging and Streaming Events"
+sidebar_label: "Messaging Events"
 description: "Reference for the SQS, SNS, Kafka, ActiveMQ, Kinesis, Firehose and DynamoDB event types and the Kinesis Analytics response types."
 keywords:
   - "AWS Lambda Events"
