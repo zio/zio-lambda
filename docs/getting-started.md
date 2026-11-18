@@ -10,7 +10,7 @@ A ZIO Lambda function is an ordinary function from an event and a `Context` to a
 
 To write a handler, define an `object` that extends `ZIOAppDefault` and pass your function to `ZLambdaRunner.serve` in its `run` method. The function takes the decoded event and the `Context`, and returns a `ZIO`:
 
-```scala mdoc:compile-only
+```scala mdoc:reset-object
 import zio._
 import zio.lambda._
 import zio.json._

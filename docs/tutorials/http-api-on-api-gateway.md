@@ -59,7 +59,7 @@ Keeping `route` as a plain function makes it easy to test, which you do in step 
 
 For a `POST`, the JSON text arrives in the `body` field of the event. Decode it with zio-json, and return a 400 response when it is not valid. Define the request type with its decoder in the companion object:
 
-```scala mdoc:silent
+```scala mdoc:reset-object
 import zio._
 import zio.json._
 import zio.lambda._

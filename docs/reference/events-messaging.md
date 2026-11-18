@@ -224,7 +224,7 @@ could not find implicit value for evidence parameter of type zio.json.JsonDecode
 
 Until the type is filled in, define your own case class and decoder for the fields you need. The handler below reads the event name and the key attributes of each record in a DynamoDB Streams batch. DynamoDB Streams use capitalized field names, so each one needs a `@jsonField` annotation:
 
-```scala mdoc:compile-only
+```scala mdoc:reset-object
 import zio._
 import zio.json._
 import zio.lambda._

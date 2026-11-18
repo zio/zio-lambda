@@ -12,7 +12,7 @@ ZIO Lambda has no local emulator of the Lambda runtime. The loop that talks to t
 
 The handler under test is the same function you pass to `ZLambdaRunner.serve`. Define it as a top-level `val` so that your tests can call it. The example below uses a simple greeting:
 
-```scala mdoc:silent
+```scala mdoc:reset-object
 import zio._
 import zio.lambda._
 import zio.json._
