@@ -99,11 +99,50 @@ object GreetingApi extends ZIOAppDefault {
 }
 ```
 
-A failure that you do not catch, such as a defect in your code, is different: the runner reports it to Lambda as an invocation error, and API Gateway turns that into a 500 response.
+A failure in your effect that you do not handle, for example a `ZIO.fail` with a `Throwable`, is different: the runner reports it to Lambda as an invocation error. A defect, such as an exception thrown inside `ZIO.succeed`, is not caught by the runner and stops it.
 
 ## Step 4: Test It on Your Machine
 
-Build an event by decoding JSON, call `route`, and compare the response. The event type is a plain case class, so you can also construct it directly, but decoding a JSON string that looks like the real thing keeps the test close to what Lambda sends. See [Test a Handler Locally](../testing-locally.md) for how to run the effect from a test suite.
+Because `route` is a plain function, you can test it without Lambda. Build an `APIGatewayV2HttpEvent` with the fields your routing reads, call `route`, and check the response:
+
+```scala mdoc
+val postEvent = APIGatewayV2HttpEvent(
+  version = "2.0",
+  routeKey = "POST /greeting",
+  rawPath = "/greeting",
+  rawQueryString = "",
+  cookies = None,
+  headers = Map.empty,
+  queryStringParameters = None,
+  pathParameters = None,
+  stageVariables = None,
+  body = """{"name":"Ada"}""",
+  isBase64Encoded = false,
+  requestContext = APIGatewayV2HTTPRequestContext(
+    routeKey = "POST /greeting",
+    accountId = "000000000000",
+    stage = "$default",
+    apiId = "api-id",
+    domainName = "example.com",
+    domainPrefix = "api-id",
+    time = "",
+    timeEpoch = 0L,
+    http = APIGatewayV2HTTPRequestContextHttp(
+      method = "POST",
+      path = "/greeting",
+      protocol = "HTTP/1.1",
+      sourceIp = "127.0.0.1",
+      userAgent = "test"
+    ),
+    authorizer = None,
+    requestId = "request-id"
+  )
+)
+
+route(postEvent)
+```
+
+The response has status code 200 and the body `Hello, Ada!`. Change `body` to invalid JSON to see the 400 response, or change `method` and `rawPath` to see the 404. To run an effect from a test suite, see [How to Test a Handler Locally](../testing-locally.md).
 
 ## Next Steps
 

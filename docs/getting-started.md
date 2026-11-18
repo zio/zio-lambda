@@ -49,7 +49,7 @@ The `Context` describes the current invocation. It is a case class with these fi
 - `logGroupName` and `logStreamName` name the CloudWatch Logs group and stream.
 - `functionName`, `functionVersion` and `invokedFunctionArn` identify the function that runs.
 - `memoryLimitInMB` is the memory size configured for the function.
-- `clientContext` and `cognitoIdentity` are `Option` values that Lambda fills in only for some invocation sources, such as mobile SDK calls and Cognito triggers.
+- `clientContext` and `cognitoIdentity` are `Option` values that Lambda fills in only for invocations from the AWS Mobile SDK.
 
 Your function receives the `Context` as its second argument. Use it to read these values, and do not construct one in production code, because the runtime creates it for each invocation.
 

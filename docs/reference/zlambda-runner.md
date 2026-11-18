@@ -20,7 +20,7 @@ object ZLambdaRunner {
 
 ## The Invocation Loop
 
-Both methods run the same loop. For each invocation, the runner asks the Lambda Runtime API for the next event, builds a `Context`, calls your function and reports the outcome to Lambda. The loop never ends on its own. Lambda stops the process when it recycles the execution environment.
+Both methods run the same loop. For each invocation, the runner asks the Lambda Runtime API for the next event, builds a `Context`, calls your function and reports the outcome to Lambda. The loop never ends on its own.
 
 - If your effect succeeds, the runner sends the result to Lambda as the invocation response.
 - If your effect fails, or the event cannot be decoded, the runner sends an invocation error to Lambda and then waits for the next invocation.

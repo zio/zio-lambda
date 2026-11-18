@@ -38,6 +38,6 @@ See [Event and Response Types](./event-and-response-types.md) for what the two m
 ## Where to Go Next
 
 1. [Getting Started](./getting-started.md) shows how to write a handler with custom event and response types.
-2. The Reference section describes `ZLambdaRunner`, `Context` and every event and response type.
-3. The tutorial builds an HTTP API on API Gateway step by step.
-4. The how-to guides cover testing a handler locally and deploying it to AWS Lambda.
+2. The Reference section describes [`ZLambdaRunner`](./reference/zlambda-runner.md), [`Context`](./reference/context.md) and every event and response type.
+3. [Build an HTTP API](./tutorials/http-api-on-api-gateway.md) walks through an HTTP API on API Gateway step by step.
+4. The how-to guides cover [testing a handler locally](./testing-locally.md) and [deploying it to AWS Lambda](./deployment.md).

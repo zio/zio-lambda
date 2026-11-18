@@ -6,7 +6,7 @@ sidebar_label: "Event and Response Types"
 
 The `zio-lambda-event` and `zio-lambda-response` modules provide Scala case classes that match the JSON that AWS services send to Lambda and expect back from it. Use them as the event and response types of your handler, so you do not have to write those case classes yourself.
 
-Each type comes with its codec in its companion object, so `ZLambdaRunner.serve` finds it without an extra import. The tables below list the most common types. The reference pages describe every type and its fields:
+Most types come with their codec in their companion object, so `ZLambdaRunner.serve` finds it without an extra import. The exceptions are `APIGatewayProxyRequestEvent` (see below), `DynamoDBEvent`, which has no codec, and a few types whose codec sits in a differently named object, which the reference pages point out. The tables below list the most common types. The reference pages describe every type and its fields:
 
 - [API Gateway Events](./reference/events-api-gateway.md): API Gateway REST, HTTP and WebSocket APIs, custom authorizers and Application Load Balancer.
 - [Messaging Events](./reference/events-messaging.md): SQS, SNS, Kafka, ActiveMQ, Kinesis, Firehose, Kinesis Analytics and DynamoDB.

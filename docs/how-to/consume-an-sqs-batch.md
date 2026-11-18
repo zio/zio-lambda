@@ -27,7 +27,7 @@ object QueueConsumer extends ZIOAppDefault {
 }
 ```
 
-The function returns a `String`, which the runner encodes as a JSON string. Lambda ignores the response of an SQS-triggered function, so the value only needs to be encodable.
+The function returns a `String`, which the runner encodes as a JSON string. The function must return a value that has a `JsonEncoder`, so the runner has something to send back.
 
 ## Fail the Invocation When a Message Fails
 

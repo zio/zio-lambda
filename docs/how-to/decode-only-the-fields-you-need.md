@@ -8,7 +8,7 @@ Define your own event type when the AWS event you receive has no type in `zio-la
 
 ## Write a Case Class and a Decoder
 
-Declare only the fields you need, and put a `JsonDecoder` in the companion object so `ZLambdaRunner.serve` finds it. zio-json ignores JSON fields that your case class does not declare. For an Amazon DynamoDB Streams event, a type that reads the table name from each record's event source ARN could look like this:
+Declare only the fields you need, and put a `JsonDecoder` in the companion object so `ZLambdaRunner.serve` finds it. zio-json ignores JSON fields that your case class does not declare. For an Amazon DynamoDB Streams event, a type that reads the event name and the event source ARN of each record could look like this:
 
 ```scala mdoc:reset-object
 import zio._
