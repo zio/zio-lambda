@@ -469,3 +469,8 @@ website/build
 website/i18n/en.json
 website/static/api
 
+website/docs
+website/.docusaurus
+website/package-lock.json
+website/yarn.lock
+website/i18n
