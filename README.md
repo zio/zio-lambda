@@ -10,28 +10,37 @@ ZIO Lambda is a ZIO-based AWS Custom Runtime compatible with GraalVM Native Imag
 
 ## Installation
 
-To add ZIO Lambda to an sbt project, declare the core module and, optionally, the event and response modules:
+ZIO Lambda is published for Scala 2.12, 2.13 and 3, and runs on the JVM, including as a GraalVM native image. Add the core module to your `build.sbt`:
 
-```sbt
-libraryDependencies += "dev.zio" %% "zio-lambda" % "1.0.6"
-
-// Optional dependencies
-libraryDependencies += "dev.zio" %% "zio-lambda-event"    % "1.0.6"
-libraryDependencies += "dev.zio" %% "zio-lambda-response" % "1.0.6"
+```scala
+libraryDependencies ++= Seq(
+  // The runtime: ZLambdaRunner, Context. JVM only. It brings zio-json with it
+  "dev.zio" %% "zio-lambda" % "1.0.7"
+)
 ```
 
-The core module depends on [zio-json](https://github.com/zio/zio-json), so you do not need to declare it yourself. ZIO Lambda uses zio-json to decode the incoming event and to encode the response.
+## Modules
 
-The `zio-lambda-event` module contains Scala types for the events that AWS services send to Lambda, such as API Gateway requests and SQS batches. The `zio-lambda-response` module contains Scala types for the responses that some AWS integrations expect, such as the API Gateway proxy response.
+The event and response modules are optional. Add them when you want ready-made Scala types for AWS events and responses:
+
+```scala
+libraryDependencies ++= Seq(
+  // Scala types for the events that AWS services send to Lambda. JVM only
+  "dev.zio" %% "zio-lambda-event" % "1.0.7",
+
+  // Scala types for the responses that some AWS integrations expect. JVM only
+  "dev.zio" %% "zio-lambda-response" % "1.0.7"
+)
+```
+
+See [Event and Response Types](docs/./event-and-response-types.md) for what the two modules contain.
 
 ## Where to Go Next
 
-The guides in this section follow the order in which you would build a function:
-
 1. [Getting Started](docs/./getting-started.md) shows how to write a handler with custom event and response types.
-2. [Event and Response Types](docs/./event-and-response-types.md) lists the AWS event and response types that the optional modules provide.
-3. [Testing Locally](docs/./testing-locally.md) shows how to call a handler from a test without deploying it.
-4. [Deployment](docs/./deployment.md) explains how to package a native binary and deploy it to AWS Lambda, directly or in a container image.
+2. The Reference section describes [`ZLambdaRunner`](docs/./reference/zlambda-runner.md), [`Context`](docs/./reference/context.md) and every event and response type.
+3. [Build an HTTP API](docs/./tutorials/http-api-on-api-gateway.md) walks through an HTTP API on API Gateway step by step.
+4. The how-to guides cover [testing a handler locally](docs/./testing-locally.md) and [deploying it to AWS Lambda](docs/./deployment.md).
 
 ## Documentation
 
