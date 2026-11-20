@@ -13,10 +13,8 @@ ZIO Lambda is a ZIO-based AWS Custom Runtime compatible with GraalVM Native Imag
 ZIO Lambda is published for Scala 2.12, 2.13 and 3, and runs on the JVM, including as a GraalVM native image. Add the core module to your `build.sbt`:
 
 ```scala
-libraryDependencies ++= Seq(
-  // The runtime: ZLambdaRunner, Context. JVM only. It brings zio-json with it
-  "dev.zio" %% "zio-lambda" % "@VERSION@"
-)
+// The runtime: ZLambdaRunner, Context. JVM only. It brings zio-json with it
+libraryDependencies += "dev.zio" %% "zio-lambda" % "@VERSION@"
 ```
 
 ## Modules
@@ -24,13 +22,11 @@ libraryDependencies ++= Seq(
 The event and response modules are optional. Add them when you want ready-made Scala types for AWS events and responses:
 
 ```scala
-libraryDependencies ++= Seq(
-  // Scala types for the events that AWS services send to Lambda. JVM only
-  "dev.zio" %% "zio-lambda-event" % "@VERSION@",
+// Scala types for the events that AWS services send to Lambda. JVM only
+libraryDependencies += "dev.zio" %% "zio-lambda-event" % "@VERSION@"
 
-  // Scala types for the responses that some AWS integrations expect. JVM only
-  "dev.zio" %% "zio-lambda-response" % "@VERSION@"
-)
+// Scala types for the responses that some AWS integrations expect. JVM only
+libraryDependencies += "dev.zio" %% "zio-lambda-response" % "@VERSION@"
 ```
 
 See [Event and Response Types](./event-and-response-types.md) for what the two modules contain.
