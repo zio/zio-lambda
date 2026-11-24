@@ -2,6 +2,7 @@ package zio.lambda.event
 
 import zio.json._
 
+/** An Amazon API Gateway REST API request delivered to a Lambda authorizer. */
 final case class APIGatewayCustomAuthorizerEvent(
   version: String,
   `type`: String,
@@ -19,10 +20,13 @@ final case class APIGatewayCustomAuthorizerEvent(
 )
 
 object APIGatewayCustomAuthorizerEvent {
+
+  /** Decodes a [[APIGatewayCustomAuthorizerEvent]] from JSON. */
   implicit val decoder: JsonDecoder[APIGatewayCustomAuthorizerEvent] =
     DeriveJsonDecoder.gen[APIGatewayCustomAuthorizerEvent]
 }
 
+/** The `requestContext` of an [[APIGatewayCustomAuthorizerEvent]]. */
 final case class APIGatewayCustomAuthorizerRequestContext(
   path: String,
   accountId: String,
@@ -36,13 +40,18 @@ final case class APIGatewayCustomAuthorizerRequestContext(
 )
 
 object APIGatewayCustomAuthorizerRequestContext {
+
+  /** Decodes a [[APIGatewayCustomAuthorizerRequestContext]] from JSON. */
   implicit val decoder: JsonDecoder[APIGatewayCustomAuthorizerRequestContext] =
     DeriveJsonDecoder.gen[APIGatewayCustomAuthorizerRequestContext]
 }
 
+/** The caller identity details in the request context of an [[APIGatewayCustomAuthorizerEvent]]. */
 final case class APIGatewayCustomAuthorizerRequestContextIdentity(apiKey: String, sourceIp: String)
 
 object APIGatewayCustomAuthorizerRequestContextIdentity {
+
+  /** Decodes a [[APIGatewayCustomAuthorizerRequestContextIdentity]] from JSON. */
   implicit val decoder: JsonDecoder[APIGatewayCustomAuthorizerRequestContextIdentity] =
     DeriveJsonDecoder.gen[APIGatewayCustomAuthorizerRequestContextIdentity]
 }

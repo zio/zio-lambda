@@ -6,15 +6,18 @@ import zio.json._
 import zio.json.internal.FastStringReader
 
 /**
- * https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html
+ * One invocation, as returned by the `next` endpoint of the Lambda Runtime API.
  *
- * @param requestId The request ID, which identifies the request that triggered the function invocation.
- * @param deadlineMs The date that the function times out in Unix time milliseconds.
+ * @param id The request ID, which identifies the request that triggered the function invocation.
+ * @param remainingTimeInMillis Despite its name, the date that the function times out in Unix time milliseconds, from
+ *   the `Lambda-Runtime-Deadline-Ms` header.
  * @param invokedFunctionArn The ARN of the Lambda function, version, or alias that's specified in the invocation.
  * @param xrayTraceId The AWS X-Ray tracing header.
  * @param clientContext For invocations from the AWS Mobile SDK, data about the client application and device.
  * @param cognitoIdentity For invocations from the AWS Mobile SDK, data about the Amazon Cognito identity provider.
  * @param payload The payload from the invocation, which is a JSON document that contains event data from the function trigger.
+ *
+ * @see [[https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html Lambda Runtime API]]
  */
 final case class InvocationRequest(
   id: String,
@@ -26,6 +29,7 @@ final case class InvocationRequest(
   payload: String
 )
 
+/** Builds an [[InvocationRequest]] from the response of the Runtime API. */
 object InvocationRequest {
 
   private[internal] def fromHttpResponse(

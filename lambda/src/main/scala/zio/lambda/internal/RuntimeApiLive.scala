@@ -8,11 +8,13 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.io.ByteArrayOutputStream
 
+/** The [[RuntimeApi]] that calls the Runtime API at `AWS_LAMBDA_RUNTIME_API` over HTTP. */
 final case class RuntimeApiLive(environment: LambdaEnvironment) extends RuntimeApi {
 
   private val baseRuntimeUrl    = s"http://${environment.runtimeApi}/2018-06-01/runtime"
   private val nextInvocationUrl = new URL(s"$baseRuntimeUrl/invocation/next")
 
+  /** Waits for the next invocation with no timeout, and returns it. */
   def getNextInvocation: Task[InvocationRequest] = {
     def readResponse(is: InputStream) = {
       val result = new ByteArrayOutputStream()
@@ -38,6 +40,7 @@ final case class RuntimeApiLive(environment: LambdaEnvironment) extends RuntimeA
     }
   }
 
+  /** Posts the payload as the response of the invocation. */
   def sendInvocationResponse(invocationResponse: InvocationResponse): Task[Unit] = {
     val url  = new URL(s"$baseRuntimeUrl/invocation/${invocationResponse.requestId}/response")
     val conn = url.openConnection().asInstanceOf[HttpURLConnection]
@@ -56,12 +59,14 @@ final case class RuntimeApiLive(environment: LambdaEnvironment) extends RuntimeA
     }
   }
 
+  /** Posts the error as the result of the invocation. */
   def sendInvocationError(invocationError: InvocationError): Task[Unit] =
     postRequest(
       s"$baseRuntimeUrl/invocation/${invocationError.requestId}/error",
       invocationError.errorResponse
     )
 
+  /** Posts the error to the initialization error endpoint. */
   def sendInitializationError(errorResponse: InvocationErrorResponse): Task[Unit] =
     postRequest(
       s"$baseRuntimeUrl/init/error",
@@ -94,7 +99,10 @@ final case class RuntimeApiLive(environment: LambdaEnvironment) extends RuntimeA
   }
 }
 
+/** Layers for [[RuntimeApiLive]]. */
 object RuntimeApiLive {
+
+  /** Builds a [[RuntimeApiLive]] from a [[LambdaEnvironment]]. */
   val layer: ZLayer[LambdaEnvironment, Throwable, RuntimeApi] =
     ZLayer.fromFunction(RuntimeApiLive.apply _)
 

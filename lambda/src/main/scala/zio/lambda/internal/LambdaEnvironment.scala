@@ -2,6 +2,7 @@ package zio.lambda.internal
 
 import zio._
 
+/** The settings that Lambda passes to the runtime in environment variables. */
 final case class LambdaEnvironment(
   runtimeApi: String,
   handler: String,
@@ -13,7 +14,13 @@ final case class LambdaEnvironment(
   functionVersion: String
 )
 
+/** Constructors for [[LambdaEnvironment]]. */
 object LambdaEnvironment {
+
+  /**
+   * Reads the environment variables. Fails when `AWS_LAMBDA_RUNTIME_API` is not set; the other values default to `""`,
+   * and the memory size to 128.
+   */
   val live: TaskLayer[LambdaEnvironment] =
     ZLayer {
       for {

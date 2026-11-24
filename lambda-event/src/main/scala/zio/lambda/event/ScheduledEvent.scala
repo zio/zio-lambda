@@ -2,6 +2,7 @@ package zio.lambda.event
 
 import zio.json._
 
+/** An Amazon EventBridge (CloudWatch Events) scheduled event delivered to a Lambda function. */
 final case class ScheduledEvent(
   id: String,
   account: String,
@@ -14,5 +15,7 @@ final case class ScheduledEvent(
 )
 
 object ScheduledEvent {
+
+  /** Decodes a [[ScheduledEvent]] from JSON. */
   implicit val decoder: JsonDecoder[ScheduledEvent] = DeriveJsonDecoder.gen[ScheduledEvent]
 }

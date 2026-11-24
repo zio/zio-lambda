@@ -1,5 +1,6 @@
 package zio.lambda.event
 
+/** An Amazon DynamoDB stream event. It has no fields and no decoder. */
 final case class DynamoDBEvent(
 // records: List[Dynamodb.DynamodbStreamRecord]
 )

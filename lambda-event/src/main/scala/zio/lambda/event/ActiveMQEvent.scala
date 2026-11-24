@@ -2,6 +2,7 @@ package zio.lambda.event
 
 import zio.json._
 
+/** A batch of messages from an Amazon MQ for ActiveMQ broker delivered to a Lambda function. */
 final case class ActiveMQEvent(
   eventSource: String,
   eventSourceArn: String,
@@ -9,9 +10,12 @@ final case class ActiveMQEvent(
 )
 
 object ActiveMQEvent {
+
+  /** Decodes a [[ActiveMQEvent]] from JSON. */
   implicit val decoder: JsonDecoder[ActiveMQEvent] = DeriveJsonDecoder.gen[ActiveMQEvent]
 }
 
+/** One message of an [[ActiveMQEvent]]. */
 final case class ActiveMQMessage(
   messageID: String,
   messageType: String,
@@ -30,11 +34,16 @@ final case class ActiveMQMessage(
 )
 
 object ActiveMQMessage {
+
+  /** Decodes a [[ActiveMQMessage]] from JSON. */
   implicit val decoder: JsonDecoder[ActiveMQMessage] = DeriveJsonDecoder.gen[ActiveMQMessage]
 }
 
+/** The destination of an [[ActiveMQMessage]]. */
 final case class ActiveMQMessageDestination(physicalName: String)
 
 object ActiveMQMessageDestination {
+
+  /** Decodes a [[ActiveMQMessageDestination]] from JSON. */
   implicit val decoder: JsonDecoder[ActiveMQMessageDestination] = DeriveJsonDecoder.gen[ActiveMQMessageDestination]
 }
