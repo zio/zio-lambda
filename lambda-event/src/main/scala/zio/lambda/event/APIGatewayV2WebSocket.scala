@@ -2,6 +2,7 @@ package zio.lambda.event
 
 import zio.json._
 
+/** An Amazon API Gateway WebSocket API request delivered to a Lambda function. */
 final case class APIGatewayV2WebSocketEvent(
   resource: String,
   path: String,
@@ -18,9 +19,12 @@ final case class APIGatewayV2WebSocketEvent(
 )
 
 object APIGatewayV2WebSocketEvent {
+
+  /** Decodes a [[APIGatewayV2WebSocketEvent]] from JSON. */
   implicit val decoder: JsonDecoder[APIGatewayV2WebSocketEvent] = DeriveJsonDecoder.gen[APIGatewayV2WebSocketEvent]
 }
 
+/** The `requestContext` of an [[APIGatewayV2WebSocketEvent]]. */
 final case class APIGatewayV2WebSocketRequestContext(
   accountId: String,
   resourceId: String,
@@ -46,10 +50,13 @@ final case class APIGatewayV2WebSocketRequestContext(
   status: String
 )
 object APIGatewayV2WebSocketRequestContext {
+
+  /** Decodes a [[APIGatewayV2WebSocketRequestContext]] from JSON. */
   implicit val decoder: JsonDecoder[APIGatewayV2WebSocketRequestContext] =
     DeriveJsonDecoder.gen[APIGatewayV2WebSocketRequestContext]
 }
 
+/** The caller identity details in the request context of an [[APIGatewayV2WebSocketEvent]]. */
 final case class APIGatewayV2WebSocketRequestContextIdentity(
   cognitoIdentityPoolId: String,
   accountId: String,
@@ -65,6 +72,8 @@ final case class APIGatewayV2WebSocketRequestContextIdentity(
   accessKey: String
 )
 object APIGatewayV2WebSocketRequestContextIdentity {
+
+  /** Decodes a [[APIGatewayV2WebSocketRequestContextIdentity]] from JSON. */
   implicit val decoder: JsonDecoder[APIGatewayV2WebSocketRequestContextIdentity] =
     DeriveJsonDecoder.gen[APIGatewayV2WebSocketRequestContextIdentity]
 }

@@ -2,6 +2,7 @@ package zio.lambda.event
 
 import zio.json._
 
+/** An AWS CloudFormation custom resource request delivered to a Lambda function. */
 final case class CloudFormationCustomResourceEvent(
   requestType: String,
   serviceToken: String,
@@ -16,6 +17,8 @@ final case class CloudFormationCustomResourceEvent(
 )
 
 object CloudFormationCustomResourceEvent {
+
+  /** Decodes a [[CloudFormationCustomResourceEvent]] from JSON. */
   implicit val decoder: JsonDecoder[CloudFormationCustomResourceEvent] =
     DeriveJsonDecoder.gen[CloudFormationCustomResourceEvent]
 }

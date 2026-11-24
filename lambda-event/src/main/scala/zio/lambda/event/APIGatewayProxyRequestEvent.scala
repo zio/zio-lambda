@@ -2,6 +2,7 @@ package zio.lambda.event
 
 import zio.json._
 
+/** An Amazon API Gateway REST API request delivered to a Lambda function through the proxy integration. */
 final case class APIGatewayProxyRequestEvent(
   resource: String,
   path: String,
@@ -18,9 +19,12 @@ final case class APIGatewayProxyRequestEvent(
 )
 
 object APIGatewayProxyRequest {
+
+  /** Decodes a [[APIGatewayProxyRequestEvent]] from JSON. */
   implicit val decoder: JsonDecoder[APIGatewayProxyRequestEvent] = DeriveJsonDecoder.gen[APIGatewayProxyRequestEvent]
 }
 
+/** The `requestContext` of an [[APIGatewayProxyRequestEvent]]. */
 final case class APIGatewayProxyRequestRequestContext(
   accountId: String,
   stage: String,
@@ -36,10 +40,13 @@ final case class APIGatewayProxyRequestRequestContext(
 )
 
 object APIGatewayProxyRequestRequestContext {
+
+  /** Decodes a [[APIGatewayProxyRequestRequestContext]] from JSON. */
   implicit val decoder: JsonDecoder[APIGatewayProxyRequestRequestContext] =
     DeriveJsonDecoder.gen[APIGatewayProxyRequestRequestContext]
 }
 
+/** The caller identity details in the request context of an [[APIGatewayProxyRequestEvent]]. */
 final case class APIGatewayProxyRequestRequestContextIdentity(
   cognitoIdentityPoolId: String,
   accountId: String,
@@ -57,6 +64,8 @@ final case class APIGatewayProxyRequestRequestContextIdentity(
 )
 
 object APIGatewayProxyRequestRequestContextIdentity {
+
+  /** Decodes a [[APIGatewayProxyRequestRequestContextIdentity]] from JSON. */
   implicit val decoder: JsonDecoder[APIGatewayProxyRequestRequestContextIdentity] =
     DeriveJsonDecoder.gen[APIGatewayProxyRequestRequestContextIdentity]
 }
